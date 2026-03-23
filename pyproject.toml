@@ -4,6 +4,5 @@ version = "0.1.0"
 description = "A GitHub repository classifier."
 requires-python = ">=3.14"
 dependencies = [
-    "rassumfrassum>=0.3.3",
     "requests>=2.32.5",
 ]

@@ -3,16 +3,16 @@ import time
 import os
 
 # File that cotains the token
-API_PATH = "token.org"
+TOKEN_PATH = "gh_token.org"
 
 # File that contains the repository links
-ORIGINAL_FILE = "repos.org"
+ORIGINAL_FILE = "github_repos.org"
 
 # Directory with all the programming language files
 LANGUAGES_DIRECTORY = "languages/"
 
-# Get contents of API file and store them on GITHUB_TOKEN
-with open(API_PATH, "r") as file:
+# Get contents of token file and store them on GITHUB_TOKEN
+with open(TOKEN_PATH, "r") as file:
     GITHUB_TOKEN = file.read().replace("\n", "")  # Example: "ghp_xxx"
 
 # If it exists, pass token to GitHub
@@ -73,7 +73,9 @@ def main():
     for link in links:
         language = get_github_repository_programming_language(link)
 
-        filename = f"{language}.txt" # Note: I might want to replace spaces with hyphens
+        filename = (
+            f"{language}.org"  # Note: I might want to replace spaces with hyphens
+        )
 
         full_path_filename = os.path.join(LANGUAGES_DIRECTORY, filename)
 
