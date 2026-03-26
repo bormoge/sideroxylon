@@ -13,3 +13,4 @@ wheels/
 *token*
 *repo*
 *languages*
+.direnv
