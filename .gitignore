@@ -9,8 +9,16 @@ wheels/
 # Virtual environments
 .venv
 
+# NodeJS
+package.json
+package-lock.json
+node_modules
+
+# Direnv
+.direnv
+
+# Inputs and Outputs
 *api*
 *token*
 *repo*
 *languages*
-.direnv

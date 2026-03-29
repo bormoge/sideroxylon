@@ -1,1 +1,1 @@
-((nil . ((compile-command . "python src/main/main.py"))))
+((nil . ((compile-command . "python src/sideroxylon/sideroxylon.py"))))

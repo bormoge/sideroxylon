@@ -20,6 +20,7 @@
         ty
         ruff
         black
+        conventional-changelog-cli
       ];
     };
   in
