@@ -1,21 +1,21 @@
 [project]
 name = "sideroxylon"
 version = "0.1.1"
-authors = [
-  { name="Geralld Borbón", email="eternalmangocean@gmail.com" },
-]
 description = "A GitHub repository classifier."
 readme = "README.md"
 requires-python = ">=3.14"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-]
 license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
+authors = [
+  { name = "Geralld Borbón", email = "eternalmangocean@gmail.com" },
+]
+classifiers = [
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+]
 dependencies = [
-    "requests>=2.33.0",
-    "typer>=0.24.1",
+  "requests>=2.33.0",
+  "typer>=0.24.1",
 ]
 
 [project.urls]
@@ -24,6 +24,12 @@ Issues = "https://github.com/bormoge/sideroxylon/issues"
 
 [project.scripts]
 sideroxylon = "sideroxylon.cli:app"
+
+[dependency-groups]
+dev = [
+  "pytest>=9.0.2",
+  "rassumfrassum>=0.3.3",
+]
 
 [build-system]
 requires = ["uv_build >= 0.11.0"]
