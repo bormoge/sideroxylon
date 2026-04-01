@@ -1,5 +1,7 @@
+[![License](https://img.shields.io/github/license/bormoge/sideroxylon)](https://github.com/bormoge/sideroxylon)
+
 # sideroxylon
-A GitHub link classifier.  
+A GitHub URL classifier.  
 This project aims to develop a script that sorts repositories based on their main programming language.
 
 ### Table of Contents
@@ -8,7 +10,8 @@ This project aims to develop a script that sorts repositories based on their mai
 - [License](#license)
 
 ## Introduction
-The purpose of this project is to make my hobby, that being to collect and classify repositories according to their main programming language, a little bit easier. My dream scenario is that some day I can hook this script to [Emacs](https://www.gnu.org/software/emacs/) and, with one function, sort each repository link inside an [org-mode](https://orgmode.org/) headline.  
+The purpose of this project is to make my hobby, that being to collect and classify repositories according to their main programming language, a little bit easier.  
+My dream scenario is that some day I can hook this script to [Emacs](https://www.gnu.org/software/emacs/) and, with one function, sort each repository link inside an [org-mode](https://orgmode.org/) headline.  
 
 ## Contributions
 Issues, pull requests, and forks are welcome.
