@@ -4,6 +4,7 @@ import os
 import typer
 from typing import Annotated
 # from typing_extensions import Annotated
+from typing import Any
 
 def assign_token_to_headers(token_file):
     """
@@ -12,10 +13,10 @@ def assign_token_to_headers(token_file):
 
     # Get contents of token file and store them on GITHUB_TOKEN
     with open(token_file, 'r') as file:
-        github_token = file.read().replace('\n', '')  # Example: 'ghp_xxx'
+        github_token: str = file.read().replace('\n', '')  # Example: 'ghp_xxx'
 
     # If it exists, pass token to GitHub
-    repository_headers = {}
+    repository_headers: dict[str, Any] = {}
     if github_token:
         repository_headers['Authorization'] = f'token {github_token}'
 
@@ -33,8 +34,8 @@ def convert_github_url_to_api_url(repository_url):
     if len(parts) < 5:
         return None
 
-    user = parts[3]
-    repo = parts[4]
+    user: str = parts[3]
+    repo: str = parts[4]
 
     return f'https://api.github.com/repos/{user}/{repo}'
 
@@ -54,7 +55,7 @@ def get_github_repository_programming_language(repository_url, repository_header
     """
 
     # Convert normal URL to api URL
-    api_url = convert_github_url_to_api_url(repository_url)
+    api_url: str = convert_github_url_to_api_url(repository_url)
 
     # Check if api URL exists, and if not return Unknown
     if not api_url:
@@ -62,15 +63,17 @@ def get_github_repository_programming_language(repository_url, repository_header
 
     # Try to use the token. If the token fails send the URL to Unknown.
     try:
-        response = requests.get(api_url, headers=repository_headers)
+        response: requests.models.Response = requests.get(api_url, headers=repository_headers)
+
         if response.status_code != 200:
             print(f'Status code: {response.status_code}')
             return 'Unknown'
 
-        data = response.json()
+        data: dict[str, Any] = response.json()
 
         # If there is no language then default to Unknown
         return data.get('language') or 'Unknown'
+
     except Exception as e:
         # If there is an exception then default to Unknown
         print(f'Error fetching {repository_url}: {e}')
@@ -81,7 +84,7 @@ def store_repository_url_in_corresponding_file(repository_urls, repository_heade
     Store each repository URL in the file with the name of its main programming language.
     """
     for url in repository_urls:
-        language = get_github_repository_programming_language(url, repository_headers)
+        language: dict[str, Any] | str = get_github_repository_programming_language(url, repository_headers)
 
         filename = (
             f'{language}.org'  # Note: I might want to replace spaces with hyphens
@@ -118,10 +121,10 @@ def sideroxylon(
     Entry point of the sideroxylon cli.
     """
 
-    repository_headers: dict = assign_token_to_headers(token_file)
+    repository_headers: dict[str, Any] = assign_token_to_headers(token_file)
 
     # Get each link in the repository URL file
-    urls = get_urls_inside_repository_url_file(repository_url_file)
+    urls: list[str] = get_urls_inside_repository_url_file(repository_url_file)
 
     # Once we get the main programming language, put the link in a file with the
     # same name as the language
