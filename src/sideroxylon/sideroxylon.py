@@ -79,7 +79,7 @@ def get_github_repository_programming_language(repository_url, repository_header
         print(f'Error fetching {repository_url}: {e}')
         return 'Unknown'
 
-def store_repository_url_in_corresponding_file(repository_urls, repository_headers, languages_directory):
+def store_repository_url_in_corresponding_file(repository_urls, repository_headers, languages_directory, file_extension, sleep_time):
     """
     Store each repository URL in the file with the name of its main programming language.
     """
@@ -87,7 +87,7 @@ def store_repository_url_in_corresponding_file(repository_urls, repository_heade
         language: dict[str, Any] | str = get_github_repository_programming_language(url, repository_headers)
 
         filename = (
-            f'{language}.org'  # Note: I might want to replace spaces with hyphens
+            f'{language}.{file_extension}'  # Note: I might want to replace spaces with hyphens
         )
 
         full_path_filename = os.path.join(languages_directory, filename)
@@ -101,7 +101,7 @@ def store_repository_url_in_corresponding_file(repository_urls, repository_heade
         print(f'{url} -> {language}')
 
         # This line is here to avoid hitting rate limits
-        time.sleep(2)
+        time.sleep(sleep_time)
 
 def clean_repository_url_file(repository_url_file):
     """
@@ -110,12 +110,16 @@ def clean_repository_url_file(repository_url_file):
     open(repository_url_file, 'w').close()
 
 def sideroxylon(
-    # File that cotains the token
+    # File that cotains the token.
     token_file: Annotated[str, typer.Option(help='Path to the GitHub token file.')] = 'gh_token.org',
-    # File that contains the repository urls
+    # File that contains the repository urls.
     repository_url_file: Annotated[str, typer.Option(help='Path to the repository URLs file.')] = 'github_repos.org',
-    # Directory with all the programming language files
+    # Directory with all the programming language files.
     languages_directory: Annotated[str, typer.Option(help='Path to the directory where URLs are stored.')] = 'languages/',
+    # File extension for languages_directory generated files.
+    file_extension: Annotated[str, typer.Option(help='File extension for files generated inside languages_directory.')] = 'org',
+    # Seconds to wait until the next API call.
+    sleep_time: Annotated[int, typer.Option(help='Seconds to wait until the next API call.')] = 2,
 ):
     """
     Entry point of the sideroxylon cli.
@@ -128,7 +132,7 @@ def sideroxylon(
 
     # Once we get the main programming language, put the link in a file with the
     # same name as the language
-    store_repository_url_in_corresponding_file(urls, repository_headers, languages_directory)
+    store_repository_url_in_corresponding_file(urls, repository_headers, languages_directory, file_extension, sleep_time)
 
     # Clear the repository URL file after going through each link
     # At some point I will change this so at the beginning of the program it clears all files
