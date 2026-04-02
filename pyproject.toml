@@ -1,7 +1,7 @@
 [project]
 name = "sideroxylon"
 version = "0.1.2"
-description = "A GitHub repository classifier."
+description = "A repository classifier."
 readme = "README.md"
 requires-python = ">=3.14"
 license = "GPL-3.0-or-later"
@@ -10,8 +10,11 @@ authors = [
   { name = "Geralld Borbón", email = "eternalmangocean@gmail.com" },
 ]
 classifiers = [
-  "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3",
+  "Development Status :: 3 - Alpha",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: System :: Shells",
+  "Topic :: Utilities"
 ]
 dependencies = [
   "requests>=2.33.0",
@@ -34,3 +37,7 @@ dev = [
 [build-system]
 requires = ["uv_build >= 0.11.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+source-include = ["tests/**"]
+wheel-exclude = ["tests/**"]
