@@ -29,17 +29,17 @@ def test_get_github_repository_programming_language():
     assert sideroxylon.get_github_repository_programming_language(url_failure, headers) == 'Unknown'
 
 def test_store_repository_url_in_corresponding_file():
-    if os.path.isfile('src/tests/Python.org'):
-        os.remove('src/tests/Python.org')
+    if os.path.isfile('src/tests/Python.txt'):
+        os.remove('src/tests/Python.txt')
 
     headers: dict[str, Any] = sideroxylon.assign_token_to_headers('src/tests/gh_token.org')
     url_file: list[str] = ['https://github.com/bormoge/sideroxylon']
     dir: str = 'src/tests'
 
-    sideroxylon.store_repository_url_in_corresponding_file(url_file, headers, dir)
+    sideroxylon.store_repository_url_in_corresponding_file(url_file, headers, dir, 'txt', 2)
 
-    with open('src/tests/Python.org', 'r') as file:
+    with open('src/tests/Python.txt', 'r') as file:
         python_org_contents: str = file.read().replace('\n', '')
 
-    assert os.path.isfile('src/tests/Python.org')
+    assert os.path.isfile('src/tests/Python.txt')
     assert python_org_contents == 'https://github.com/bormoge/sideroxylon'
