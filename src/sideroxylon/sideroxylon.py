@@ -6,6 +6,10 @@ from typing import Annotated
 # from typing_extensions import Annotated
 from typing import Any
 
+HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
+XDG_DATA_HOME_DIR: str = os.environ.get("XDG_DATA_HOME", os.path.expanduser(f"{HOME_DIR}/.local/share"))
+SIDEROXYLON_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
+
 def assign_token_to_headers(token_file):
     """
     Get headers for GitHub.
@@ -111,11 +115,11 @@ def clean_repository_url_file(repository_url_file):
 
 def sideroxylon(
     # File that cotains the token.
-    token_file: Annotated[str, typer.Option(help='Path to the GitHub token file.')] = 'gh_token.org',
+    token_file: Annotated[str, typer.Option(help='Path to the GitHub token file.')] = f'{SIDEROXYLON_DIR}/gh_token.org',
     # File that contains the repository urls.
-    repository_url_file: Annotated[str, typer.Option(help='Path to the repository URLs file.')] = 'github_repos.org',
+    repository_url_file: Annotated[str, typer.Option(help='Path to the repository URLs file.')] = f'{SIDEROXYLON_DIR}/github_repos.org',
     # Directory with all the programming language files.
-    languages_directory: Annotated[str, typer.Option(help='Path to the directory where URLs are stored.')] = 'languages/',
+    languages_directory: Annotated[str, typer.Option(help='Path to the directory where URLs are stored.')] = f'{SIDEROXYLON_DIR}/languages/',
     # File extension for languages_directory generated files.
     file_extension: Annotated[str, typer.Option(help='File extension for files generated inside languages_directory.')] = 'org',
     # Seconds to wait until the next API call.
