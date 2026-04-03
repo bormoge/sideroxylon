@@ -15,6 +15,27 @@ def github_headers(test_dir):
 def test_repository():
     return 'https://github.com/bormoge/sideroxylon'
 
+def test_initialize_directories_and_files(test_dir):
+    languages_dir = f'{test_dir}/languages_straw/'
+    token_file = f'{test_dir}/straw.org'
+
+    directories_and_files: dict[str, list[str]] = {
+        "directories": [languages_dir],
+        "files": [token_file]
+    }
+
+    if os.path.isdir(languages_dir):
+        os.rmdir(languages_dir)
+
+    if os.path.isfile(token_file):
+        os.remove(token_file)
+
+    sideroxylon.initialize_directories_and_files(directories_and_files)
+
+    assert os.path.isdir(languages_dir)
+    assert os.path.isfile(token_file)
+
+
 def test_assign_token_to_headers(test_dir, github_headers):
     with open(f'{test_dir}/gh_token.org', 'r') as file:
         github_token: str = file.read().replace('\n', '')

@@ -5,10 +5,22 @@ import typer
 from typing import Annotated
 # from typing_extensions import Annotated
 from typing import Any
+from pathlib import Path
 
 HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
 XDG_DATA_HOME_DIR: str = os.environ.get("XDG_DATA_HOME", os.path.expanduser(f"{HOME_DIR}/.local/share"))
 SIDEROXYLON_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
+
+def initialize_directories_and_files(directories_and_files):
+    """
+    Initialize the directories and files that sideroxylon requires.
+    """
+
+    for directory in directories_and_files.get("directories", []):
+        Path(directory).mkdir(parents=True, exist_ok=True)
+
+    for file in directories_and_files.get("files", []):
+        Path(file).touch(exist_ok=True)
 
 def assign_token_to_headers(token_file):
     """
@@ -96,9 +108,6 @@ def store_repository_url_in_corresponding_file(repository_urls, repository_heade
 
         full_path_filename = os.path.join(languages_directory, filename)
 
-        # If full_path_filename doesn't exist, create it
-        os.makedirs(os.path.dirname(full_path_filename), exist_ok=True)
-
         with open(full_path_filename, 'a') as file:
             file.write(url + '\n')
 
@@ -128,6 +137,13 @@ def sideroxylon(
     """
     Entry point of the sideroxylon cli.
     """
+
+    directories_and_files: dict[str, list[str]] = {
+        "directories": [languages_directory],
+        "files": [token_file, repository_url_file]
+    }
+
+    initialize_directories_and_files(directories_and_files)
 
     repository_headers: dict[str, Any] = assign_token_to_headers(token_file)
 
