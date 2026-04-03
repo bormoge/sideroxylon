@@ -32,6 +32,7 @@ sideroxylon = "sideroxylon.cli:app"
 dev = [
   "pytest>=9.0.2",
   "rassumfrassum>=0.3.3",
+  "twine>=6.2.0",
 ]
 
 [build-system]

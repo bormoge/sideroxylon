@@ -1,8 +1,9 @@
-[![License](https://img.shields.io/github/license/bormoge/sideroxylon)](https://github.com/bormoge/sideroxylon)
+[![License](https://img.shields.io/github/license/bormoge/sideroxylon)](https://github.com/bormoge/sideroxylon/blob/main/LICENSE)
+[![Pypi](https://img.shields.io/pypi/v/sideroxylon)](https://pypi.org/project/sideroxylon/)
 
 # sideroxylon
-A GitHub URL classifier.  
-This project aims to develop a script that sorts repositories based on their main programming language.
+A GitHub repository classifier.  
+This project aims to develop a script that sorts repository URLs according to their main programming language.
 
 ### Table of Contents
 - [Introduction](#introduction)
