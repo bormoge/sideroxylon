@@ -2,7 +2,7 @@
 [![Pypi](https://img.shields.io/pypi/v/sideroxylon)](https://pypi.org/project/sideroxylon/)
 
 # sideroxylon
-A GitHub repository classifier.  
+A repository classifier.  
 This project aims to develop a script that sorts repository URLs according to their main programming language.
 
 ### Table of Contents

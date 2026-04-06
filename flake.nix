@@ -1,5 +1,5 @@
 {
-  description = "sideroxylon: A GitHub repository classifier.";
+  description = "sideroxylon: A repository classifier.";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";

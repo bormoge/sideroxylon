@@ -24,23 +24,23 @@ def initialize_directories_and_files(directories_and_files):
 
 def assign_token_to_headers(token_file):
     """
-    Get headers for GitHub.
+    Get forge headers.
     """
 
-    # Get contents of token file and store them on GITHUB_TOKEN
+    # Get contents of token file and store them on forge_token
     with open(token_file, 'r') as file:
-        github_token: str = file.read().replace('\n', '')  # Example: 'ghp_xxx'
+        forge_token: str = file.read().replace('\n', '')  # Example: 'ghp_xxx'
 
-    # If it exists, pass token to GitHub
-    repository_headers: dict[str, Any] = {}
-    if github_token:
-        repository_headers['Authorization'] = f'token {github_token}'
+    # If it exists, pass token to forge
+    forge_headers: dict[str, Any] = {}
+    if forge_token:
+        forge_headers['Authorization'] = f'token {forge_token}'
 
-    return repository_headers
+    return forge_headers
 
-def convert_github_url_to_api_url(repository_url):
+def convert_forge_url_to_api_url(repository_url):
     """
-    Convert GitHub URL to GitHub API URL.
+    Convert forge URL to forge API URL.
     """
 
     # Check if we are at the correct position of the URL, store user and
@@ -65,13 +65,13 @@ def get_urls_inside_repository_url_file(repository_url_file):
 
     return urls
 
-def get_github_repository_programming_language(repository_url, repository_headers):
+def get_forge_repository_programming_language(repository_url, repository_headers):
     """
     Get the main programming language of the provided repository URL.
     """
 
     # Convert normal URL to api URL
-    api_url: str = convert_github_url_to_api_url(repository_url)
+    api_url: str = convert_forge_url_to_api_url(repository_url)
 
     # Check if api URL exists, and if not return Unknown
     if not api_url:
@@ -100,7 +100,7 @@ def store_repository_url_in_corresponding_file(repository_urls, repository_heade
     Store each repository URL in the file with the name of its main programming language.
     """
     for url in repository_urls:
-        language: dict[str, Any] | str = get_github_repository_programming_language(url, repository_headers)
+        language: dict[str, Any] | str = get_forge_repository_programming_language(url, repository_headers)
 
         filename = (
             f'{language}.{file_extension}'  # Note: I might want to replace spaces with hyphens
@@ -124,9 +124,9 @@ def clean_repository_url_file(repository_url_file):
 
 def sideroxylon(
     # File that cotains the token.
-    token_file: Annotated[str, typer.Option(help='Path to the GitHub token file.')] = f'{SIDEROXYLON_DIR}/gh_token.org',
+    token_file: Annotated[str, typer.Option(help='Path to the forge token file.')] = f'{SIDEROXYLON_DIR}/token.org',
     # File that contains the repository urls.
-    repository_url_file: Annotated[str, typer.Option(help='Path to the repository URLs file.')] = f'{SIDEROXYLON_DIR}/github_repos.org',
+    repository_url_file: Annotated[str, typer.Option(help='Path to the repository URLs file.')] = f'{SIDEROXYLON_DIR}/repository_urls.org',
     # Directory with all the programming language files.
     languages_directory: Annotated[str, typer.Option(help='Path to the directory where URLs are stored.')] = f'{SIDEROXYLON_DIR}/languages/',
     # File extension for languages_directory generated files.

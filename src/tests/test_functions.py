@@ -12,8 +12,8 @@ def throwaway_dir(test_dir):
     return f'{test_dir}/throwaway'
 
 @pytest.fixture
-def github_headers(throwaway_dir):
-    return sideroxylon.assign_token_to_headers(f'{throwaway_dir}/gh_token.org')
+def forge_headers(throwaway_dir):
+    return sideroxylon.assign_token_to_headers(f'{throwaway_dir}/token.org')
 
 @pytest.fixture
 def test_repository():
@@ -40,17 +40,17 @@ def test_initialize_directories_and_files(throwaway_dir):
     assert os.path.isfile(example_file)
 
 
-def test_assign_token_to_headers(throwaway_dir, github_headers):
-    with open(f'{throwaway_dir}/gh_token.org', 'r') as file:
-        github_token: str = file.read().replace('\n', '')
+def test_assign_token_to_headers(throwaway_dir, forge_headers):
+    with open(f'{throwaway_dir}/token.org', 'r') as file:
+        forge_token: str = file.read().replace('\n', '')
 
     repository_headers: dict[str, Any] = {}
-    repository_headers['Authorization'] = f'token {github_token}'
+    repository_headers['Authorization'] = f'token {forge_token}'
 
-    assert github_headers == repository_headers
+    assert forge_headers == repository_headers
 
-def test_convert_github_url_to_api_url(test_repository):
-    assert sideroxylon.convert_github_url_to_api_url(test_repository) == 'https://api.github.com/repos/bormoge/sideroxylon'
+def test_convert_forge_url_to_api_url(test_repository):
+    assert sideroxylon.convert_forge_url_to_api_url(test_repository) == 'https://api.github.com/repos/bormoge/sideroxylon'
 
 def test_get_urls_inside_repository_url_file(throwaway_dir):
     url_list: list[str] = ['https://github.com/bormoge/sideroxylon', 'https://github.com/bormoge/spinosum', 'https://github.com/bormoge/guava-themes']
@@ -64,19 +64,19 @@ def test_get_urls_inside_repository_url_file(throwaway_dir):
 
     assert sideroxylon.get_urls_inside_repository_url_file(f'{throwaway_dir}/test_url_file.org') == url_list
 
-def test_get_github_repository_programming_language(github_headers, test_repository):
+def test_get_forge_repository_programming_language(forge_headers, test_repository):
     test_repository_failure: str = 'https://github.com/bormoge/failure'
 
-    assert sideroxylon.get_github_repository_programming_language(test_repository, github_headers) == 'Python'
-    assert sideroxylon.get_github_repository_programming_language(test_repository_failure, github_headers) == 'Unknown'
+    assert sideroxylon.get_forge_repository_programming_language(test_repository, forge_headers) == 'Python'
+    assert sideroxylon.get_forge_repository_programming_language(test_repository_failure, forge_headers) == 'Unknown'
 
-def test_store_repository_url_in_corresponding_file(throwaway_dir, github_headers, test_repository):
+def test_store_repository_url_in_corresponding_file(throwaway_dir, forge_headers, test_repository):
     if os.path.isfile(f'{throwaway_dir}/Python.txt'):
         os.remove(f'{throwaway_dir}/Python.txt')
 
     test_url: list[str] = [test_repository]
 
-    sideroxylon.store_repository_url_in_corresponding_file(test_url, github_headers, throwaway_dir, 'txt', 2)
+    sideroxylon.store_repository_url_in_corresponding_file(test_url, forge_headers, throwaway_dir, 'txt', 2)
 
     with open(f'{throwaway_dir}/Python.txt', 'r') as file:
         python_org_contents: str = file.read().replace('\n', '')
