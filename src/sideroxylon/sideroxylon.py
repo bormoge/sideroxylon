@@ -44,7 +44,7 @@ def assign_token_to_headers(token_file: str) -> dict[str, Any]:
     return forge_headers
 
 
-def convert_forge_url_to_api_url(repository_url: str) -> str:
+def convert_forge_url_to_api_url(repository_url: str) -> str | None:
     """
     Convert forge URL to forge API URL.
     """
@@ -80,7 +80,7 @@ def fetch_forge_repository_data(
     Fetch the necessary data from the forge.
     """
 
-    # Try to use the token. If the token fails send the URL to Unknown.
+    # Try to use the token.
     try:
         response: requests.models.Response = requests.get(
             url=api_url, headers=forge_headers
