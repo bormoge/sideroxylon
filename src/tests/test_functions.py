@@ -64,19 +64,26 @@ def test_get_urls_inside_repository_url_file(throwaway_dir):
 
     assert sideroxylon.get_urls_inside_repository_url_file(f'{throwaway_dir}/test_url_file.org') == url_list
 
-def test_get_forge_repository_programming_language(forge_headers, test_repository):
+def test_fetch_forge_repository_data(forge_headers):
+    api_url_success = 'https://api.github.com/repos/bormoge/sideroxylon'
+    api_url_failure = 'https://api.github.com/repos/bormoge/failure'
+
+    assert sideroxylon.fetch_forge_repository_data(api_url_success, forge_headers).get('language') == 'Python'
+    assert sideroxylon.fetch_forge_repository_data(api_url_failure, forge_headers) is None
+
+def test_get_repository_programming_language(forge_headers, test_repository):
     test_repository_failure: str = 'https://github.com/bormoge/failure'
 
-    assert sideroxylon.get_forge_repository_programming_language(test_repository, forge_headers) == 'Python'
-    assert sideroxylon.get_forge_repository_programming_language(test_repository_failure, forge_headers) == 'Unknown'
+    assert sideroxylon.get_repository_programming_language(test_repository, forge_headers) == 'Python'
+    assert sideroxylon.get_repository_programming_language(test_repository_failure, forge_headers) == 'Unknown'
 
-def test_store_repository_url_in_corresponding_file(throwaway_dir, forge_headers, test_repository):
+def test_store_repository_urls_in_corresponding_files(throwaway_dir, forge_headers, test_repository):
     if os.path.isfile(f'{throwaway_dir}/Python.txt'):
         os.remove(f'{throwaway_dir}/Python.txt')
 
     test_url: list[str] = [test_repository]
 
-    sideroxylon.store_repository_url_in_corresponding_file(test_url, forge_headers, throwaway_dir, 'txt', 2)
+    sideroxylon.store_repository_urls_in_corresponding_files(test_url, forge_headers, throwaway_dir, 'txt', 2)
 
     with open(f'{throwaway_dir}/Python.txt', 'r') as file:
         python_org_contents: str = file.read().replace('\n', '')
