@@ -24,8 +24,8 @@ def test_initialize_directories_and_files(throwaway_dir):
     example_file = f'{throwaway_dir}/example.org'
 
     directories_and_files: dict[str, list[str]] = {
-        "directories": [example_dir],
-        "files": [example_file]
+        'directories': [example_dir],
+        'files': [example_file]
     }
 
     if os.path.isdir(example_dir):
@@ -50,7 +50,7 @@ def test_assign_token_to_headers(throwaway_dir, forge_headers):
     assert forge_headers == repository_headers
 
 def test_convert_forge_url_to_api_url(test_repository):
-    assert sideroxylon.convert_forge_url_to_api_url(test_repository) == 'https://api.github.com/repos/bormoge/sideroxylon'
+    assert sideroxylon.convert_forge_url_to_api_url(test_repository) == 'https://api.github.com/repos/bormoge/sideroxylon/languages'
 
 def test_get_urls_inside_repository_url_file(throwaway_dir):
     url_list: list[str] = ['https://github.com/bormoge/sideroxylon', 'https://github.com/bormoge/spinosum', 'https://github.com/bormoge/guava-themes']
@@ -58,18 +58,20 @@ def test_get_urls_inside_repository_url_file(throwaway_dir):
     test_url_file = f'{throwaway_dir}/test_url_file.org'
 
     if not os.path.exists(test_url_file) or os.path.getsize(test_url_file) == 0:
-        with open(test_url_file, "w") as file:
+        with open(test_url_file, 'w') as file:
             for url in url_list:
-                file.write(url + "\n")
+                file.write(url + '\n')
 
     assert sideroxylon.get_urls_inside_repository_url_file(f'{throwaway_dir}/test_url_file.org') == url_list
 
 def test_fetch_forge_repository_data(forge_headers):
-    api_url_success = 'https://api.github.com/repos/bormoge/sideroxylon'
-    api_url_failure = 'https://api.github.com/repos/bormoge/failure'
+    api_url_success = 'https://api.github.com/repos/bormoge/sideroxylon/languages'
+    api_url_failure = 'https://api.github.com/repos/bormoge/failure/languages'
+    api_url_no_language = 'https://api.github.com/repos/nix-community/awesome-nix/languages'
 
-    assert sideroxylon.fetch_forge_repository_data(api_url_success, forge_headers).get('language') == 'Python'
+    assert next(iter(sideroxylon.fetch_forge_repository_data(api_url_success, forge_headers))) == 'Python'
     assert sideroxylon.fetch_forge_repository_data(api_url_failure, forge_headers) is None
+    assert sideroxylon.fetch_forge_repository_data(api_url_no_language, forge_headers) == {}
 
 def test_get_repository_programming_language(forge_headers, test_repository):
     test_repository_failure: str = 'https://github.com/bormoge/failure'

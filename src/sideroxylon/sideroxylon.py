@@ -59,7 +59,7 @@ def convert_forge_url_to_api_url(repository_url: str) -> str | None:
     user: str = parts[3]
     repo: str = parts[4]
 
-    return f"https://api.github.com/repos/{user}/{repo}"
+    return f"https://api.github.com/repos/{user}/{repo}/languages"
 
 
 def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
@@ -108,7 +108,7 @@ def get_repository_programming_language(
     """
 
     # Convert normal URL to api URL
-    api_url: str = convert_forge_url_to_api_url(repository_url)
+    api_url: str | None = convert_forge_url_to_api_url(repository_url)
 
     # Check if api URL exists, and if not return Unknown
     if not api_url:
@@ -120,8 +120,8 @@ def get_repository_programming_language(
         return "Unknown"
 
     return (
-        data.get("language") or "Unknown"
-    )  # There is a change this 'or' may never be used.
+        next(iter(data)) or "Unknown"
+    )  # There is a chance this 'or' may never be used.
 
 
 def write_into_file(full_path_filename: str, url: str) -> None:
