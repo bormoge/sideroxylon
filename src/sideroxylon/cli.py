@@ -3,7 +3,7 @@ import typer
 from .sideroxylon import sideroxylon
 
 
-app = typer.Typer()
+app: typer.Typer = typer.Typer()
 app.command()(sideroxylon)
 
 
