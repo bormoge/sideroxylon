@@ -126,7 +126,12 @@ def clean_repository_url_file(repository_url_file: str) -> None:
     """
     Clean the file with the repository URLs.
     """
-    open(repository_url_file, "w").close()
+    try:
+        open(repository_url_file, "w").close()
+
+    except OSError as e:
+        print(f"Error reading {repository_url_file}: {e}")
+        return
 
 
 def sideroxylon(

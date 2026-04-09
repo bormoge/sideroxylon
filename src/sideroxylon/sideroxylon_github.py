@@ -89,6 +89,9 @@ class SideroxylonGitHub(SideroxylonForge):
             api_url
         )
 
+        if (isinstance(data, dict) and ((len(data) == 0) or (data == {}))):
+            return "No_Programming_Language"
+
         if not data:
             return "Unknown"
 
