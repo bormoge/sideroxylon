@@ -1,1 +1,1 @@
-((nil . ((compile-command . "python src/sideroxylon/sideroxylon.py"))))
+((nil . ((compile-command . "sideroxylon"))))

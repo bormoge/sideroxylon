@@ -5,6 +5,7 @@ import typer
 from typing import Annotated
 from typing import Any
 from pathlib import Path
+from urllib.parse import urlparse
 from .sideroxylon_github import SideroxylonGitHub
 from .sideroxylon_unknown_forge import SideroxylonUnknownForge
 from .sideroxylon_sourcehut import SideroxylonSourceHut
@@ -14,12 +15,6 @@ XDG_DATA_HOME_DIR: str = os.environ.get(
     "XDG_DATA_HOME", os.path.expanduser(f"{HOME_DIR}/.local/share")
 )
 SIDEROXYLON_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
-
-github_base_url = "https://github.com"
-gitlab_base_url = "https://gitlab.com"
-codeberg_base_url = "https://codeberg.org"
-sourcehut_base_url_1 = "https://sr.ht"
-sourcehut_base_url_2 = "https://git.sr.ht"
 
 
 def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
@@ -48,13 +43,18 @@ def write_into_file(full_path_filename: str, url: str) -> None:
         return
 
 
-def get_repository_url_forge(forge_dict, repository_url):
-    if github_base_url in repository_url:
-        return forge_dict[github_base_url]
-    elif (sourcehut_base_url_1 in repository_url) or (sourcehut_base_url_2 in repository_url):
-        return forge_dict[sourcehut_base_url_2]
-    else:
-        return forge_dict["unknown"]
+def get_repository_url_forge_object(forge_dict, repository_url):
+    # Parse the repository URL
+    parsed: Any = urlparse(repository_url)
+    base: str = f"{parsed.scheme}://{parsed.netloc}"
+
+    # Loop through each key in forge_dict to compare the base URL
+    for key in list(forge_dict.keys())[:-1]:
+        if base == key:
+            return forge_dict[key]
+
+    # If there is no match, return a SideroxylonUnknownForge object.
+    return forge_dict["unknown"]
 
 
 def initialize_forge_dictionary(token_file: str) -> dict[str, Any]:
@@ -62,10 +62,17 @@ def initialize_forge_dictionary(token_file: str) -> dict[str, Any]:
     Initialize required objects from classes that inherited SideroxylonForge
     """
 
+    github_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
+    sourcehut_obj: SideroxylonSourceHut = SideroxylonSourceHut("")
+    unknown_obj: SideroxylonUnknownForge = SideroxylonUnknownForge("")
+
     forge_dict: dict[str, Any] = {
-        github_base_url: SideroxylonGitHub(token_file),
-        sourcehut_base_url_2: SideroxylonSourceHut(token_file),
-        "unknown": SideroxylonUnknownForge(token_file)
+        "https://github.com": github_obj,
+        # "https://gitlab.com": ,
+        # "https://codeberg.org": ,
+        "https://sr.ht": sourcehut_obj,
+        "https://git.sr.ht": sourcehut_obj,
+        "unknown": unknown_obj,
     }
 
     return forge_dict
@@ -85,7 +92,7 @@ def store_repository_urls_in_corresponding_files(
     forge_dict: dict[str, Any] = initialize_forge_dictionary(token_file)
 
     for url in repository_urls:
-        forge_object: SideroxylonForge = get_repository_url_forge(forge_dict, url)
+        forge_object: SideroxylonForge = get_repository_url_forge_object(forge_dict, url)
 
         language: str | Any = forge_object.get_repository_programming_language(url)
 
