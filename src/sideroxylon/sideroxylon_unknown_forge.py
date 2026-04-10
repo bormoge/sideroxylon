@@ -12,6 +12,12 @@ class SideroxylonUnknownForge(SideroxylonForge):
 
         return None
 
+    def clean_forge_repository_url(self, repository_url: str) -> str | None:
+        """
+        This is a dummy function that returns repository_url.
+        """
+        return repository_url
+
     def get_repository_programming_language(
         self, repository_url: str
     ) -> str | Any:

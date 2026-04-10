@@ -78,6 +78,17 @@ def initialize_forge_dictionary(token_file: str) -> dict[str, Any]:
     return forge_dict
 
 
+def basic_url_cleaning(repository_url: str) -> str:
+    """
+    Return the provided URL after doing some basic cleaning.
+    """
+
+    # Each SideroxylonForge instance should do its
+    # own cleaning; the main purpose of this function
+    # is to avoid crashes related to URL names.
+    return repository_url.split("?")[0]
+
+
 def store_repository_urls_in_corresponding_files(
     repository_urls: list[str],
     token_file: str,
@@ -92,13 +103,21 @@ def store_repository_urls_in_corresponding_files(
     forge_dict: dict[str, Any] = initialize_forge_dictionary(token_file)
 
     for url in repository_urls:
-        forge_object: SideroxylonForge = get_repository_url_forge_object(forge_dict, url)
+
+        url: str = basic_url_cleaning(url)
+
+        forge_object: SideroxylonForge = get_repository_url_forge_object(
+            forge_dict, url
+        )
 
         language: str | Any = forge_object.get_repository_programming_language(url)
 
-        filename = f"{language}.{file_extension}"  # Note: I might want to replace spaces with hyphens
+        # Note: I might want to add a function to clean file names.
+        filename = f"{language}.{file_extension}"
 
         full_path_filename: str = os.path.join(languages_directory, filename)
+
+        url: str = forge_object.clean_forge_repository_url(url)
 
         write_into_file(full_path_filename, url)
 

@@ -28,13 +28,11 @@ class SideroxylonGitHub(SideroxylonForge):
 
         SideroxylonGitHub.forge_headers: dict[str, Any] = headers
 
-    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+    def get_forge_user_and_repository_name(self, repository_url: str) -> dict[str, str] | None:
         """
-        Convert forge URL to forge API URL.
+        Get the user and repository name from the provided URL.
         """
 
-        # Check if we are at the correct position of the URL, store user and
-        # repository names, and return the converted URL
         parts: list[str] = repository_url.strip().split("/")
 
         if len(parts) < 5:
@@ -42,6 +40,36 @@ class SideroxylonGitHub(SideroxylonForge):
 
         user: str = parts[3]
         repo: str = parts[4]
+
+        return {"user": user, "repo": repo}
+
+    def clean_forge_repository_url(self, repository_url: str) -> str | None:
+        """
+        Clean the provided forge URL, leaving only the base URL, the user, and the repository name.
+        """
+
+        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(repository_url)
+
+        if user_and_repo is None:
+            return None
+
+        user: str = user_and_repo["user"]
+        repo: str = user_and_repo["repo"]
+
+        return f"https://github.com/{user}/{repo}"
+
+    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+        """
+        Convert forge URL to forge API URL.
+        """
+
+        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(repository_url)
+
+        if user_and_repo is None:
+            return None
+
+        user: str = user_and_repo["user"]
+        repo: str = user_and_repo["repo"]
 
         return f"https://api.github.com/repos/{user}/{repo}/languages"
 
@@ -83,7 +111,7 @@ class SideroxylonGitHub(SideroxylonForge):
 
         # Check if api URL exists, and if not return Unknown
         if not api_url:
-            return "Unknown"
+            return "Not_A_GitHub_Repository"
 
         data: dict[str, Any] | None = self.fetch_forge_repository_data(
             api_url
@@ -93,7 +121,7 @@ class SideroxylonGitHub(SideroxylonForge):
             return "No_Programming_Language"
 
         if not data:
-            return "Unknown"
+            return "Not_A_GitHub_Repository"
 
         # Get the most used language in the repository.
         main_language: str | Any = max(data, key=lambda k: data[k])
