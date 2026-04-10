@@ -1,4 +1,19 @@
-# [](/compare/v0.1.2...v) (2026-04-02)
+# [](/compare/v0.2.0...v) (2026-04-10)
+
+
+
+# [0.2.0](/compare/v0.1.2...v0.2.0) (2026-04-10)
+
+
+### Bug Fixes
+
+* fix test_store_repository_url_in_corresponding_file a2768bc
+* **sideroxylon:** fix annotation 5039a08
+
+
+### Features
+
+* **sideroxylon:** add support for XDG_DATA_HOME 27755a6
 
 
 
