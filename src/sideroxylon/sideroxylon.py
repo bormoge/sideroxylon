@@ -1,4 +1,3 @@
-from sideroxylon.sideroxylon_forge import SideroxylonForge
 import time
 import os
 import typer
@@ -6,6 +5,7 @@ from typing import Annotated
 from typing import Any
 from pathlib import Path
 from urllib.parse import urlparse
+from .sideroxylon_forge import SideroxylonForge
 from .sideroxylon_github import SideroxylonGitHub
 from .sideroxylon_unknown_forge import SideroxylonUnknownForge
 from .sideroxylon_sourcehut import SideroxylonSourceHut
@@ -34,6 +34,10 @@ def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
 
 
 def write_into_file(full_path_filename: str, url: str) -> None:
+    """
+    Write the URL in its corresponding file.
+    """
+
     try:
         with open(full_path_filename, "a") as file:
             file.write(url + "\n")
@@ -44,12 +48,16 @@ def write_into_file(full_path_filename: str, url: str) -> None:
 
 
 def get_repository_url_forge_object(forge_dict, repository_url):
+    """
+    Get the correct forge handler object according to the provided URL's domain.
+    """
+
     # Parse the repository URL
     parsed: Any = urlparse(repository_url)
     base: str = f"{parsed.scheme}://{parsed.netloc}"
 
     # Loop through each key in forge_dict to compare the base URL
-    for key in list(forge_dict.keys())[:-1]:
+    for key in list(forge_dict.keys())[:-1]: # Skip ["unknown": unknown_obj]
         if base == key:
             return forge_dict[key]
 
@@ -59,7 +67,7 @@ def get_repository_url_forge_object(forge_dict, repository_url):
 
 def initialize_forge_dictionary(token_file: str) -> dict[str, Any]:
     """
-    Initialize required objects from classes that inherited SideroxylonForge
+    Initialize required objects from classes that inherited SideroxylonForge.
     """
 
     github_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
@@ -179,7 +187,7 @@ def sideroxylon(
     ] = 2,
 ) -> None:
     """
-    Entry point of the sideroxylon cli.
+    Entry point of the sideroxylon CLI.
     """
 
     directories_and_files: dict[str, list[str]] = {

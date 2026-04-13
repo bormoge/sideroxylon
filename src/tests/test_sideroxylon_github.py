@@ -72,7 +72,7 @@ def test_get_repository_programming_language(github_forge_object, test_repositor
         github_forge_object.get_repository_programming_language(
             test_repository_failure
         )
-        == "Unknown"
+        == "GitHub_URL"
     )
     assert (
         github_forge_object.get_repository_programming_language(

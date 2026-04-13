@@ -111,7 +111,7 @@ class SideroxylonGitHub(SideroxylonForge):
 
         # Check if api URL exists, and if not return Unknown
         if not api_url:
-            return "Not_A_GitHub_Repository"
+            return "GitHub_URL"
 
         data: dict[str, Any] | None = self.fetch_forge_repository_data(
             api_url
@@ -121,7 +121,7 @@ class SideroxylonGitHub(SideroxylonForge):
             return "No_Programming_Language"
 
         if not data:
-            return "Not_A_GitHub_Repository"
+            return "GitHub_URL"
 
         # Get the most used language in the repository.
         main_language: str | Any = max(data, key=lambda k: data[k])
@@ -132,7 +132,7 @@ class SideroxylonGitHub(SideroxylonForge):
 
     def get_forge_name(self):
         """
-        Return the string "github".
+        Return the string "GitHub".
         """
 
         return "GitHub"
