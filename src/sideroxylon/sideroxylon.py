@@ -57,7 +57,7 @@ def get_repository_url_forge_object(forge_dict, repository_url):
     base: str = f"{parsed.scheme}://{parsed.netloc}"
 
     # Loop through each key in forge_dict to compare the base URL
-    for key in list(forge_dict.keys())[:-1]: # Skip ["unknown": unknown_obj]
+    for key in list(forge_dict.keys())[:-1]:  # Skip ["unknown": unknown_obj]
         if base == key:
             return forge_dict[key]
 
@@ -97,6 +97,25 @@ def basic_url_cleaning(repository_url: str) -> str:
     return repository_url.split("?")[0]
 
 
+def delay_api_calls(sleep_time: int) -> None:
+    # This puts a delay on the amount of times the API is called.
+    time.sleep(sleep_time)
+
+
+def print_sideroxylon_output(url: str, language: str) -> None:
+    print(f"{url} -> {language}")
+
+
+def clean_programming_language_name(language: str) -> str:
+    language: str = language.replace(" ", "_")
+    language: str = language.replace(".", "-")
+    language: str = language.replace("'", "-")
+    language: str = language.replace("#", "Sharp")
+    language: str = language.replace("+", "P")
+
+    return language
+
+
 def store_repository_urls_in_corresponding_files(
     repository_urls: list[str],
     token_file: str,
@@ -118,9 +137,10 @@ def store_repository_urls_in_corresponding_files(
             forge_dict, url
         )
 
-        language: str | Any = forge_object.get_repository_programming_language(url)
+        language: str | Any = clean_programming_language_name(
+            forge_object.get_repository_programming_language(url)
+        )
 
-        # Note: I might want to add a function to clean file names.
         filename = f"{language}.{file_extension}"
 
         full_path_filename: str = os.path.join(languages_directory, filename)
@@ -129,10 +149,9 @@ def store_repository_urls_in_corresponding_files(
 
         write_into_file(full_path_filename, url)
 
-        print(f"{url} -> {language}")
+        print_sideroxylon_output(url, language)
 
-        # This line is here to avoid hitting rate limits
-        time.sleep(sleep_time)
+        delay_api_calls(sleep_time)
 
 
 def initialize_directories_and_files(
@@ -168,11 +187,12 @@ def sideroxylon(
     ] = f"{SIDEROXYLON_DIR}/token.org",
     # File that contains the repository urls.
     repository_url_file: Annotated[
-        str, typer.Option(help="Path to the repository URLs file.")
+        str,
+        typer.Option(help="Path to the file that contains the repository URLs file."),
     ] = f"{SIDEROXYLON_DIR}/repository_urls.org",
     # Directory with all the programming language files.
     languages_directory: Annotated[
-        str, typer.Option(help="Path to the directory where URLs are stored.")
+        str, typer.Option(help="Path to the directory where the URLs are stored.")
     ] = f"{SIDEROXYLON_DIR}/languages/",
     # File extension for languages_directory generated files.
     file_extension: Annotated[
