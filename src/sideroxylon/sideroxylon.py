@@ -16,6 +16,47 @@ XDG_DATA_HOME_DIR: str = os.environ.get(
 )
 SIDEROXYLON_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
 
+def load_sideroxylon_env_variables(env_file: str) -> None:
+    """
+    Export the environment variables found in env_file.
+    """
+
+    with open(env_file) as file:
+        for line in file:
+            line: str = line.strip()
+
+            # Skip empty lines and comments
+            if not line or line.startswith("#"):
+                continue
+
+            # Split keys and values
+            elif "=" in line:
+                key, value = line.split("=", 1)
+
+                # Remove quotes
+                value: str = value.strip().strip('"').strip("'")
+
+                os.environ[key.strip()] = value
+
+
+def assign_sideroxylon_variables(token_file: str, repository_url_file: str, languages_directory: str) -> tuple[str, str, str]:
+    """
+    Assign values to token_file, repository_url_file, and languages_directory
+    depending on whether the value is passed using arguments or environment
+    variables.
+    If sideroxylon finds neither arguments nor environment variables,
+    a default value is used.
+    """
+
+    token_file: str = token_file or os.path.expanduser(str(
+        os.environ.get("SIDEROXYLON_TOKEN_FILE"))) or f"{SIDEROXYLON_DIR}/token.org"
+    repository_url_file: str = repository_url_file or os.path.expanduser(str(
+        os.environ.get("SIDEROXYLON_REPOSITORY_URL_FILE"))) or f"{SIDEROXYLON_DIR}/repository_urls.org"
+    languages_directory: str = languages_directory or os.path.expanduser(str(
+        os.environ.get("SIDEROXYLON_LANGUAGES_DIRECTORY"))) or f"{SIDEROXYLON_DIR}/languages/"
+
+    return token_file, repository_url_file, languages_directory
+
 
 def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
     """
@@ -184,16 +225,20 @@ def sideroxylon(
     # File that contains the token.
     token_file: Annotated[
         str, typer.Option(help="Path to the forge token file.")
-    ] = f"{SIDEROXYLON_DIR}/token.org",
+    ] = "",
     # File that contains the repository urls.
     repository_url_file: Annotated[
         str,
         typer.Option(help="Path to the file that contains the repository URLs file."),
-    ] = f"{SIDEROXYLON_DIR}/repository_urls.org",
+    ] = "",
     # Directory with all the programming language files.
     languages_directory: Annotated[
         str, typer.Option(help="Path to the directory where the URLs are stored.")
-    ] = f"{SIDEROXYLON_DIR}/languages/",
+    ] = "",
+    # File that contains the environment variables.
+    env_file: Annotated[
+        str, typer.Option(help="Path to the dotenv (.env) file.")
+    ] = f"{SIDEROXYLON_DIR}/.env",
     # File extension for languages_directory generated files.
     file_extension: Annotated[
         str,
@@ -210,9 +255,13 @@ def sideroxylon(
     Entry point of the sideroxylon CLI.
     """
 
+    load_sideroxylon_env_variables(env_file)
+
+    token_file, repository_url_file, languages_directory = assign_sideroxylon_variables(token_file, repository_url_file, languages_directory)
+
     directories_and_files: dict[str, list[str]] = {
         "directories": [languages_directory],
-        "files": [token_file, repository_url_file],
+        "files": [env_file, token_file, repository_url_file],
     }
 
     initialize_directories_and_files(directories_and_files)
