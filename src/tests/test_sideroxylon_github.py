@@ -29,8 +29,12 @@ def github_forge_object(token_file):
 
 
 def test_assign_token_to_headers(token_file):
-    with open(token_file, "r") as file:
-        forge_token: str = file.read().replace("\n", "")
+    try:
+        with open(token_file, "r") as file:
+            forge_token: str = file.read().replace("\n", "")
+
+    except OSError as e:
+        print(f"Error reading {token_file}: {e}")
 
     g_forge_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
 

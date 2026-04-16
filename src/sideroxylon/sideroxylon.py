@@ -21,22 +21,26 @@ def load_sideroxylon_env_variables(env_file: str) -> None:
     Export the environment variables found in env_file.
     """
 
-    with open(env_file) as file:
-        for line in file:
-            line: str = line.strip()
+    try:
+        with open(env_file) as file:
+            for line in file:
+                line: str = line.strip()
 
-            # Skip empty lines and comments
-            if not line or line.startswith("#"):
-                continue
+                # Skip empty lines and comments
+                if not line or line.startswith("#"):
+                    continue
 
-            # Split keys and values
-            elif "=" in line:
-                key, value = line.split("=", 1)
+                # Split keys and values
+                elif "=" in line:
+                    key, value = line.split("=", 1)
 
-                # Remove quotes
-                value: str = value.strip().strip('"').strip("'")
+                    # Remove quotes
+                    value: str = value.strip().strip('"').strip("'")
 
-                os.environ[key.strip()] = value
+                    os.environ[key.strip()] = value
+
+    except OSError as e:
+        print(f"Error reading {env_file}: {e}")
 
 
 def assign_sideroxylon_variables(token_file: str, repository_url_file: str, languages_directory: str) -> tuple[str, str, str]:
@@ -153,6 +157,9 @@ def clean_programming_language_name(language: str) -> str:
     language: str = language.replace("'", "-")
     language: str = language.replace("#", "Sharp")
     language: str = language.replace("+", "P")
+
+    # Note: decide whether to lowercase the names or deal with
+    # discrepancies on a case-by-case basis.
 
     return language
 
