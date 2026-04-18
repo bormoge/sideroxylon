@@ -139,7 +139,11 @@ def basic_url_cleaning(repository_url: str) -> str:
     # Each SideroxylonForge instance should do its
     # own cleaning; the main purpose of this function
     # is to avoid crashes related to URL names.
-    return repository_url.split("?")[0]
+
+    repository_url: str = repository_url.split("?")[0]
+    repository_url: str = repository_url.split("#")[0]
+
+    return repository_url
 
 
 def delay_api_calls(sleep_time: int) -> None:

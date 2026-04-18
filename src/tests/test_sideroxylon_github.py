@@ -36,9 +36,9 @@ def test_assign_token_to_headers(token_file):
     except OSError as e:
         print(f"Error reading {token_file}: {e}")
 
-    g_forge_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
+    github_forge_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
 
-    assert g_forge_obj.forge_headers == {"Authorization": "token " + forge_token}
+    assert github_forge_obj.forge_headers == {"Authorization": "token " + forge_token}
 
 
 def test_convert_forge_url_to_api_url(test_repository, github_forge_object):
