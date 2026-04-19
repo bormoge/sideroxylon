@@ -11,6 +11,11 @@ This project aims to develop a script that sorts repository URLs according to th
 - [License](#license)
 
 ## Introduction
+
+> [!WARNING]  
+> This software is to be considered in Alpha state.  
+> You should expect major changes in functionality as the codebase stabilizes.  
+
 The purpose of this project is to make my hobby, that being to collect and classify repositories according to their main programming language, a little bit easier.  
 My dream scenario is that some day I can hook this script to [Emacs](https://www.gnu.org/software/emacs/) and, with one function, sort each repository link inside an [org-mode](https://orgmode.org/) headline.  
 
