@@ -1,6 +1,8 @@
+from sideroxylon import sideroxylon
 from sideroxylon.sideroxylon_github import SideroxylonGitHub
 from typing import Any
 import pytest
+import os
 
 
 @pytest.fixture
@@ -14,8 +16,8 @@ def throwaway_dir(test_dir):
 
 
 @pytest.fixture
-def token_file(throwaway_dir):
-    return f"{throwaway_dir}/token.org"
+def env_file(throwaway_dir):
+    return os.path.expanduser(f"{throwaway_dir}/.env")
 
 
 @pytest.fixture
@@ -24,21 +26,9 @@ def test_repository():
 
 
 @pytest.fixture
-def github_forge_object(token_file):
-    return SideroxylonGitHub(token_file)
-
-
-def test_assign_token_to_headers(token_file):
-    try:
-        with open(token_file, "r") as file:
-            forge_token: str = file.read().replace("\n", "")
-
-    except OSError as e:
-        print(f"Error reading {token_file}: {e}")
-
-    github_forge_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
-
-    assert github_forge_obj.forge_headers == {"Authorization": "token " + forge_token}
+def github_forge_object(env_file):
+    sideroxylon.load_sideroxylon_env_variables(env_file)
+    return SideroxylonGitHub()
 
 
 def test_convert_forge_url_to_api_url(test_repository, github_forge_object):
@@ -73,9 +63,7 @@ def test_get_repository_programming_language(github_forge_object, test_repositor
         == "Python"
     )
     assert (
-        github_forge_object.get_repository_programming_language(
-            test_repository_failure
-        )
+        github_forge_object.get_repository_programming_language(test_repository_failure)
         == "GitHub_URL"
     )
     assert (

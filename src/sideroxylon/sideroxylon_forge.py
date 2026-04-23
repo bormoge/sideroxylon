@@ -21,5 +21,5 @@ class SideroxylonForge(ABC):
         pass
 
     @abstractmethod
-    def __init__(self, token_file):
+    def __init__(self):
         pass

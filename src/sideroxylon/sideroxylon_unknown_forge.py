@@ -34,5 +34,5 @@ class SideroxylonUnknownForge(SideroxylonForge):
 
         return "Unknown"
 
-    def __init__(self, token_file: str):
+    def __init__(self):
         pass

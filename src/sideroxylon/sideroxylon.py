@@ -43,23 +43,21 @@ def load_sideroxylon_env_variables(env_file: str) -> None:
         print(f"Error reading {env_file}: {e}")
 
 
-def assign_sideroxylon_variables(token_file: str, repository_url_file: str, languages_directory: str) -> tuple[str, str, str]:
+def assign_sideroxylon_variables(repository_url_file: str, languages_directory: str) -> tuple[str, str]:
     """
-    Assign values to token_file, repository_url_file, and languages_directory
+    Assign values to repository_url_file and languages_directory
     depending on whether the value is passed using arguments or environment
     variables.
     If sideroxylon finds neither arguments nor environment variables,
     a default value is used.
     """
 
-    token_file: str = token_file or os.path.expanduser(str(
-        os.environ.get("SIDEROXYLON_TOKEN_FILE"))) or f"{SIDEROXYLON_DIR}/token.org"
     repository_url_file: str = repository_url_file or os.path.expanduser(str(
         os.environ.get("SIDEROXYLON_REPOSITORY_URL_FILE"))) or f"{SIDEROXYLON_DIR}/repository_urls.org"
     languages_directory: str = languages_directory or os.path.expanduser(str(
         os.environ.get("SIDEROXYLON_LANGUAGES_DIRECTORY"))) or f"{SIDEROXYLON_DIR}/languages/"
 
-    return token_file, repository_url_file, languages_directory
+    return repository_url_file, languages_directory
 
 
 def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
@@ -110,14 +108,14 @@ def get_repository_url_forge_object(forge_dict, repository_url):
     return forge_dict["unknown"]
 
 
-def initialize_forge_dictionary(token_file: str) -> dict[str, Any]:
+def initialize_forge_dictionary() -> dict[str, Any]:
     """
     Initialize required objects from classes that inherited SideroxylonForge.
     """
 
-    github_obj: SideroxylonGitHub = SideroxylonGitHub(token_file)
-    sourcehut_obj: SideroxylonSourceHut = SideroxylonSourceHut("")
-    unknown_obj: SideroxylonUnknownForge = SideroxylonUnknownForge("")
+    github_obj: SideroxylonGitHub = SideroxylonGitHub()
+    sourcehut_obj: SideroxylonSourceHut = SideroxylonSourceHut()
+    unknown_obj: SideroxylonUnknownForge = SideroxylonUnknownForge()
 
     forge_dict: dict[str, Any] = {
         "https://github.com": github_obj,
@@ -170,7 +168,6 @@ def clean_programming_language_name(language: str) -> str:
 
 def store_repository_urls_in_corresponding_files(
     repository_urls: list[str],
-    token_file: str,
     languages_directory: str,
     file_extension: str,
     sleep_time: int,
@@ -179,7 +176,7 @@ def store_repository_urls_in_corresponding_files(
     Store each repository URL in the file with the name of its main programming language.
     """
 
-    forge_dict: dict[str, Any] = initialize_forge_dictionary(token_file)
+    forge_dict: dict[str, Any] = initialize_forge_dictionary()
 
     for url in repository_urls:
 
@@ -233,10 +230,6 @@ def clean_repository_url_file(repository_url_file: str) -> None:
 
 
 def sideroxylon(
-    # File that contains the token.
-    token_file: Annotated[
-        str, typer.Option(help="Path to the forge token file.")
-    ] = "",
     # File that contains the repository urls.
     repository_url_file: Annotated[
         str,
@@ -268,11 +261,11 @@ def sideroxylon(
 
     load_sideroxylon_env_variables(env_file)
 
-    token_file, repository_url_file, languages_directory = assign_sideroxylon_variables(token_file, repository_url_file, languages_directory)
+    repository_url_file, languages_directory = assign_sideroxylon_variables(repository_url_file, languages_directory)
 
     directories_and_files: dict[str, list[str]] = {
         "directories": [languages_directory],
-        "files": [env_file, token_file, repository_url_file],
+        "files": [env_file, repository_url_file],
     }
 
     initialize_directories_and_files(directories_and_files)
@@ -284,7 +277,7 @@ def sideroxylon(
 
     # Store each URL in its corresponding file inside languages_directory
     store_repository_urls_in_corresponding_files(
-        repository_urls, token_file, languages_directory, file_extension, sleep_time
+        repository_urls, languages_directory, file_extension, sleep_time
     )
 
     # Clear the repository URL file after going through each link

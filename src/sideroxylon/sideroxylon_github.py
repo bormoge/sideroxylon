@@ -1,34 +1,31 @@
 from .sideroxylon_forge import SideroxylonForge
 from typing import Any
 import requests
+import os
 
 
 class SideroxylonGitHub(SideroxylonForge):
 
-    forge_headers: dict[str, Any] = {}
-
-    def assign_token_to_headers(self, token_file) -> None:
+    def assign_token_to_headers(self) -> dict[str, Any]:
         """
         Get forge headers.
         """
 
-        # Get contents of token file and store them on forge_token
-        try:
-            with open(token_file, "r") as file:
-                forge_token: str = file.read().replace("\n", "")  # Example: 'ghp_xxx'
+        # Get the GitHub token
+        github_token: str = os.environ.get("SIDEROXYLON_GITHUB_TOKEN", "")
 
-        except OSError as e:
-            print(f"Error reading {token_file}: {e}")
-            return
+        # By default the headers are empty
+        github_headers: dict[str, Any] = {}
 
-        # If it exists, pass token to forge
-        headers: dict[str, Any] = {}
-        if forge_token:
-            headers["Authorization"] = f"token {forge_token}"
+        # If a token exists create the headers
+        if github_token:
+            github_headers["Authorization"] = f"token {github_token}"
 
-        SideroxylonGitHub.forge_headers: dict[str, Any] = headers
+        return github_headers
 
-    def get_forge_user_and_repository_name(self, repository_url: str) -> dict[str, str] | None:
+    def get_forge_user_and_repository_name(
+        self, repository_url: str
+    ) -> dict[str, str] | None:
         """
         Get the user and repository name from the provided URL.
         """
@@ -48,7 +45,9 @@ class SideroxylonGitHub(SideroxylonForge):
         Clean the provided forge URL, leaving only the base URL, the user, and the repository name.
         """
 
-        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(repository_url)
+        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(
+            repository_url
+        )
 
         if user_and_repo is None:
             return None
@@ -63,7 +62,9 @@ class SideroxylonGitHub(SideroxylonForge):
         Convert forge URL to forge API URL.
         """
 
-        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(repository_url)
+        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(
+            repository_url
+        )
 
         if user_and_repo is None:
             return None
@@ -73,9 +74,7 @@ class SideroxylonGitHub(SideroxylonForge):
 
         return f"https://api.github.com/repos/{user}/{repo}/languages"
 
-    def fetch_forge_repository_data(
-        self, api_url: str
-    ) -> dict[str, Any] | None:
+    def fetch_forge_repository_data(self, api_url: str) -> dict[str, Any] | None:
         """
         Fetch the necessary data from GitHub.
         """
@@ -83,7 +82,7 @@ class SideroxylonGitHub(SideroxylonForge):
         # Try to use the token.
         try:
             response: requests.models.Response = requests.get(
-                url=api_url, headers=SideroxylonGitHub.forge_headers
+                url=api_url, headers=self.assign_token_to_headers()
             )
 
             if response.status_code != 200:
@@ -99,9 +98,7 @@ class SideroxylonGitHub(SideroxylonForge):
             print(f"Error fetching {api_url}: {e}")
             return None
 
-    def get_repository_programming_language(
-        self, repository_url: str
-    ) -> str:
+    def get_repository_programming_language(self, repository_url: str) -> str:
         """
         Get the main programming language of the provided repository URL.
         """
@@ -113,11 +110,9 @@ class SideroxylonGitHub(SideroxylonForge):
         if not api_url:
             return "GitHub_URL"
 
-        data: dict[str, Any] | None = self.fetch_forge_repository_data(
-            api_url
-        )
+        data: dict[str, Any] | None = self.fetch_forge_repository_data(api_url)
 
-        if (isinstance(data, dict) and ((len(data) == 0) or (data == {}))):
+        if isinstance(data, dict) and ((len(data) == 0) or (data == {})):
             return "No_Programming_Language"
 
         if not data:
@@ -137,5 +132,5 @@ class SideroxylonGitHub(SideroxylonForge):
 
         return "GitHub"
 
-    def __init__(self, token_file: str):
-        self.assign_token_to_headers(token_file)
+    def __init__(self):
+        pass

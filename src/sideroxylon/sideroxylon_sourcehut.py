@@ -64,5 +64,5 @@ class SideroxylonSourceHut(SideroxylonForge):
 
         return "SourceHut"
 
-    def __init__(self, token_file: str):
+    def __init__(self):
         pass

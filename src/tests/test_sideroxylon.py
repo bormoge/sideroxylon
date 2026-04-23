@@ -19,6 +19,11 @@ def python_txt_file(throwaway_dir):
 
 
 @pytest.fixture
+def env_file(throwaway_dir):
+    return os.path.expanduser(f"{throwaway_dir}/.env")
+
+
+@pytest.fixture
 def test_repository():
     return "https://github.com/bormoge/sideroxylon"
 
@@ -30,6 +35,12 @@ def test_repository_list():
         "https://github.com/bormoge/spinosum",
         "https://github.com/bormoge/guava-themes",
     ]
+
+
+def test_load_sideroxylon_env_variables(env_file):
+    sideroxylon.load_sideroxylon_env_variables(env_file)
+
+    assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 
 
 def test_get_urls_inside_repository_url_file(throwaway_dir, test_repository_list):
@@ -106,7 +117,7 @@ def test_store_repository_urls_in_corresponding_files(
     test_url: list[str] = [test_repository]
 
     sideroxylon.store_repository_urls_in_corresponding_files(
-        test_url, f"{throwaway_dir}/token.org", throwaway_dir, "txt", 2
+        test_url, throwaway_dir, "txt", 2
     )
 
     try:
