@@ -30,6 +30,7 @@ sideroxylon = "sideroxylon.cli:app"
 
 [dependency-groups]
 dev = [
+  "coverage>=7.13.5",
   "pytest>=9.0.2",
   "rassumfrassum>=0.3.3",
   "twine>=6.2.0",
