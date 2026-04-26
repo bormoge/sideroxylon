@@ -20,6 +20,8 @@ XDG_CONFIG_HOME_DIR: str = os.environ.get(
 SIDEROXYLON_DATA_HOME_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
 SIDEROXYLON_CONFIG_HOME_DIR: str = f"{XDG_CONFIG_HOME_DIR}/sideroxylon"
 
+REPOSITORY_URL_DICT: dict[str, list[str]] = {}
+
 
 def load_sideroxylon_env_variables(env_file: str) -> None:
     """
@@ -89,9 +91,9 @@ def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
     return urls
 
 
-def write_into_file(full_path_filename: str, url: str) -> None:
+def sequential_write_into_file(full_path_filename: str, url: str) -> None:
     """
-    Write the URL in its corresponding file.
+    Sequentially write the URL in its corresponding file.
     """
 
     try:
@@ -100,6 +102,32 @@ def write_into_file(full_path_filename: str, url: str) -> None:
 
     except OSError as e:
         print(f"Error reading {full_path_filename}: {e}")
+        return
+
+
+def batch_store_in_memory(full_path_filename: str, url: str) -> None:
+    """
+    Store the URL inside the dictionary REPOSITORY_URL_DICT.
+    """
+
+    if full_path_filename not in REPOSITORY_URL_DICT:
+        REPOSITORY_URL_DICT[full_path_filename] = []
+
+    REPOSITORY_URL_DICT[full_path_filename].append(url)
+
+
+def batch_write_into_file() -> None:
+    """
+    Write all the URLs in their respective files.
+    """
+
+    try:
+        for key, value in REPOSITORY_URL_DICT.items():
+            with open(key, "a") as file:
+                file.write("\n".join(value) + "\n")
+
+    except OSError as e:
+        print(f"Error reading {key}: {e}")
         return
 
 
@@ -184,12 +212,16 @@ def store_repository_urls_in_corresponding_files(
     languages_directory: str,
     file_extension: str,
     sleep_time: int,
+    use_batches: bool,
 ) -> None:
     """
     Store each repository URL in the file with the name of its main programming language.
     """
 
     forge_dict: dict[str, Any] = initialize_forge_dictionary()
+    write_function = (
+        batch_store_in_memory if use_batches else sequential_write_into_file
+    )
 
     for url in repository_urls:
 
@@ -209,11 +241,14 @@ def store_repository_urls_in_corresponding_files(
 
         url: str = forge_object.clean_forge_repository_url(url)
 
-        write_into_file(full_path_filename, url)
+        write_function(full_path_filename, url)
 
         print_sideroxylon_output(url, language)
 
         delay_api_calls(sleep_time)
+
+    if use_batches:
+        batch_write_into_file()
 
 
 def initialize_directories_and_files(
@@ -267,6 +302,10 @@ def sideroxylon(
     sleep_time: Annotated[
         int, typer.Option(help="Seconds to wait until the next API call.")
     ] = 2,
+    # Whether to store the URLs in memory and write them in batches or not.
+    use_batches: Annotated[
+        bool, typer.Option(help="This determines whether to store the URLs in memory and write them in batches or not.")
+    ] = False,
 ) -> None:
     """
     Entry point of the sideroxylon CLI.
@@ -296,7 +335,7 @@ def sideroxylon(
 
     # Store each URL in its corresponding file inside languages_directory
     store_repository_urls_in_corresponding_files(
-        repository_urls, languages_directory, file_extension, sleep_time
+        repository_urls, languages_directory, file_extension, sleep_time, use_batches
     )
 
     # Clear the repository URL file after going through each link
