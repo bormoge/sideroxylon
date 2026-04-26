@@ -63,11 +63,11 @@ def test_get_urls_inside_repository_url_file(throwaway_dir, test_repository_list
     )
 
 
-def test_write_into_file(python_txt_file, test_repository):
+def test_sequential_write_into_file(python_txt_file, test_repository):
     if os.path.isfile(python_txt_file):
         os.remove(python_txt_file)
 
-    sideroxylon.write_into_file(python_txt_file, test_repository)
+    sideroxylon.sequential_write_into_file(python_txt_file, test_repository)
 
     try:
         with open(python_txt_file, "r") as file:
@@ -117,7 +117,7 @@ def test_store_repository_urls_in_corresponding_files(
     test_url: list[str] = [test_repository]
 
     sideroxylon.store_repository_urls_in_corresponding_files(
-        test_url, throwaway_dir, "txt", 2
+        test_url, throwaway_dir, "txt", 2, False
     )
 
     try:
