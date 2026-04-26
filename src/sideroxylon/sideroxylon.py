@@ -14,7 +14,12 @@ HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
 XDG_DATA_HOME_DIR: str = os.environ.get(
     "XDG_DATA_HOME", os.path.expanduser(f"{HOME_DIR}/.local/share")
 )
-SIDEROXYLON_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
+XDG_CONFIG_HOME_DIR: str = os.environ.get(
+    "XDG_CONFIG_HOME", os.path.expanduser(f"{HOME_DIR}/.config")
+)
+SIDEROXYLON_DATA_HOME_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
+SIDEROXYLON_CONFIG_HOME_DIR: str = f"{XDG_CONFIG_HOME_DIR}/sideroxylon"
+
 
 def load_sideroxylon_env_variables(env_file: str) -> None:
     """
@@ -43,7 +48,9 @@ def load_sideroxylon_env_variables(env_file: str) -> None:
         print(f"Error reading {env_file}: {e}")
 
 
-def assign_sideroxylon_variables(repository_url_file: str, languages_directory: str) -> tuple[str, str]:
+def assign_sideroxylon_variables(
+    repository_url_file: str, languages_directory: str
+) -> tuple[str, str]:
     """
     Assign values to repository_url_file and languages_directory
     depending on whether the value is passed using arguments or environment
@@ -52,10 +59,16 @@ def assign_sideroxylon_variables(repository_url_file: str, languages_directory: 
     a default value is used.
     """
 
-    repository_url_file: str = repository_url_file or os.path.expanduser(str(
-        os.environ.get("SIDEROXYLON_REPOSITORY_URL_FILE"))) or f"{SIDEROXYLON_DIR}/repository_urls.org"
-    languages_directory: str = languages_directory or os.path.expanduser(str(
-        os.environ.get("SIDEROXYLON_LANGUAGES_DIRECTORY"))) or f"{SIDEROXYLON_DIR}/languages/"
+    repository_url_file: str = (
+        repository_url_file
+        or os.path.expanduser(os.environ.get("SIDEROXYLON_REPOSITORY_URL_FILE", ""))
+        or f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org"
+    )
+    languages_directory: str = (
+        languages_directory
+        or os.path.expanduser(os.environ.get("SIDEROXYLON_LANGUAGES_DIRECTORY", ""))
+        or f"{SIDEROXYLON_DATA_HOME_DIR}/languages/"
+    )
 
     return repository_url_file, languages_directory
 
@@ -242,7 +255,7 @@ def sideroxylon(
     # File that contains the environment variables.
     env_file: Annotated[
         str, typer.Option(help="Path to the dotenv (.env) file.")
-    ] = f"{SIDEROXYLON_DIR}/.env",
+    ] = f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
     # File extension for languages_directory generated files.
     file_extension: Annotated[
         str,
@@ -261,10 +274,16 @@ def sideroxylon(
 
     load_sideroxylon_env_variables(env_file)
 
-    repository_url_file, languages_directory = assign_sideroxylon_variables(repository_url_file, languages_directory)
+    repository_url_file, languages_directory = assign_sideroxylon_variables(
+        repository_url_file, languages_directory
+    )
 
     directories_and_files: dict[str, list[str]] = {
-        "directories": [languages_directory],
+        "directories": [
+            SIDEROXYLON_DATA_HOME_DIR,
+            SIDEROXYLON_CONFIG_HOME_DIR,
+            languages_directory,
+        ],
         "files": [env_file, repository_url_file],
     }
 
