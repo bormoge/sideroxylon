@@ -1,4 +1,23 @@
-# [](/compare/v0.2.0...v) (2026-04-10)
+# [](/compare/v0.2.1...v) (2026-04-26)
+
+
+
+## [0.2.1](/compare/v0.2.0...v0.2.1) (2026-04-26)
+
+
+### Bug Fixes
+
+* **all:** add try except code blocks a011c03
+* **sideroxylon:** add cleaning check for sharp number sign 25320e1
+* **sideroxylon:** fix error when making a file or directory 1bada8a
+
+
+### Features
+
+* **sideroxylon:** add cleaning functions for repository urls f33417f
+* **sideroxylon:** add function that cleans file names 75ce827
+* **sideroxylon:** add option to pass values using a dotenv file dc2863d
+* **sideroxylon:** add use-batches argument e8bb1e8
 
 
 
