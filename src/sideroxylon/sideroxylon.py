@@ -212,7 +212,7 @@ def store_repository_urls_in_corresponding_files(
     languages_directory: str,
     file_extension: str,
     sleep_time: int,
-    use_batches: bool,
+    batching: bool,
 ) -> None:
     """
     Store each repository URL in the file with the name of its main programming language.
@@ -220,7 +220,7 @@ def store_repository_urls_in_corresponding_files(
 
     forge_dict: dict[str, Any] = initialize_forge_dictionary()
     write_function = (
-        batch_store_in_memory if use_batches else sequential_write_into_file
+        batch_store_in_memory if batching else sequential_write_into_file
     )
 
     for url in repository_urls:
@@ -247,7 +247,7 @@ def store_repository_urls_in_corresponding_files(
 
         delay_api_calls(sleep_time)
 
-    if use_batches:
+    if batching:
         batch_write_into_file()
 
 
@@ -303,7 +303,7 @@ def sideroxylon(
         int, typer.Option(help="Seconds to wait until the next API call.")
     ] = 2,
     # Whether to store the URLs in memory and write them in batches or not.
-    use_batches: Annotated[
+    batching: Annotated[
         bool, typer.Option(help="This determines whether to store the URLs in memory and write them in batches or not.")
     ] = False,
 ) -> None:
@@ -335,7 +335,7 @@ def sideroxylon(
 
     # Store each URL in its corresponding file inside languages_directory
     store_repository_urls_in_corresponding_files(
-        repository_urls, languages_directory, file_extension, sleep_time, use_batches
+        repository_urls, languages_directory, file_extension, sleep_time, batching
     )
 
     # Clear the repository URL file after going through each link

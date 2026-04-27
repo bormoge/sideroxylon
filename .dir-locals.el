@@ -1,1 +1,1 @@
-((nil . ((compile-command . "sideroxylon"))))
+((nil . ((compile-command . "sideroxylon --batching"))))
