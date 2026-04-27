@@ -185,7 +185,7 @@ def basic_url_cleaning(repository_url: str) -> str:
     return repository_url
 
 
-def delay_api_calls(sleep_time: int) -> None:
+def delay_api_calls(sleep_time: float) -> None:
     # This puts a delay on the amount of times the API is called.
     time.sleep(sleep_time)
 
@@ -211,7 +211,7 @@ def store_repository_urls_in_corresponding_files(
     repository_urls: list[str],
     languages_directory: str,
     file_extension: str,
-    sleep_time: int,
+    sleep_time: float,
     batching: bool,
 ) -> None:
     """
@@ -300,7 +300,7 @@ def sideroxylon(
     ] = "org",
     # Seconds to wait until the next API call.
     sleep_time: Annotated[
-        int, typer.Option(help="Seconds to wait until the next API call.")
+        float, typer.Option(help="Seconds to wait until the next API call.")
     ] = 2,
     # Whether to store the URLs in memory and write them in batches or not.
     batching: Annotated[
