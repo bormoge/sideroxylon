@@ -5,16 +5,20 @@ import typer
 from typing import Annotated
 from typing import Any
 from pathlib import Path
+from dataclasses import dataclass
 from urllib.parse import urlparse
 from .sideroxylon_forge import SideroxylonForge
 from .sideroxylon_github import SideroxylonGitHub
 from .sideroxylon_unknown_forge import SideroxylonUnknownForge
 from .sideroxylon_sourcehut import SideroxylonSourceHut
-from dataclasses import dataclass
 
 
 @dataclass
 class SideroxylonArgs:
+    """
+    Dataclass that contains all the arguments of sideroxylon.
+    """
+
     env_file: str
     repository_url_file: str
     languages_directory: str
@@ -113,10 +117,14 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
             or args_list[5]
         )
 
-    return SideroxylonArgs(*args_list[:6])
+    return SideroxylonArgs(*args_list)
 
 
 def check_if_float(float_num: str | float) -> float | None:
+    """
+    Check if the parameter passed is a float or can be converted to float.
+    """
+
     try:
         if float_num == "" or float_num is None:
             return None
@@ -129,6 +137,10 @@ def check_if_float(float_num: str | float) -> float | None:
 
 
 def check_if_boolean(bool_value: str | bool) -> bool:
+    """
+    Check if the parameter passed is a boolean or can be converted to boolean.
+    """
+
     return bool_value is True or str(bool_value).lower() == "true"
 
 
@@ -161,7 +173,9 @@ def sequential_write_into_file(full_path_filename: str, url: str) -> None:
             file.write(url + "\n")
 
     except PermissionError as p:
-        sys.exit(f"You do not have the necessary permissions to write in this file: {p}")
+        sys.exit(
+            f"You do not have the necessary permissions to write in this file: {p}"
+        )
 
     except OSError as e:
         print(f"Error reading {full_path_filename}: {e}")
@@ -190,7 +204,9 @@ def batch_write_into_file() -> None:
                 file.write("\n".join(value) + "\n")
 
     except PermissionError as p:
-        sys.exit(f"You do not have the necessary permissions to write in this file: {p}")
+        sys.exit(
+            f"You do not have the necessary permissions to write in this file: {p}"
+        )
 
     except OSError as e:
         print(f"Error reading {key}: {e}")
@@ -252,15 +268,28 @@ def basic_url_cleaning(repository_url: str) -> str:
 
 
 def delay_api_calls(sleep_time: float) -> None:
+    """
+    Put a delay on the amount of times the API is called.
+    """
+
     # This puts a delay on the amount of times the API is called.
     time.sleep(sleep_time)
 
 
 def print_sideroxylon_output(url: str, language: str) -> None:
+    """
+    Print the repository URL and the main programming language of said repository.
+    """
+
     print(f"{url} -> {language}")
 
 
 def clean_programming_language_name(language: str) -> str:
+    """
+    Clean the provided programming language name, replacing
+    certain characters with new ones depending of the context.
+    """
+
     language: str = language.replace(" ", "_")
     language: str = language.replace(".", "-")
     language: str = language.replace("'", "-")
@@ -326,7 +355,9 @@ def initialize_directories_and_files(
             Path(directory).mkdir(parents=True, exist_ok=True)
 
     except PermissionError as p:
-        sys.exit()(f"You do not have the necessary permissions to create directory {directory}: {p}")
+        sys.exit()(
+            f"You do not have the necessary permissions to create directory {directory}: {p}"
+        )
 
     except OSError as e:
         print(f"Error creating {directory}: {e}")
@@ -337,7 +368,9 @@ def initialize_directories_and_files(
             Path(file).touch(exist_ok=True)
 
     except PermissionError as p:
-        sys.exit(f"You do not have the necessary permissions to create file {file}: {p}")
+        sys.exit(
+            f"You do not have the necessary permissions to create file {file}: {p}"
+        )
 
     except OSError as e:
         print(f"Error creating {file}: {e}")
@@ -347,11 +380,14 @@ def clean_repository_url_file(repository_url_file: str) -> None:
     """
     Clean the file with the repository URLs.
     """
+
     try:
         open(repository_url_file, "w").close()
 
     except PermissionError as p:
-        sys.exit(f"You do not have the necessary permissions to write in this file: {p}")
+        sys.exit(
+            f"You do not have the necessary permissions to write in this file: {p}"
+        )
 
     except OSError as e:
         print(f"Error reading {repository_url_file}: {e}")
@@ -359,6 +395,17 @@ def clean_repository_url_file(repository_url_file: str) -> None:
 
 
 def sideroxylon_workflow(args_list: list) -> None:
+    """
+    Main function of sideroxylon.
+
+    Its purpose is to define the workflow of the program and
+    separate the cli entry point from the rest of the functions.
+
+    It can be used as a replacement for the sideroxylon
+    function, provided you pass a list with elements that serve as
+    substitutes for the cli arguments.
+    """
+
     load_sideroxylon_env_variables(args_list[0])
 
     # Arguments after processing.
