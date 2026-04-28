@@ -101,7 +101,7 @@ def test_initialize_directories_and_files(throwaway_dir):
     assert os.path.isfile(example_file)
 
 
-def test_store_repository_urls_in_corresponding_files(
+def test_store_repository_urls_by_programming_language(
     throwaway_dir, python_txt_file, test_repository
 ):
     if os.path.isfile(python_txt_file):
@@ -116,7 +116,7 @@ def test_store_repository_urls_in_corresponding_files(
     # test_url: list[str] = test_repository_list
     test_url: list[str] = [test_repository]
 
-    sideroxylon.store_repository_urls_in_corresponding_files(
+    sideroxylon.store_repository_urls_by_programming_language(
         test_url, throwaway_dir, "txt", 2, False
     )
 
