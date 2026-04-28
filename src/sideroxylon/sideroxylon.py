@@ -24,7 +24,6 @@ class SideroxylonArgs:
     languages_directory: str
     file_extension: str
     sleep_time: float
-    batching: bool
 
 
 HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
@@ -36,8 +35,6 @@ XDG_CONFIG_HOME_DIR: str = os.environ.get(
 )
 SIDEROXYLON_DATA_HOME_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
 SIDEROXYLON_CONFIG_HOME_DIR: str = f"{XDG_CONFIG_HOME_DIR}/sideroxylon"
-
-REPOSITORY_URL_DICT: dict[str, list[str]] = {}
 
 
 def load_sideroxylon_env_variables(env_file: str) -> None:
@@ -109,13 +106,6 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
             )
             or args_list[4]
         )
-    if not args_list[5]:
-        args_list[5] = (
-            check_if_boolean(
-                os.path.expanduser(os.environ.get("SIDEROXYLON_BATCHING", ""))
-            )
-            or args_list[5]
-        )
 
     return SideroxylonArgs(*args_list)
 
@@ -163,43 +153,24 @@ def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
     return urls
 
 
-def sequential_write_into_file(full_path_filename: str, url: str) -> None:
-    """
-    Sequentially write the URL in its corresponding file.
-    """
-
-    try:
-        with open(full_path_filename, "a") as file:
-            file.write(url + "\n")
-
-    except PermissionError as p:
-        sys.exit(
-            f"You do not have the necessary permissions to write in this file: {p}"
-        )
-
-    except OSError as e:
-        print(f"Error reading {full_path_filename}: {e}")
-        return
-
-
-def batch_store_in_memory(full_path_filename: str, url: str) -> None:
+def store_batches_in_memory(full_path_filename: str, url: str, repository_url_dict: dict[str, list[str]]) -> None:
     """
     Store the URL inside the dictionary REPOSITORY_URL_DICT.
     """
 
-    if full_path_filename not in REPOSITORY_URL_DICT:
-        REPOSITORY_URL_DICT[full_path_filename] = []
+    if full_path_filename not in repository_url_dict:
+        repository_url_dict[full_path_filename] = []
 
-    REPOSITORY_URL_DICT[full_path_filename].append(url)
+    repository_url_dict[full_path_filename].append(url)
 
 
-def batch_write_into_file() -> None:
+def write_batches_into_files(repository_url_dict: dict[str, list[str]]) -> None:
     """
     Write all the URLs in their respective files.
     """
 
     try:
-        for key, value in REPOSITORY_URL_DICT.items():
+        for key, value in repository_url_dict.items():
             with open(key, "a") as file:
                 file.write("\n".join(value) + "\n")
 
@@ -310,10 +281,7 @@ def store_repository_urls_by_programming_language(
     """
 
     forge_dict: dict[str, Any] = initialize_forge_dictionary()
-
-    write_function = (
-        batch_store_in_memory if sid_args.batching else sequential_write_into_file
-    )
+    repository_url_dict: dict[str, list[str]] = {}
 
     for url in repository_urls:
 
@@ -327,20 +295,20 @@ def store_repository_urls_by_programming_language(
             forge_object.get_repository_programming_language(url)
         )
 
-        filename = f"{language}.{sid_args.file_extension}"
+        filename: str = f"{language}.{sid_args.file_extension}"
 
         full_path_filename: str = os.path.join(sid_args.languages_directory, filename)
 
         url: str = forge_object.clean_forge_repository_url(url)
 
-        write_function(full_path_filename, url)
+        store_batches_in_memory(full_path_filename, url, repository_url_dict)
 
         print_sideroxylon_output(url, language)
 
         delay_api_calls(sid_args.sleep_time)
 
-    if sid_args.batching:
-        batch_write_into_file()
+    # Outside of loop.
+    write_batches_into_files(repository_url_dict)
 
 
 def initialize_directories_and_files(
@@ -461,13 +429,6 @@ def sideroxylon(
     sleep_time: Annotated[
         float, typer.Option(help="Seconds to wait until the next API call.")
     ] = 2.0,
-    # Whether to store the URLs in memory and write them in batches or not.
-    batching: Annotated[
-        bool,
-        typer.Option(
-            help="This determines whether to store the URLs in memory and write them in batches or not."
-        ),
-    ] = False,
 ) -> None:
     """
     Entry point of the sideroxylon CLI.
@@ -480,7 +441,6 @@ def sideroxylon(
         languages_directory,
         file_extension,
         sleep_time,
-        batching,
     ]
 
     sideroxylon_workflow(args_list)
