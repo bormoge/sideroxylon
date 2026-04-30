@@ -98,34 +98,30 @@ class SideroxylonGitHub(SideroxylonForge):
             print(f"Error fetching {api_url}: {e}")
             return None
 
-    def get_repository_programming_language(self, repository_url: str) -> str:
+    def get_repository_programming_language(self, api_url: str, fetched_data: dict[str, Any] | None) -> str:
         """
         Get the main programming language of the provided repository URL.
         """
 
-        # Convert normal URL to api URL
-        api_url: str | None = self.convert_forge_url_to_api_url(repository_url)
-
-        # Check if api URL exists, and if not return Unknown
-        if not api_url:
-            return "GitHub_URL"
-
-        data: dict[str, Any] | None = self.fetch_forge_repository_data(api_url)
-
-        if isinstance(data, dict) and ((len(data) == 0) or (data == {})):
+        # If fetched_data exists then we know {user}/{repo}/languages exists.
+        # If it's empty then we know there are no programming languages in that
+        # repository.
+        if isinstance(fetched_data, dict) and ((len(fetched_data) == 0) or (fetched_data == {})):
             return "No_Programming_Language"
 
-        if not data:
+        # Check if fetched_data exists. If it doesn't, it means we know it's a GitHub
+        # URL but it's not a repository.
+        if not fetched_data:
             return "GitHub_URL"
 
         # Get the most used language in the repository.
-        main_language: str | Any = max(data, key=lambda k: data[k])
+        main_language: str | Any = max(fetched_data, key=lambda k: fetched_data[k])
 
         return (
             main_language or "Unknown"
         )  # There is a chance this 'or' may never be used.
 
-    def get_forge_name(self):
+    def get_forge_name(self) -> str:
         """
         Return the string "GitHub".
         """

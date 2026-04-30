@@ -1,11 +1,17 @@
 from typing import Any
 from .sideroxylon_forge import SideroxylonForge
 
+
 class SideroxylonUnknownForge(SideroxylonForge):
 
-    def fetch_forge_repository_data(
-        self, api_url: str
-    ) -> dict[str, Any] | None:
+    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+        """
+        This is a dummy function that returns repository_url.
+        """
+
+        return repository_url
+
+    def fetch_forge_repository_data(self, api_url: str) -> dict[str, Any] | None:
         """
         This is a dummy function that returns 'None'.
         """
@@ -19,7 +25,7 @@ class SideroxylonUnknownForge(SideroxylonForge):
         return repository_url
 
     def get_repository_programming_language(
-        self, repository_url: str
+        self, api_url: str, fetched_data: dict[str, Any] | None
     ) -> str | Any:
         """
         This is a dummy function that returns 'Unknown'
@@ -27,7 +33,7 @@ class SideroxylonUnknownForge(SideroxylonForge):
 
         return "Unknown"
 
-    def get_forge_name(self):
+    def get_forge_name(self) -> str:
         """
         This is a dummy function that returns "Unknown".
         """

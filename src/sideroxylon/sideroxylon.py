@@ -283,6 +283,8 @@ def store_repository_urls_by_programming_language(
     forge_dict: dict[str, Any] = initialize_forge_dictionary()
     repository_url_dict: dict[str, list[str]] = {}
 
+    current_line_number: int = 0
+
     for url in repository_urls:
 
         url: str = basic_url_cleaning(url)
@@ -291,19 +293,30 @@ def store_repository_urls_by_programming_language(
             forge_dict, url
         )
 
-        language: str | Any = clean_programming_language_name(
-            forge_object.get_repository_programming_language(url)
-        )
+        # If necessary, convert the URL to an api URL.
+        api_url: str | None = forge_object.convert_forge_url_to_api_url(url)
 
-        filename: str = f"{language}.{sid_args.file_extension}"
+        if not api_url:
+            current_line_number += 1
+            print(f"Skipping {url}")
+            continue
+
+        # From api_url, fetch the necessary data to get the programming language.
+        fetched_data: dict[str, Any] | None = forge_object.fetch_forge_repository_data(api_url)
+
+        language_name: str = forge_object.get_repository_programming_language(api_url, fetched_data)
+
+        cleaned_language_name: str = clean_programming_language_name(language_name)
+
+        filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
 
         full_path_filename: str = os.path.join(sid_args.languages_directory, filename)
 
-        url: str = forge_object.clean_forge_repository_url(url)
+        cleaned_url: str = forge_object.clean_forge_repository_url(url)
 
-        store_batches_in_memory(full_path_filename, url, repository_url_dict)
+        store_batches_in_memory(full_path_filename, cleaned_url, repository_url_dict)
 
-        print_sideroxylon_output(url, language)
+        print_sideroxylon_output(cleaned_url, cleaned_language_name)
 
         delay_api_calls(sid_args.sleep_time)
 

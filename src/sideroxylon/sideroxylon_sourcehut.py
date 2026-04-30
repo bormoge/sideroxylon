@@ -2,18 +2,26 @@ from typing import Any
 from urllib.parse import urlparse
 from .sideroxylon_forge import SideroxylonForge
 
+
 class SideroxylonSourceHut(SideroxylonForge):
 
-    def fetch_forge_repository_data(
-        self, api_url: str
-    ) -> dict[str, Any] | None:
+    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+        """
+        This is a dummy function that returns repository_url.
+        """
+
+        return repository_url
+
+    def fetch_forge_repository_data(self, api_url: str) -> dict[str, Any] | None:
         """
         This is a dummy function that returns 'None'.
         """
 
         return None
 
-    def get_forge_user_and_repository_name(self, repository_url: str) -> dict[str, str] | None:
+    def get_forge_user_and_repository_name(
+        self, repository_url: str
+    ) -> dict[str, str] | None:
         """
         Get the user and repository name from the provided URL.
         """
@@ -33,7 +41,9 @@ class SideroxylonSourceHut(SideroxylonForge):
         Clean the provided forge URL, leaving only the base URL, the user, and the repository name.
         """
 
-        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(repository_url)
+        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(
+            repository_url
+        )
 
         if user_and_repo is None:
             return None
@@ -45,7 +55,7 @@ class SideroxylonSourceHut(SideroxylonForge):
         return f"https://{base_url}/{user}/{repo}"
 
     def get_repository_programming_language(
-        self, repository_url: str
+        self, api_url: str, fetched_data: dict[str, Any] | None
     ) -> str | Any:
         """
         This is a dummy function that returns 'SourceHut'
@@ -57,7 +67,7 @@ class SideroxylonSourceHut(SideroxylonForge):
 
         return "SourceHut"
 
-    def get_forge_name(self):
+    def get_forge_name(self) -> str:
         """
         This is a dummy function that returns "SourceHut".
         """
