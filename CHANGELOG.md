@@ -1,4 +1,13 @@
-# [](/compare/v0.2.1...v) (2026-04-26)
+# [](/compare/v0.2.2...v) (2026-05-05)
+
+
+
+## [0.2.2](/compare/v0.2.1...v0.2.2) (2026-05-05)
+
+
+### Bug Fixes
+
+* **sideroxylon:** add missing docstrings d0a47df
 
 
 
