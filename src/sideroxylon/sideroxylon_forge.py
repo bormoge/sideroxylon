@@ -1,3 +1,4 @@
+import requests
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -9,7 +10,7 @@ class SideroxylonForge(ABC):
         pass
 
     @abstractmethod
-    def fetch_forge_repository_data(self, api_url: str) -> dict[str, Any] | None:
+    def fetch_forge_repository_data(self, api_url: str) -> requests.models.Response | None:
         pass
 
     @abstractmethod

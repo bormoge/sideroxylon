@@ -74,7 +74,9 @@ class SideroxylonGitHub(SideroxylonForge):
 
         return f"https://api.github.com/repos/{user}/{repo}/languages"
 
-    def fetch_forge_repository_data(self, api_url: str) -> dict[str, Any] | None:
+    def fetch_forge_repository_data(
+        self, api_url: str
+    ) -> requests.models.Response | None:
         """
         Fetch the necessary data from GitHub.
         """
@@ -85,20 +87,16 @@ class SideroxylonGitHub(SideroxylonForge):
                 url=api_url, headers=self.assign_token_to_headers()
             )
 
-            if response.status_code != 200:
-                print(f"Status code: {response.status_code}")
-
-                # If there is no language then default to None
-                return None
-
-            return response.json()
+            return response
 
         except Exception as e:
             # If there is an exception then default to None
             print(f"Error fetching {api_url}: {e}")
             return None
 
-    def get_repository_programming_language(self, api_url: str, fetched_data: dict[str, Any] | None) -> str:
+    def get_repository_programming_language(
+        self, api_url: str, fetched_data: dict[str, Any] | None
+    ) -> str:
         """
         Get the main programming language of the provided repository URL.
         """
@@ -106,7 +104,9 @@ class SideroxylonGitHub(SideroxylonForge):
         # If fetched_data exists then we know {user}/{repo}/languages exists.
         # If it's empty then we know there are no programming languages in that
         # repository.
-        if isinstance(fetched_data, dict) and ((len(fetched_data) == 0) or (fetched_data == {})):
+        if isinstance(fetched_data, dict) and (
+            (len(fetched_data) == 0) or (fetched_data == {})
+        ):
             return "No_Programming_Language"
 
         # Check if fetched_data exists. If it doesn't, it means we know it's a GitHub

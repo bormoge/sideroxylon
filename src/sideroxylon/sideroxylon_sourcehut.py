@@ -1,3 +1,4 @@
+import requests
 from typing import Any
 from urllib.parse import urlparse
 from .sideroxylon_forge import SideroxylonForge
@@ -12,7 +13,7 @@ class SideroxylonSourceHut(SideroxylonForge):
 
         return repository_url
 
-    def fetch_forge_repository_data(self, api_url: str) -> dict[str, Any] | None:
+    def fetch_forge_repository_data(self, api_url: str) -> requests.models.Response | None:
         """
         This is a dummy function that returns 'None'.
         """

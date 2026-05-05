@@ -2,6 +2,8 @@ import time
 import os
 import sys
 import typer
+import requests
+import datetime
 from typing import Annotated
 from typing import Any
 from pathlib import Path
@@ -153,7 +155,9 @@ def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
     return urls
 
 
-def store_batches_in_memory(full_path_filename: str, url: str, repository_url_dict: dict[str, list[str]]) -> None:
+def store_batches_in_memory(
+    full_path_filename: str, url: str, repository_url_dict: dict[str, list[str]]
+) -> None:
     """
     Store the URL inside the dictionary REPOSITORY_URL_DICT.
     """
@@ -247,12 +251,34 @@ def delay_api_calls(sleep_time: float) -> None:
     time.sleep(sleep_time)
 
 
-def print_sideroxylon_output(url: str, language: str) -> None:
+def print_sideroxylon_output(
+    url: str,
+    language: str,
+    current_line_number: int,
+    response: requests.models.Response | None = None,
+    forge_name: str = "GitHub",
+) -> None:
     """
     Print the repository URL and the main programming language of said repository.
     """
 
-    print(f"{url} -> {language}")
+    if response is not None and response.status_code != 200:
+        print(f"Status code: {response.status_code}")
+
+    if language:
+        print(f"{url} -> {language}")
+    else:
+        print(f"Skipping {url}")
+
+    print(f"Current line number: {current_line_number}")
+
+    if response is not None:
+        print(
+            f"Current rate limit ({forge_name}): {response.headers["X-RateLimit-Remaining"]}"
+        )
+        print(
+            f"Rate limit's reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers["X-RateLimit-Reset"]))}"
+        )
 
 
 def clean_programming_language_name(language: str) -> str:
@@ -275,7 +301,7 @@ def clean_programming_language_name(language: str) -> str:
 
 def store_repository_urls_by_programming_language(
     repository_urls: list[str], sid_args: SideroxylonArgs
-) -> None:
+) -> int:
     """
     Store each repository URL in the file with the name of its main programming language.
     """
@@ -284,6 +310,7 @@ def store_repository_urls_by_programming_language(
     repository_url_dict: dict[str, list[str]] = {}
 
     current_line_number: int = 0
+    rate_limit_reached: bool = False
 
     for url in repository_urls:
 
@@ -298,13 +325,22 @@ def store_repository_urls_by_programming_language(
 
         if not api_url:
             current_line_number += 1
-            print(f"Skipping {url}")
+            print_sideroxylon_output(url, "", current_line_number)
             continue
 
         # From api_url, fetch the necessary data to get the programming language.
-        fetched_data: dict[str, Any] | None = forge_object.fetch_forge_repository_data(api_url)
+        response: requests.models.Response | None = (
+            forge_object.fetch_forge_repository_data(api_url)
+        )
 
-        language_name: str = forge_object.get_repository_programming_language(api_url, fetched_data)
+        language_name: str = forge_object.get_repository_programming_language(
+            api_url,
+            (
+                response.json()
+                if response is not None and response.status_code == 200
+                else None
+            ),
+        )
 
         cleaned_language_name: str = clean_programming_language_name(language_name)
 
@@ -316,12 +352,36 @@ def store_repository_urls_by_programming_language(
 
         store_batches_in_memory(full_path_filename, cleaned_url, repository_url_dict)
 
-        print_sideroxylon_output(cleaned_url, cleaned_language_name)
+        current_line_number += 1
+
+        print_sideroxylon_output(
+            cleaned_url,
+            cleaned_language_name,
+            current_line_number,
+            response,
+            forge_object.get_forge_name(),
+        )
+
+        # Note: this only stops the current iteration of sideroxylon.
+        # I could probably create a hard cap that checks current UNIX
+        # time vs the last fetched UNIX time or something similar.
+
+        # Another thing to note: this condition activates with all
+        # forges, disregarding any rate limits other than the
+        # current forge's.
+
+        if response and int(response.headers["X-RateLimit-Remaining"]) <= 1:
+            print(f"Rate limit reached for {forge_object.get_forge_name()}")
+            print("Exiting sideroxylon")
+            rate_limit_reached = True
+            break
 
         delay_api_calls(sid_args.sleep_time)
 
     # Outside of loop.
     write_batches_into_files(repository_url_dict)
+
+    return current_line_number
 
 
 def initialize_directories_and_files(
@@ -357,13 +417,17 @@ def initialize_directories_and_files(
         print(f"Error creating {file}: {e}")
 
 
-def clean_repository_url_file(repository_url_file: str) -> None:
+def clean_repository_url_file(
+    repository_url_file: str, repository_urls: list[str], final_line_number: int
+) -> None:
     """
     Clean the file with the repository URLs.
     """
 
     try:
-        open(repository_url_file, "w").close()
+        # open(repository_url_file, "w").close()
+        with open(repository_url_file, "w") as file:
+            file.writelines(repository_urls[final_line_number:])
 
     except PermissionError as p:
         sys.exit(
@@ -410,11 +474,15 @@ def sideroxylon_workflow(args_list: list) -> None:
     )
 
     # Store each URL in its corresponding file inside languages_directory
-    store_repository_urls_by_programming_language(repository_urls, sid_args)
+    final_line_number: int = store_repository_urls_by_programming_language(
+        repository_urls, sid_args
+    )
 
     # Clear the repository URL file after going through each link
     # At some point I will change this so at the beginning of the program it clears all files
-    clean_repository_url_file(sid_args.repository_url_file)
+    clean_repository_url_file(
+        sid_args.repository_url_file, repository_urls, final_line_number
+    )
 
 
 def sideroxylon(

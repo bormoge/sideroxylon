@@ -117,6 +117,7 @@ def test_language_files_list(
         unknown_language_file,
     ]
 
+
 @pytest.fixture
 def test_repository_list_2():
     return [
@@ -125,17 +126,21 @@ def test_repository_list_2():
         "https://github.com/odin-lang/Odin",
     ]
 
+
 @pytest.fixture
 def zig_language_file(languages_directory, file_extension):
     return f"{languages_directory}/Zig.{file_extension}"
+
 
 @pytest.fixture
 def nim_language_file(languages_directory, file_extension):
     return f"{languages_directory}/Nim.{file_extension}"
 
+
 @pytest.fixture
 def odin_language_file(languages_directory, file_extension):
     return f"{languages_directory}/Odin.{file_extension}"
+
 
 @pytest.fixture
 def test_language_files_list_2(
@@ -265,12 +270,16 @@ def test_clean_repository_url_file(repository_url_file):
 
     assert os.path.getsize(repository_url_file) != 0
 
-    sideroxylon.clean_repository_url_file(repository_url_file)
+    sideroxylon.clean_repository_url_file(
+        repository_url_file, [repository_url_file], os.path.getsize(repository_url_file)
+    )
 
     assert os.path.getsize(repository_url_file) == 0
 
 
-def test_sideroxylon_workflow(args_list, repository_url_file, test_language_files_list_2, test_repository_list_2):
+def test_sideroxylon_workflow(
+    args_list, repository_url_file, test_language_files_list_2, test_repository_list_2
+):
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
 
@@ -301,7 +310,6 @@ def test_sideroxylon_workflow(args_list, repository_url_file, test_language_file
 
     except OSError as e:
         print(f"Error reading {language_file}: {e}")
-
 
     for language_file, repository_url in zip(
         test_language_files_list_2, test_repository_list_2

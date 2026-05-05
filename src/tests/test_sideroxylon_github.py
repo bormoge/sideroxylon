@@ -68,7 +68,7 @@ def test_api_url_no_language(github_forge_object, test_repository_no_language):
 @pytest.fixture
 def fetched_data_success(github_forge_object, test_api_url_success):
     fetched_data_success: dict[str, Any] | None = (
-        github_forge_object.fetch_forge_repository_data(test_api_url_success)
+        github_forge_object.fetch_forge_repository_data(test_api_url_success).json()
     )
     return fetched_data_success
 
@@ -84,7 +84,7 @@ def fetched_data_failure(github_forge_object, test_api_url_failure):
 @pytest.fixture
 def fetched_data_no_language(github_forge_object, test_api_url_no_language):
     fetched_data_no_language: dict[str, Any] | None = (
-        github_forge_object.fetch_forge_repository_data(test_api_url_no_language)
+        github_forge_object.fetch_forge_repository_data(test_api_url_no_language).json()
     )
     return fetched_data_no_language
 
@@ -103,12 +103,14 @@ def test_fetch_forge_repository_data(
     test_api_url_no_language,
 ):
     data_success: dict[str, Any] | None = (
-        github_forge_object.fetch_forge_repository_data(test_api_url_success)
+        github_forge_object.fetch_forge_repository_data(test_api_url_success).json()
     )
 
     assert max(data_success, key=lambda k: data_success[k]) == "Python"
-    assert github_forge_object.fetch_forge_repository_data(test_api_url_failure) is None
-    assert github_forge_object.fetch_forge_repository_data(test_api_url_no_language) == {}
+    assert github_forge_object.fetch_forge_repository_data(test_api_url_failure).status_code == 404
+    assert (
+        github_forge_object.fetch_forge_repository_data(test_api_url_no_language).json() == {}
+    )
 
 
 def test_get_repository_programming_language(
