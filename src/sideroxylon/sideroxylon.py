@@ -274,10 +274,10 @@ def print_sideroxylon_output(
 
     if response is not None:
         print(
-            f"Current rate limit ({forge_name}): {response.headers["X-RateLimit-Remaining"]}"
+            f"Current rate limit ({forge_name}): {response.headers.get("X-RateLimit-Remaining", -1)}"
         )
         print(
-            f"Rate limit's reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers["X-RateLimit-Reset"]))}"
+            f"Rate limit's reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers.get("X-RateLimit-Reset", -1)))}"
         )
 
 
