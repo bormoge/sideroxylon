@@ -1,1 +1,1 @@
-((nil . ((compile-command . "sideroxylon --sleep-time 1.0"))))
+((nil . ((compile-command . "sideroxylon --sleep-time 0.0"))))

@@ -427,7 +427,7 @@ def clean_repository_url_file(
     try:
         # open(repository_url_file, "w").close()
         with open(repository_url_file, "w") as file:
-            file.writelines(repository_urls[final_line_number:])
+            file.write("\n".join(repository_urls[final_line_number:]) + "\n")
 
     except PermissionError as p:
         sys.exit(
