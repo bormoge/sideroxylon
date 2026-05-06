@@ -262,11 +262,9 @@ def print_sideroxylon_output(
     Print the repository URL and the main programming language of said repository.
     """
 
-    if response is not None and response.status_code != 200:
-        print(f"Status code: {response.status_code}")
-
     if language:
-        print(f"{url} -> {language}")
+        print(f"URL: {url}")
+        print(f"Programming Language: {language}")
     else:
         print(f"Skipping {url}")
 
@@ -279,6 +277,9 @@ def print_sideroxylon_output(
         print(
             f"Rate limit's reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers.get("X-RateLimit-Reset", -1)))}"
         )
+        print(f"Status code: {response.status_code}")
+
+    print()
 
 
 def clean_programming_language_name(language: str) -> str:
@@ -370,10 +371,11 @@ def store_repository_urls_by_programming_language(
         # forges, disregarding any rate limits other than the
         # current forge's.
 
-        if response and int(response.headers["X-RateLimit-Remaining"]) <= 1:
-            print(f"Rate limit reached for {forge_object.get_forge_name()}")
-            print("Exiting sideroxylon")
-            rate_limit_reached = True
+        rate_limit_reached: bool = check_if_rate_limit_has_been_reached(
+            response, forge_object
+        )
+
+        if rate_limit_reached:
             break
 
         delay_api_calls(sid_args.sleep_time)
@@ -382,6 +384,20 @@ def store_repository_urls_by_programming_language(
     write_batches_into_files(repository_url_dict)
 
     return current_line_number
+
+
+def check_if_rate_limit_has_been_reached(
+    response: requests.models.Response | None, forge_object: SideroxylonForge
+) -> bool | None:
+    """
+    Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
+    response.
+    """
+
+    if response and int(response.headers["X-RateLimit-Remaining"]) <= 1:
+        print(f"\nRate limit reached for {forge_object.get_forge_name()}")
+        print("Exiting sideroxylon")
+        return True
 
 
 def initialize_directories_and_files(
