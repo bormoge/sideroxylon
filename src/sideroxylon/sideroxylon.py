@@ -87,24 +87,28 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
             os.path.expanduser(os.environ.get("SIDEROXYLON_ENV_FILE", ""))
             or args_list[0]
         )
+
     if args_list[1] == f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org":
         args_list[1] = (
             os.path.expanduser(os.environ.get("SIDEROXYLON_REPOSITORY_URL_FILE", ""))
             or args_list[1]
         )
+
     if args_list[2] == f"{SIDEROXYLON_DATA_HOME_DIR}/languages/":
         args_list[2] = (
             os.path.expanduser(os.environ.get("SIDEROXYLON_LANGUAGES_DIRECTORY", ""))
             or args_list[2]
         )
+
     if args_list[3] == "org":
         args_list[3] = (
             os.path.expanduser(os.environ.get("SIDEROXYLON_FILE_EXTENSION", ""))
             or args_list[3]
         )
+
     if args_list[4] == 2.0:
         args_list[4] = (
-            check_if_float(
+            check_if_number(
                 os.path.expanduser(os.environ.get("SIDEROXYLON_SLEEP_TIME", ""))
             )
             or args_list[4]
@@ -112,7 +116,7 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
 
     if args_list[5] == 1:
         args_list[5] = (
-            check_if_int(
+            check_if_number(
                 os.path.expanduser(os.environ.get("SIDEROXYLON_VERBOSE", ""))
             )
             or args_list[5]
@@ -121,9 +125,9 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
     return SideroxylonArgs(*args_list)
 
 
-def check_if_float(float_num: str | float) -> float | None:
+def check_if_number(float_num: str | float) -> float | None:
     """
-    Check if the parameter passed is a float or can be converted to float.
+    Check if the parameter passed is a number (float) or can be converted to a number (float).
     """
 
     try:
@@ -134,22 +138,6 @@ def check_if_float(float_num: str | float) -> float | None:
 
     except (TypeError, ValueError):
         print("Error: Not a float. Falling back to argument value.")
-        return None
-
-
-def check_if_int(int_num: str | int) -> int | None:
-    """
-    Check if the parameter passed is an integer or can be converted to an integer.
-    """
-
-    try:
-        if int_num == "" or int_num is None:
-            return None
-        else:
-            return int(int_num)
-
-    except (TypeError, ValueError):
-        print("Error: Not an int. Falling back to argument value.")
         return None
 
 
@@ -282,20 +270,20 @@ def print_sideroxylon_output(
     current_line_number: int,
     response: requests.models.Response | None = None,
     forge_name: str = "GitHub",
-    verbose: int = 1
+    verbose: int = 1,
 ) -> None:
     """
     Print the repository URL and the main programming language of said repository.
     """
 
-    if verbose > 0:
-        if language and (verbose >= 1):
+    if verbose >= 1:
+        if language:
             print(f"URL: {url}")
             print(f"Programming Language: {language}")
-        elif (verbose >= 1):
+        else:
             print(f"Skipping {url}")
 
-        if (verbose >= 2):
+        if verbose >= 2:
             print(f"Current line number: {current_line_number}")
 
         if response is not None and (verbose >= 2):
@@ -354,7 +342,9 @@ def store_repository_urls_by_programming_language(
 
         if not api_url:
             current_line_number += 1
-            print_sideroxylon_output(url, "", current_line_number, verbose=sid_args.verbose)
+            print_sideroxylon_output(
+                url, "", current_line_number, verbose=sid_args.verbose
+            )
             continue
 
         # From api_url, fetch the necessary data to get the programming language.
