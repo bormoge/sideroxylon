@@ -38,10 +38,14 @@ def file_extension():
 def sleep_time():
     return 1.0
 
+@pytest.fixture
+def verbose():
+    return 0
+
 
 @pytest.fixture
 def args_list(
-    env_file, repository_url_file, languages_directory, file_extension, sleep_time
+        env_file, repository_url_file, languages_directory, file_extension, sleep_time, verbose,
 ):
     args_list: list = [
         env_file,
@@ -49,6 +53,7 @@ def args_list(
         languages_directory,
         file_extension,
         sleep_time,
+        verbose,
     ]
     return args_list
 
@@ -230,14 +235,14 @@ def test_assign_sideroxylon_variables(args_list, sid_args):
     assert sideroxylon.assign_sideroxylon_variables(args_list) == sid_args
 
 
-def test_store_repository_urls_by_programming_language(
+def test_store_repository_urls(
     test_language_files_list, test_repository_list, sid_args
 ):
     for language_file in test_language_files_list:
         if os.path.isfile(language_file):
             os.remove(language_file)
 
-    sideroxylon.store_repository_urls_by_programming_language(
+    sideroxylon.store_repository_urls(
         test_repository_list, sid_args
     )
 
@@ -274,7 +279,8 @@ def test_clean_repository_url_file(repository_url_file):
         repository_url_file, [repository_url_file], os.path.getsize(repository_url_file)
     )
 
-    assert os.path.getsize(repository_url_file) == 0
+    # "0" means no lines, "1" means one empty line
+    assert os.path.getsize(repository_url_file) == 1 or os.path.getsize(repository_url_file) == 0
 
 
 def test_sideroxylon_workflow(

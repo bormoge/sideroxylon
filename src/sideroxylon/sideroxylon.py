@@ -316,7 +316,7 @@ def clean_programming_language_name(language: str) -> str:
     return language
 
 
-def store_repository_urls_by_programming_language(
+def store_repository_urls(
     repository_urls: list[str], sid_args: SideroxylonArgs
 ) -> int:
     """
@@ -511,7 +511,7 @@ def sideroxylon_workflow(args_list: list) -> None:
     )
 
     # Store each URL in its corresponding file inside languages_directory
-    final_line_number: int = store_repository_urls_by_programming_language(
+    final_line_number: int = store_repository_urls(
         repository_urls, sid_args
     )
 
