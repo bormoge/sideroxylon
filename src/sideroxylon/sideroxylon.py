@@ -26,6 +26,7 @@ class SideroxylonArgs:
     languages_directory: str
     file_extension: str
     sleep_time: float
+    verbose: int
 
 
 HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
@@ -109,6 +110,14 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
             or args_list[4]
         )
 
+    if args_list[5] == 1:
+        args_list[5] = (
+            check_if_int(
+                os.path.expanduser(os.environ.get("SIDEROXYLON_VERBOSE", ""))
+            )
+            or args_list[5]
+        )
+
     return SideroxylonArgs(*args_list)
 
 
@@ -125,6 +134,22 @@ def check_if_float(float_num: str | float) -> float | None:
 
     except (TypeError, ValueError):
         print("Error: Not a float. Falling back to argument value.")
+        return None
+
+
+def check_if_int(int_num: str | int) -> int | None:
+    """
+    Check if the parameter passed is an integer or can be converted to an integer.
+    """
+
+    try:
+        if int_num == "" or int_num is None:
+            return None
+        else:
+            return int(int_num)
+
+    except (TypeError, ValueError):
+        print("Error: Not an int. Falling back to argument value.")
         return None
 
 
@@ -257,29 +282,32 @@ def print_sideroxylon_output(
     current_line_number: int,
     response: requests.models.Response | None = None,
     forge_name: str = "GitHub",
+    verbose: int = 1
 ) -> None:
     """
     Print the repository URL and the main programming language of said repository.
     """
 
-    if language:
-        print(f"URL: {url}")
-        print(f"Programming Language: {language}")
-    else:
-        print(f"Skipping {url}")
+    if verbose > 0:
+        if language and (verbose >= 1):
+            print(f"URL: {url}")
+            print(f"Programming Language: {language}")
+        elif (verbose >= 1):
+            print(f"Skipping {url}")
 
-    print(f"Current line number: {current_line_number}")
+        if (verbose >= 2):
+            print(f"Current line number: {current_line_number}")
 
-    if response is not None:
-        print(
-            f"Current rate limit ({forge_name}): {response.headers.get("X-RateLimit-Remaining", -1)}"
-        )
-        print(
-            f"Rate limit's reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers.get("X-RateLimit-Reset", -1)))}"
-        )
-        print(f"Status code: {response.status_code}")
+        if response is not None and (verbose >= 2):
+            print(
+                f"Current rate limit ({forge_name}): {response.headers.get("X-RateLimit-Remaining", -1)}"
+            )
+            print(
+                f"Rate limit reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers.get("X-RateLimit-Reset", -1)))}"
+            )
+            print(f"Status code: {response.status_code}")
 
-    print()
+        print()
 
 
 def clean_programming_language_name(language: str) -> str:
@@ -326,7 +354,7 @@ def store_repository_urls_by_programming_language(
 
         if not api_url:
             current_line_number += 1
-            print_sideroxylon_output(url, "", current_line_number)
+            print_sideroxylon_output(url, "", current_line_number, verbose=sid_args.verbose)
             continue
 
         # From api_url, fetch the necessary data to get the programming language.
@@ -361,6 +389,7 @@ def store_repository_urls_by_programming_language(
             current_line_number,
             response,
             forge_object.get_forge_name(),
+            verbose=sid_args.verbose,
         )
 
         # Note: this only stops the current iteration of sideroxylon.
@@ -388,7 +417,7 @@ def store_repository_urls_by_programming_language(
 
 def check_if_rate_limit_has_been_reached(
     response: requests.models.Response | None, forge_object: SideroxylonForge
-) -> bool | None:
+) -> bool:
     """
     Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
     response.
@@ -398,6 +427,8 @@ def check_if_rate_limit_has_been_reached(
         print(f"\nRate limit reached for {forge_object.get_forge_name()}")
         print("Exiting sideroxylon")
         return True
+
+    return False
 
 
 def initialize_directories_and_files(
@@ -526,6 +557,18 @@ def sideroxylon(
     sleep_time: Annotated[
         float, typer.Option(help="Seconds to wait until the next API call.")
     ] = 2.0,
+    # Verbose modes.
+    verbose: Annotated[
+        int,
+        typer.Option(
+            help=(
+                "Define how descriptive you want sideroxylon to be."
+                "\nZero (0) is non-descriptive."
+                "\nOne (1) is minimally descriptive."
+                "\nTwo (2) is fully descriptive."
+            )
+        ),
+    ] = 1,
 ) -> None:
     """
     Entry point of the sideroxylon CLI.
@@ -538,6 +581,7 @@ def sideroxylon(
         languages_directory,
         file_extension,
         sleep_time,
+        verbose,
     ]
 
     sideroxylon_workflow(args_list)
