@@ -316,11 +316,55 @@ def clean_programming_language_name(language: str) -> str:
     return language
 
 
-def store_repository_urls(
-    repository_urls: list[str], sid_args: SideroxylonArgs
+def store_repository_url_by_programming_language(
+    sid_args: SideroxylonArgs,
+    forge_object: SideroxylonForge,
+    response: requests.models.Response | None,
+    repository_url_dict: dict[str, list[str]],
+    current_line_number: int,
+    url: str,
+    api_url: str,
 ) -> int:
     """
     Store each repository URL in the file with the name of its main programming language.
+    """
+
+    language_name: str = forge_object.get_repository_programming_language(
+        api_url,
+        (
+            response.json()
+            if response is not None and response.status_code == 200
+            else None
+        ),
+    )
+
+    cleaned_language_name: str = clean_programming_language_name(language_name)
+
+    filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
+
+    full_path_filename: str = os.path.join(sid_args.languages_directory, filename)
+
+    cleaned_url: str = forge_object.clean_forge_repository_url(url)
+
+    store_batches_in_memory(full_path_filename, cleaned_url, repository_url_dict)
+
+    current_line_number += 1
+
+    print_sideroxylon_output(
+        cleaned_url,
+        cleaned_language_name,
+        current_line_number,
+        response,
+        forge_object.get_forge_name(),
+        verbose=sid_args.verbose,
+    )
+
+    return current_line_number
+
+
+def store_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs) -> int:
+    """
+    Store each repository URL according to the classification given by the user.
     """
 
     forge_dict: dict[str, Any] = initialize_forge_dictionary()
@@ -328,6 +372,8 @@ def store_repository_urls(
 
     current_line_number: int = 0
     rate_limit_reached: bool = False
+
+    classification_function: Any = store_repository_url_by_programming_language
 
     for url in repository_urls:
 
@@ -352,34 +398,14 @@ def store_repository_urls(
             forge_object.fetch_forge_repository_data(api_url)
         )
 
-        language_name: str = forge_object.get_repository_programming_language(
-            api_url,
-            (
-                response.json()
-                if response is not None and response.status_code == 200
-                else None
-            ),
-        )
-
-        cleaned_language_name: str = clean_programming_language_name(language_name)
-
-        filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
-
-        full_path_filename: str = os.path.join(sid_args.languages_directory, filename)
-
-        cleaned_url: str = forge_object.clean_forge_repository_url(url)
-
-        store_batches_in_memory(full_path_filename, cleaned_url, repository_url_dict)
-
-        current_line_number += 1
-
-        print_sideroxylon_output(
-            cleaned_url,
-            cleaned_language_name,
-            current_line_number,
+        current_line_number: int = classification_function(
+            sid_args,
+            forge_object,
             response,
-            forge_object.get_forge_name(),
-            verbose=sid_args.verbose,
+            repository_url_dict,
+            current_line_number,
+            url,
+            api_url,
         )
 
         # Note: this only stops the current iteration of sideroxylon.
@@ -511,9 +537,7 @@ def sideroxylon_workflow(args_list: list) -> None:
     )
 
     # Store each URL in its corresponding file inside languages_directory
-    final_line_number: int = store_repository_urls(
-        repository_urls, sid_args
-    )
+    final_line_number: int = store_repository_urls(repository_urls, sid_args)
 
     # Clear the repository URL file after going through each link
     # At some point I will change this so at the beginning of the program it clears all files

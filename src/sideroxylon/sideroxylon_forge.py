@@ -14,7 +14,7 @@ class SideroxylonForge(ABC):
         pass
 
     @abstractmethod
-    def clean_forge_repository_url(self, repository_url: str) -> str | None:
+    def clean_forge_repository_url(self, repository_url: str) -> str:
         pass
 
     @abstractmethod

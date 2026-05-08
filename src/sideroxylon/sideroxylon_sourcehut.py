@@ -1,5 +1,6 @@
 import requests
 from typing import Any
+from typing import cast
 from urllib.parse import urlparse
 from .sideroxylon_forge import SideroxylonForge
 
@@ -37,17 +38,14 @@ class SideroxylonSourceHut(SideroxylonForge):
 
         return {"user": user, "repo": repo}
 
-    def clean_forge_repository_url(self, repository_url: str) -> str | None:
+    def clean_forge_repository_url(self, repository_url: str) -> str:
         """
         Clean the provided forge URL, leaving only the base URL, the user, and the repository name.
         """
 
-        user_and_repo: dict[str, str] | None = self.get_forge_user_and_repository_name(
+        user_and_repo: dict[str, str] | None = cast(dict, self.get_forge_user_and_repository_name(
             repository_url
-        )
-
-        if user_and_repo is None:
-            return None
+        ))
 
         user: str = user_and_repo["user"]
         repo: str = user_and_repo["repo"]
