@@ -235,14 +235,14 @@ def test_assign_sideroxylon_variables(args_list, sid_args):
     assert sideroxylon.assign_sideroxylon_variables(args_list) == sid_args
 
 
-def test_store_repository_urls(
+def test_handle_repository_urls(
     test_language_files_list, test_repository_list, sid_args
 ):
     for language_file in test_language_files_list:
         if os.path.isfile(language_file):
             os.remove(language_file)
 
-    sideroxylon.store_repository_urls(
+    sideroxylon.handle_repository_urls(
         test_repository_list, sid_args
     )
 

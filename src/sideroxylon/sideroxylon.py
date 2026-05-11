@@ -362,9 +362,9 @@ def store_repository_url_by_programming_language(
     return current_line_number
 
 
-def store_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs) -> int:
+def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs) -> int:
     """
-    Store each repository URL according to the classification given by the user.
+    Handle each repository URL according to the classification given by the user.
     """
 
     forge_dict: dict[str, Any] = initialize_forge_dictionary()
@@ -439,7 +439,7 @@ def check_if_rate_limit_has_been_reached(
     response.
     """
 
-    if response and int(response.headers["X-RateLimit-Remaining"]) <= 1:
+    if response is not None and ((int(response.headers.get("X-RateLimit-Remaining", -1)) <= 0) or response.status_code == 403):
         print(f"\nRate limit reached for {forge_object.get_forge_name()}")
         print("Exiting sideroxylon")
         return True
@@ -537,7 +537,7 @@ def sideroxylon_workflow(args_list: list) -> None:
     )
 
     # Store each URL in its corresponding file inside languages_directory
-    final_line_number: int = store_repository_urls(repository_urls, sid_args)
+    final_line_number: int = handle_repository_urls(repository_urls, sid_args)
 
     # Clear the repository URL file after going through each link
     # At some point I will change this so at the beginning of the program it clears all files

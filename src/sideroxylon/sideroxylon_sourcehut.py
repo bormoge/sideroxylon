@@ -60,10 +60,6 @@ class SideroxylonSourceHut(SideroxylonForge):
         This is a dummy function that returns 'SourceHut'
         """
 
-        # The thing is, as far as I saw their API offered no way of getting the
-        # main programming language of a repository.  Basically, we just have to
-        # wait until / if they implement it.
-
         return "SourceHut"
 
     def get_forge_name(self) -> str:
