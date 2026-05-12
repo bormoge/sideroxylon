@@ -1,6 +1,6 @@
 [project]
 name = "sideroxylon"
-version = "0.2.2"
+version = "0.2.3"
 description = "A repository classifier."
 readme = "README.md"
 requires-python = ">=3.14"
@@ -17,7 +17,6 @@ classifiers = [
   "Topic :: Utilities"
 ]
 dependencies = [
-  "requests>=2.33.0",
   "typer>=0.24.1",
 ]
 
