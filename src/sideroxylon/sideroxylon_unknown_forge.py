@@ -1,4 +1,5 @@
-import requests
+from urllib.error import HTTPError
+from http.client import HTTPResponse
 from typing import Any
 from .sideroxylon_forge import SideroxylonForge
 
@@ -12,7 +13,9 @@ class SideroxylonUnknownForge(SideroxylonForge):
 
         return repository_url
 
-    def fetch_forge_repository_data(self, api_url: str) -> requests.models.Response | None:
+    def fetch_forge_repository_data(
+        self, api_url: str
+    ) -> HTTPResponse | HTTPError | None:
         """
         This is a dummy function that returns 'None'.
         """
@@ -26,7 +29,7 @@ class SideroxylonUnknownForge(SideroxylonForge):
         return repository_url
 
     def get_repository_programming_language(
-        self, api_url: str, fetched_data: dict[str, Any] | None
+        self, api_url: str, response: HTTPResponse | HTTPError | None
     ) -> str | Any:
         """
         This is a dummy function that returns 'Unknown'

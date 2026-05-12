@@ -2,8 +2,9 @@ import time
 import os
 import sys
 import typer
-import requests
 import datetime
+from urllib.error import HTTPError
+from http.client import HTTPResponse
 from typing import Annotated
 from typing import Any
 from pathlib import Path
@@ -268,7 +269,7 @@ def print_sideroxylon_output(
     url: str,
     language: str,
     current_line_number: int,
-    response: requests.models.Response | None = None,
+    response: HTTPResponse | HTTPError | None = None,
     forge_name: str = "GitHub",
     verbose: int = 1,
 ) -> None:
@@ -288,12 +289,12 @@ def print_sideroxylon_output(
 
         if response is not None and (verbose >= 2):
             print(
-                f"Current rate limit ({forge_name}): {response.headers.get("X-RateLimit-Remaining", -1)}"
+                f"Current rate limit ({forge_name}): {dict(response.getheaders()).get("X-RateLimit-Remaining", -1)}"
             )
             print(
-                f"Rate limit reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(response.headers.get("X-RateLimit-Reset", -1)))}"
+                f"Rate limit reset date ({forge_name}): {datetime.datetime.fromtimestamp(int(dict(response.getheaders()).get("X-RateLimit-Reset", -1)))}"
             )
-            print(f"Status code: {response.status_code}")
+            print(f"Status code: {response.getcode()}")
 
         print()
 
@@ -315,11 +316,10 @@ def clean_programming_language_name(language: str) -> str:
 
     return language
 
-
 def store_repository_url_by_programming_language(
     sid_args: SideroxylonArgs,
     forge_object: SideroxylonForge,
-    response: requests.models.Response | None,
+    response: HTTPResponse | HTTPError,
     repository_url_dict: dict[str, list[str]],
     current_line_number: int,
     url: str,
@@ -332,9 +332,7 @@ def store_repository_url_by_programming_language(
     language_name: str = forge_object.get_repository_programming_language(
         api_url,
         (
-            response.json()
-            if response is not None and response.status_code == 200
-            else None
+            response
         ),
     )
 
@@ -394,7 +392,7 @@ def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs
             continue
 
         # From api_url, fetch the necessary data to get the programming language.
-        response: requests.models.Response | None = (
+        response: HTTPResponse | HTTPError = (
             forge_object.fetch_forge_repository_data(api_url)
         )
 
@@ -432,14 +430,14 @@ def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs
 
 
 def check_if_rate_limit_has_been_reached(
-    response: requests.models.Response | None, forge_object: SideroxylonForge
+    response: HTTPResponse | HTTPError, forge_object: SideroxylonForge
 ) -> bool:
     """
     Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
     response.
     """
 
-    if response is not None and ((int(response.headers.get("X-RateLimit-Remaining", -1)) <= 0) or response.status_code == 403):
+    if response is not None and ((int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0) or response.getcode() == 403):
         print(f"\nRate limit reached for {forge_object.get_forge_name()}")
         print("Exiting sideroxylon")
         return True

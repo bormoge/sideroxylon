@@ -1,8 +1,11 @@
 from .sideroxylon_forge import SideroxylonForge
 from typing import Any
 from typing import cast
-import requests
+import urllib.request
+from urllib.error import HTTPError
+from http.client import HTTPResponse
 import os
+import json
 
 
 class SideroxylonGitHub(SideroxylonForge):
@@ -74,50 +77,58 @@ class SideroxylonGitHub(SideroxylonForge):
 
     def fetch_forge_repository_data(
         self, api_url: str
-    ) -> requests.models.Response | None:
+    ) -> HTTPResponse | HTTPError | None:
         """
         Fetch the necessary data from GitHub.
         """
 
-        # Try to use the token.
-        try:
-            response: requests.models.Response = requests.get(
-                url=api_url, headers=self.assign_token_to_headers()
-            )
+        # Create a request.
+        request: urllib.request.Request = urllib.request.Request(
+            url=api_url, headers=self.assign_token_to_headers()
+        )
 
+        # Try to call the API.
+        try:
+            response: HTTPResponse = urllib.request.urlopen(url=request)
             return response
 
-        except Exception as e:
-            # If there is an exception then default to None
-            print(f"Error fetching {api_url}: {e}")
-            return None
+        except HTTPError as http_error:
+            print(f"Error fetching {api_url}: {http_error}")
+            return http_error
+
+    def convert_response_to_dict(self, response: HTTPResponse) -> dict:
+        """
+        Convert an HTTP response into a dictionary.
+        """
+        response_bytes: bytes = response.read()
+        response_dict: dict = json.loads(response_bytes.decode("utf-8"))
+
+        return response_dict
 
     def get_repository_programming_language(
-        self, api_url: str, fetched_data: dict[str, Any] | None
+        self, api_url: str, response: HTTPResponse | HTTPError | None
     ) -> str | Any:
         """
         Get the main programming language of the provided repository URL.
         """
 
-        # If fetched_data exists then we know {user}/{repo}/languages exists.
-        # If it's empty then we know there are no programming languages in that
-        # repository.
-        if isinstance(fetched_data, dict) and (
-            (len(fetched_data) == 0) or (fetched_data == {})
-        ):
-            return "No_Programming_Language"
-
-        # Check if fetched_data exists. If it doesn't, it means we know it's a GitHub
+        # Check if response exists. If it doesn't, it means we know it's a GitHub
         # URL but it's not a repository.
-        if not fetched_data:
+        if response is None or isinstance(response, HTTPError):
             return "GitHub_URL"
 
-        # Get the most used language in the repository.
-        main_language: str | Any = max(fetched_data, key=lambda k: fetched_data[k])
+        # Generate a dictionary using the response object.
+        response_dict: dict = self.convert_response_to_dict(response)
 
-        return (
-            main_language or "Unknown"
-        )  # There is a chance this 'or' may never be used.
+        # If the dictionary generated is empty then we know there are no
+        # programming languages in that repository.
+        if (len(response_dict) == 0) or (response_dict == {}):
+            return "No_Programming_Language"
+
+        # Get the most used language in the repository.
+        main_language: str | Any = max(response_dict, key=lambda k: response_dict[k])
+
+        return main_language
 
     def get_forge_name(self) -> str:
         """

@@ -1,4 +1,5 @@
-import requests
+from urllib.error import HTTPError
+from http.client import HTTPResponse
 from typing import Any
 from typing import cast
 from urllib.parse import urlparse
@@ -14,7 +15,9 @@ class SideroxylonSourceHut(SideroxylonForge):
 
         return repository_url
 
-    def fetch_forge_repository_data(self, api_url: str) -> requests.models.Response | None:
+    def fetch_forge_repository_data(
+        self, api_url: str
+    ) -> HTTPResponse | HTTPError | None:
         """
         This is a dummy function that returns 'None'.
         """
@@ -43,9 +46,9 @@ class SideroxylonSourceHut(SideroxylonForge):
         Clean the provided forge URL, leaving only the base URL, the user, and the repository name.
         """
 
-        user_and_repo: dict[str, str] | None = cast(dict, self.get_forge_user_and_repository_name(
-            repository_url
-        ))
+        user_and_repo: dict[str, str] | None = cast(
+            dict, self.get_forge_user_and_repository_name(repository_url)
+        )
 
         user: str = user_and_repo["user"]
         repo: str = user_and_repo["repo"]
@@ -54,7 +57,7 @@ class SideroxylonSourceHut(SideroxylonForge):
         return f"https://{base_url}/{user}/{repo}"
 
     def get_repository_programming_language(
-        self, api_url: str, fetched_data: dict[str, Any] | None
+        self, api_url: str, response: HTTPResponse | HTTPError | None
     ) -> str | Any:
         """
         This is a dummy function that returns 'SourceHut'

@@ -1,6 +1,7 @@
-import requests
-from abc import ABC, abstractmethod
+from urllib.error import HTTPError
+from http.client import HTTPResponse
 from typing import Any
+from abc import ABC, abstractmethod
 
 
 class SideroxylonForge(ABC):
@@ -10,7 +11,9 @@ class SideroxylonForge(ABC):
         pass
 
     @abstractmethod
-    def fetch_forge_repository_data(self, api_url: str) -> requests.models.Response | None:
+    def fetch_forge_repository_data(
+        self, api_url: str
+    ) -> HTTPResponse | HTTPError | None:
         pass
 
     @abstractmethod
@@ -19,7 +22,7 @@ class SideroxylonForge(ABC):
 
     @abstractmethod
     def get_repository_programming_language(
-        self, api_url: str, fetched_data: dict[str, Any] | None
+        self, api_url: str, response: HTTPResponse | HTTPError | None
     ) -> str | Any:
         pass
 
