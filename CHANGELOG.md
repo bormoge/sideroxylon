@@ -1,4 +1,22 @@
-# [](/compare/v0.2.2...v) (2026-05-05)
+# [](/compare/v0.2.3...v) (2026-05-12)
+
+
+
+## [0.2.3](/compare/v0.2.2...v0.2.3) (2026-05-12)
+
+
+### Bug Fixes
+
+* **sideroxylon:** fix clean_repository_url_file write output f57e160
+* **sideroxylon:** fix crash related to missing response headers 3867055
+
+
+### Features
+
+* **conf:** remove requests as a main dependency b35b526
+* **sideroxylon:** add verbose argument 6de1f83
+* **sideroxylon:** replace requests with urllib 4e78856
+* **tests:** replace requests with urllib 5a5c6cf
 
 
 
