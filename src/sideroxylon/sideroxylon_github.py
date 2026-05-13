@@ -93,7 +93,6 @@ class SideroxylonGitHub(SideroxylonForge):
             return response
 
         except HTTPError as http_error:
-            print(f"Error fetching {api_url}: {http_error}")
             return http_error
 
     def convert_response_to_dict(self, response: HTTPResponse) -> dict:
