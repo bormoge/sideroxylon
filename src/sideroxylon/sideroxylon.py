@@ -1,11 +1,10 @@
 import time
 import os
 import sys
-import typer
+import certifi
 import datetime
 from urllib.error import HTTPError
 from http.client import HTTPResponse
-from typing import Annotated
 from typing import Any
 from pathlib import Path
 from dataclasses import dataclass
@@ -82,7 +81,7 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
     # If equal to default, it may or may not mean the user skipped the flag, so the default value is being used.
     # Before assigning defaults, sideroxylon checks other sources where values could be found (ex. a dotenv file).
 
-    if args_list[0] == f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org":
+    if args_list[0] == f"{SIDEROXYLON_DATA_HOME_DIR}/.env":
         args_list[0] = (
             # This may seem redundant, but keep in mind environment variables can be set even before running sideroxylon
             os.path.expanduser(os.environ.get("SIDEROXYLON_ENV_FILE", ""))
@@ -107,6 +106,7 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
             or args_list[3]
         )
 
+    args_list[4] = check_if_number(args_list[4])
     if args_list[4] == 2.0:
         args_list[4] = (
             check_if_number(
@@ -115,6 +115,7 @@ def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
             or args_list[4]
         )
 
+    args_list[5] = check_if_number(args_list[5])
     if args_list[5] == 1:
         args_list[5] = (
             check_if_number(
@@ -137,9 +138,8 @@ def check_if_number(float_num: str | float) -> float | None:
         else:
             return float(float_num)
 
-    except (TypeError, ValueError):
-        print("Error: Not a float. Falling back to argument value.")
-        return None
+    except TypeError, ValueError:
+        sys.exit(f"sideroxylon expected a number, but received '{float_num}'")
 
 
 def check_if_boolean(bool_value: str | bool) -> bool:
@@ -316,6 +316,7 @@ def clean_programming_language_name(language: str) -> str:
 
     return language
 
+
 def store_repository_url_by_programming_language(
     sid_args: SideroxylonArgs,
     forge_object: SideroxylonForge,
@@ -331,9 +332,7 @@ def store_repository_url_by_programming_language(
 
     language_name: str = forge_object.get_repository_programming_language(
         api_url,
-        (
-            response
-        ),
+        response,
     )
 
     cleaned_language_name: str = clean_programming_language_name(language_name)
@@ -360,7 +359,9 @@ def store_repository_url_by_programming_language(
     return current_line_number
 
 
-def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs) -> int:
+def handle_repository_urls(
+    repository_urls: list[str], sid_args: SideroxylonArgs
+) -> int:
     """
     Handle each repository URL according to the classification given by the user.
     """
@@ -369,7 +370,6 @@ def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs
     repository_url_dict: dict[str, list[str]] = {}
 
     current_line_number: int = 0
-    rate_limit_reached: bool = False
 
     classification_function: Any = store_repository_url_by_programming_language
 
@@ -392,7 +392,7 @@ def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs
             continue
 
         # From api_url, fetch the necessary data to get the programming language.
-        response: HTTPResponse | HTTPError = (
+        response: HTTPResponse | HTTPError | None = (
             forge_object.fetch_forge_repository_data(api_url)
         )
 
@@ -414,11 +414,7 @@ def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs
         # forges, disregarding any rate limits other than the
         # current forge's.
 
-        rate_limit_reached: bool = check_if_rate_limit_has_been_reached(
-            response, forge_object
-        )
-
-        if rate_limit_reached:
+        if check_if_rate_limit_has_been_reached(response, forge_object):
             break
 
         delay_api_calls(sid_args.sleep_time)
@@ -430,14 +426,17 @@ def handle_repository_urls(repository_urls: list[str], sid_args: SideroxylonArgs
 
 
 def check_if_rate_limit_has_been_reached(
-    response: HTTPResponse | HTTPError, forge_object: SideroxylonForge
+    response: HTTPResponse | HTTPError | None, forge_object: SideroxylonForge
 ) -> bool:
     """
     Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
     response.
     """
 
-    if response is not None and ((int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0) or response.getcode() == 403):
+    if response is not None and (
+        (int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0)
+        or response.getcode() == 403
+    ):
         print(f"\nRate limit reached for {forge_object.get_forge_name()}")
         print("Exiting sideroxylon")
         return True
@@ -500,17 +499,27 @@ def clean_repository_url_file(
         return
 
 
+def load_certifi_ssl_certs():
+    """
+    Load the necessary SSL certificates.
+    """
+
+    os.environ["SSL_CERT_FILE"] = certifi.where()
+
+
 def sideroxylon_workflow(args_list: list) -> None:
     """
     Main function of sideroxylon.
 
     Its purpose is to define the workflow of the program and
-    separate the cli entry point from the rest of the functions.
+    separate the CLI entry point from the rest of the functions.
 
     It can be used as a replacement for the sideroxylon
     function, provided you pass a list with elements that serve as
-    substitutes for the cli arguments.
+    substitutes for the CLI arguments.
     """
+
+    load_certifi_ssl_certs()
 
     load_sideroxylon_env_variables(args_list[0])
 
@@ -546,41 +555,17 @@ def sideroxylon_workflow(args_list: list) -> None:
 
 def sideroxylon(
     # File that contains the environment variables.
-    env_file: Annotated[
-        str, typer.Option(help="Path to the dotenv (.env) file.")
-    ] = f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
+    env_file: str = f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
     # File that contains the repository urls.
-    repository_url_file: Annotated[
-        str,
-        typer.Option(help="Path to the file that contains the repository URLs file."),
-    ] = f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
+    repository_url_file: str = f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
     # Directory with all the programming language files.
-    languages_directory: Annotated[
-        str, typer.Option(help="Path to the directory where the URLs are stored.")
-    ] = f"{SIDEROXYLON_DATA_HOME_DIR}/languages/",
+    languages_directory: str = f"{SIDEROXYLON_DATA_HOME_DIR}/languages/",
     # File extension for languages_directory generated files.
-    file_extension: Annotated[
-        str,
-        typer.Option(
-            help="File extension for files generated inside languages-directory."
-        ),
-    ] = "org",
+    file_extension: str = "org",
     # Seconds to wait until the next API call.
-    sleep_time: Annotated[
-        float, typer.Option(help="Seconds to wait until the next API call.")
-    ] = 2.0,
+    sleep_time: float = 2.0,
     # Verbose modes.
-    verbose: Annotated[
-        int,
-        typer.Option(
-            help=(
-                "Define how descriptive you want sideroxylon to be."
-                "\nZero (0) is non-descriptive."
-                "\nOne (1) is minimally descriptive."
-                "\nTwo (2) is fully descriptive."
-            )
-        ),
-    ] = 1,
+    verbose: int = 1,
 ) -> None:
     """
     Entry point of the sideroxylon CLI.

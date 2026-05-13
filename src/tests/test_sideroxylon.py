@@ -2,6 +2,7 @@ from sideroxylon import sideroxylon
 from sideroxylon.sideroxylon import SideroxylonArgs
 import os
 import pytest
+import certifi
 
 
 @pytest.fixture
@@ -38,6 +39,7 @@ def file_extension():
 def sleep_time():
     return 1.0
 
+
 @pytest.fixture
 def verbose():
     return 0
@@ -45,7 +47,12 @@ def verbose():
 
 @pytest.fixture
 def args_list(
-        env_file, repository_url_file, languages_directory, file_extension, sleep_time, verbose,
+    env_file,
+    repository_url_file,
+    languages_directory,
+    file_extension,
+    sleep_time,
+    verbose,
 ):
     args_list: list = [
         env_file,
@@ -160,6 +167,12 @@ def test_language_files_list_2(
     ]
 
 
+def test_load_certifi_ssl_certs():
+    sideroxylon.load_certifi_ssl_certs()
+    assert os.environ.get("SSL_CERT_FILE") is not None
+    assert os.environ.get("SSL_CERT_FILE") == certifi.where()
+
+
 def test_load_sideroxylon_env_variables(env_file):
     sideroxylon.load_sideroxylon_env_variables(env_file)
 
@@ -242,9 +255,7 @@ def test_handle_repository_urls(
         if os.path.isfile(language_file):
             os.remove(language_file)
 
-    sideroxylon.handle_repository_urls(
-        test_repository_list, sid_args
-    )
+    sideroxylon.handle_repository_urls(test_repository_list, sid_args)
 
     file_dict: dict[str, str] = {}
 
@@ -280,7 +291,10 @@ def test_clean_repository_url_file(repository_url_file):
     )
 
     # "0" means no lines, "1" means one empty line
-    assert os.path.getsize(repository_url_file) == 1 or os.path.getsize(repository_url_file) == 0
+    assert (
+        os.path.getsize(repository_url_file) == 1
+        or os.path.getsize(repository_url_file) == 0
+    )
 
 
 def test_sideroxylon_workflow(
