@@ -16,9 +16,7 @@ classifiers = [
   "Topic :: System :: Shells",
   "Topic :: Utilities"
 ]
-dependencies = [
-  "certifi>=2026.4.22",
-]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/bormoge/sideroxylon"

@@ -3,9 +3,12 @@ from typing import Any
 from typing import cast
 import urllib.request
 from urllib.error import HTTPError
+from urllib.error import URLError
 from http.client import HTTPResponse
 import os
+import sys
 import json
+import ssl
 
 
 class SideroxylonGitHub(SideroxylonForge):
@@ -89,11 +92,18 @@ class SideroxylonGitHub(SideroxylonForge):
 
         # Try to call the API.
         try:
-            response: HTTPResponse = urllib.request.urlopen(url=request)
+            def_context: ssl.SSLContext = ssl.create_default_context()
+            response: HTTPResponse = urllib.request.urlopen(url=request, context=def_context)
             return response
 
         except HTTPError as http_error:
             return http_error
+
+        except URLError as url_error:
+            sys.exit(f"URLError: {url_error}")
+
+        except Exception as e:
+            sys.exit(f"Error: {e}")
 
     def convert_response_to_dict(self, response: HTTPResponse) -> dict:
         """

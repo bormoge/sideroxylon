@@ -1,7 +1,6 @@
 import time
 import os
 import sys
-import certifi
 import datetime
 from urllib.error import HTTPError
 from http.client import HTTPResponse
@@ -499,14 +498,6 @@ def clean_repository_url_file(
         return
 
 
-def load_certifi_ssl_certs():
-    """
-    Load the necessary SSL certificates.
-    """
-
-    os.environ["SSL_CERT_FILE"] = certifi.where()
-
-
 def sideroxylon_workflow(args_list: list) -> None:
     """
     Main function of sideroxylon.
@@ -518,8 +509,6 @@ def sideroxylon_workflow(args_list: list) -> None:
     function, provided you pass a list with elements that serve as
     substitutes for the CLI arguments.
     """
-
-    load_certifi_ssl_certs()
 
     load_sideroxylon_env_variables(args_list[0])
 

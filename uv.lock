@@ -469,9 +469,6 @@ wheels = [
 name = "sideroxylon"
 version = "0.2.3"
 source = { editable = "." }
-dependencies = [
-    { name = "certifi" },
-]
 
 [package.dev-dependencies]
 dev = [
@@ -482,7 +479,6 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "certifi", specifier = ">=2026.4.22" }]
 
 [package.metadata.requires-dev]
 dev = [

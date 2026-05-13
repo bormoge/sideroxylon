@@ -1,6 +1,7 @@
 from sideroxylon import sideroxylon
 from sideroxylon.sideroxylon_github import SideroxylonGitHub
 from typing import Any
+from typing import cast
 import pytest
 import os
 
@@ -106,7 +107,7 @@ def test_fetch_forge_repository_data(
         github_forge_object.fetch_forge_repository_data(test_api_url_success)
     )
 
-    assert max(data_success, key=lambda k: data_success[k]) == "Python"
+    assert max(cast(dict, data_success), key=lambda k: cast(dict, data_success)[k]) == "Python"
     assert (
         github_forge_object.fetch_forge_repository_data(test_api_url_failure).getcode()
         == 404
@@ -124,9 +125,6 @@ def test_get_repository_programming_language(
     test_repository_success,
     test_repository_failure,
     test_repository_no_language,
-    test_api_url_success,
-    test_api_url_failure,
-    test_api_url_no_language,
     response_success,
     response_failure,
     response_no_language,

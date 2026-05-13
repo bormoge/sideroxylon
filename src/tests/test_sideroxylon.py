@@ -2,7 +2,6 @@ from sideroxylon import sideroxylon
 from sideroxylon.sideroxylon import SideroxylonArgs
 import os
 import pytest
-import certifi
 
 
 @pytest.fixture
@@ -165,12 +164,6 @@ def test_language_files_list_2(
         nim_language_file,
         odin_language_file,
     ]
-
-
-def test_load_certifi_ssl_certs():
-    sideroxylon.load_certifi_ssl_certs()
-    assert os.environ.get("SSL_CERT_FILE") is not None
-    assert os.environ.get("SSL_CERT_FILE") == certifi.where()
 
 
 def test_load_sideroxylon_env_variables(env_file):
