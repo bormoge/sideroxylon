@@ -137,7 +137,7 @@ def check_if_number(float_num: str | float) -> float | None:
         else:
             return float(float_num)
 
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         sys.exit(f"sideroxylon expected a number, but received '{float_num}'")
 
 

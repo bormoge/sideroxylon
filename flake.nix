@@ -15,7 +15,7 @@
     let pkgs = import nixpkgs { inherit system; };
     in pkgs.mkShell {
       buildInputs = with pkgs; [
-        python314
+        python313
         uv
         ty
         ruff

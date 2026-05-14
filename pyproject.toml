@@ -3,7 +3,7 @@ name = "sideroxylon"
 version = "0.2.3"
 description = "A repository classifier."
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
 authors = [
@@ -12,6 +12,7 @@ authors = [
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Topic :: System :: Shells",
   "Topic :: Utilities"
@@ -34,9 +35,18 @@ dev = [
 ]
 
 [build-system]
-requires = ["uv_build >= 0.11.0"]
-build-backend = "uv_build"
+requires = ["hatchling >= 1.27.0"]
+build-backend = "hatchling.build"
 
-[tool.uv.build-backend]
-source-exclude = ["tests/**"]
-wheel-exclude = ["tests/**"]
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "tests/*",
+    "*/tests/*",
+    "flake.*",
+    "uv.lock",
+    ".editorconfig",
+    ".dir-locals.el",
+    ".python-version",
+    ".gitignore",
+    ".envrc",
+]
