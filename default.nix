@@ -15,7 +15,7 @@
 buildPythonPackage rec {
   pname = "sideroxylon";
   version = "0.2.4";
-  format = "pyproject";
+  # format = "pyproject";
   pyproject = true;
 
   # Update when necessary
