@@ -1,8 +1,4 @@
-# [](/compare/v0.2.4...v) (2026-05-14)
-
-
-
-## [0.2.4](/compare/v0.2.3...v0.2.4) (2026-05-14)
+## [0.2.4](https://github.com/bormoge/sideroxylon/compare/v0.2.3...v0.2.4) (2026-05-14)
 
 
 ### Features
@@ -11,7 +7,7 @@
 
 
 
-## [0.2.3](/compare/v0.2.2...v0.2.3) (2026-05-12)
+## [0.2.3](https://github.com/bormoge/sideroxylon/compare/v0.2.2...v0.2.3) (2026-05-12)
 
 
 ### Bug Fixes
@@ -29,7 +25,7 @@
 
 
 
-## [0.2.2](/compare/v0.2.1...v0.2.2) (2026-05-05)
+## [0.2.2](https://github.com/bormoge/sideroxylon/compare/v0.2.1...v0.2.2) (2026-05-05)
 
 
 ### Bug Fixes
@@ -38,7 +34,7 @@
 
 
 
-## [0.2.1](/compare/v0.2.0...v0.2.1) (2026-04-26)
+## [0.2.1](https://github.com/bormoge/sideroxylon/compare/v0.2.0...v0.2.1) (2026-04-26)
 
 
 ### Bug Fixes
@@ -57,7 +53,7 @@
 
 
 
-# [0.2.0](/compare/v0.1.2...v0.2.0) (2026-04-10)
+# [0.2.0](https://github.com/bormoge/sideroxylon/compare/v0.1.2...v0.2.0) (2026-04-10)
 
 
 ### Bug Fixes
@@ -72,7 +68,7 @@
 
 
 
-## [0.1.2](/compare/v0.1.1...v0.1.2) (2026-04-02)
+## [0.1.2](https://github.com/bormoge/sideroxylon/compare/v0.1.1...v0.1.2) (2026-04-02)
 
 
 ### Features
@@ -81,7 +77,7 @@
 
 
 
-## [0.1.1](/compare/v0.1.0...v0.1.1) (2026-03-29)
+## [0.1.1](https://github.com/bormoge/sideroxylon/compare/v0.1.0...v0.1.1) (2026-03-29)
 
 
 ### Bug Fixes
@@ -95,7 +91,7 @@
 
 
 
-# [0.1.0](/compare/72715c15a72ca556c6142a133d0bafc956788eb0...v0.1.0) (2026-03-17)
+# [0.1.0](https://github.com/bormoge/sideroxylon/compare/72715c15a72ca556c6142a133d0bafc956788eb0...v0.1.0) (2026-03-17)
 
 
 ### Features
