@@ -29,3 +29,7 @@ node_modules
 # Tests
 *throwaway*
 *coverage*
+
+# Nix
+result
+result/
