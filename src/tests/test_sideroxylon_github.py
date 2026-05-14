@@ -4,11 +4,16 @@ from typing import Any
 from typing import cast
 import pytest
 import os
+from pathlib import Path
 
 
 @pytest.fixture
 def test_dir():
-    return "src/tests"
+    # XDG_CACHE_HOME is used because the utility of the tests is to check
+    # whether sideroxylon works, but they are not necessary by themselves.
+    directory = f"{sideroxylon.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 @pytest.fixture

@@ -2,11 +2,16 @@ from sideroxylon import sideroxylon
 from sideroxylon.sideroxylon import SideroxylonArgs
 import os
 import pytest
+from pathlib import Path
 
 
 @pytest.fixture
 def test_dir():
-    return "src/tests"
+    # XDG_CACHE_HOME is used because the utility of the tests is to check
+    # whether sideroxylon works, but they are not necessary by themselves.
+    directory = f"{sideroxylon.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 @pytest.fixture
@@ -166,10 +171,14 @@ def test_language_files_list_2(
     ]
 
 
-def test_load_sideroxylon_env_variables(env_file):
-    sideroxylon.load_sideroxylon_env_variables(env_file)
+# I don't think this one can be realistically tested outside
+# of the developer's machine. Nevertheless, I'll leave it here
+# for posteriority's sake.
 
-    assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
+# def test_load_sideroxylon_env_variables(env_file):
+#     sideroxylon.load_sideroxylon_env_variables(env_file)
+#
+#     assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 
 
 def test_get_urls_inside_repository_url_file(repository_url_file, test_repository_list):

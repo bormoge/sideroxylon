@@ -35,8 +35,12 @@ XDG_DATA_HOME_DIR: str = os.environ.get(
 XDG_CONFIG_HOME_DIR: str = os.environ.get(
     "XDG_CONFIG_HOME", os.path.expanduser(f"{HOME_DIR}/.config")
 )
+XDG_CACHE_HOME_DIR: str = os.environ.get(
+    "XDG_CACHE_HOME", os.path.expanduser(f"{HOME_DIR}/.cache")
+)
 SIDEROXYLON_DATA_HOME_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
 SIDEROXYLON_CONFIG_HOME_DIR: str = f"{XDG_CONFIG_HOME_DIR}/sideroxylon"
+SIDEROXYLON_CACHE_HOME_DIR: str = f"{XDG_CACHE_HOME_DIR}/sideroxylon"
 
 
 def load_sideroxylon_env_variables(env_file: str) -> None:
@@ -520,6 +524,7 @@ def sideroxylon_workflow(args_list: list) -> None:
         "directories": [
             SIDEROXYLON_DATA_HOME_DIR,
             SIDEROXYLON_CONFIG_HOME_DIR,
+            SIDEROXYLON_CACHE_HOME_DIR,
             sid_args.languages_directory,
         ],
         "files": [sid_args.env_file, sid_args.repository_url_file],
