@@ -21,6 +21,7 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/bormoge/sideroxylon"
+Repository = "https://github.com/bormoge/sideroxylon"
 Issues = "https://github.com/bormoge/sideroxylon/issues"
 
 [project.scripts]
@@ -50,4 +51,5 @@ exclude = [
 ]
 
 [tool.hatch.build.targets.wheel]
-only-include = ["src"]
+# only-include = ["src"]
+packages = ["src/sideroxylon"]
