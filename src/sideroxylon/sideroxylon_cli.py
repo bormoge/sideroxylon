@@ -1,8 +1,8 @@
 import sys
 import argparse
-from .sideroxylon import sideroxylon
-from .sideroxylon import SIDEROXYLON_CONFIG_HOME_DIR
-from .sideroxylon import SIDEROXYLON_DATA_HOME_DIR
+from .sideroxylon_main import sideroxylon
+from .sideroxylon_main import SIDEROXYLON_CONFIG_HOME_DIR
+from .sideroxylon_main import SIDEROXYLON_DATA_HOME_DIR
 
 def main() -> None:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(

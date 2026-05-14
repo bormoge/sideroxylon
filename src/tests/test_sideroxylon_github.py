@@ -1,4 +1,4 @@
-from sideroxylon import sideroxylon
+from sideroxylon import sideroxylon_main
 from sideroxylon.sideroxylon_github import SideroxylonGitHub
 from typing import Any
 from typing import cast
@@ -11,7 +11,7 @@ from pathlib import Path
 def test_dir():
     # XDG_CACHE_HOME is used because the utility of the tests is to check
     # whether sideroxylon works, but they are not necessary by themselves.
-    directory = f"{sideroxylon.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    directory = f"{sideroxylon_main.SIDEROXYLON_CACHE_HOME_DIR}/tests"
     Path(directory).mkdir(parents=True, exist_ok=True)
     return directory
 
@@ -43,7 +43,7 @@ def test_repository_no_language():
 
 @pytest.fixture
 def github_forge_object(env_file):
-    sideroxylon.load_sideroxylon_env_variables(env_file)
+    sideroxylon_main.load_sideroxylon_env_variables(env_file)
     return SideroxylonGitHub()
 
 

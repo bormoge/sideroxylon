@@ -1,5 +1,5 @@
-from sideroxylon import sideroxylon
-from sideroxylon.sideroxylon import SideroxylonArgs
+from sideroxylon import sideroxylon_main
+from sideroxylon.sideroxylon_main import SideroxylonArgs
 import os
 import pytest
 from pathlib import Path
@@ -9,7 +9,7 @@ from pathlib import Path
 def test_dir():
     # XDG_CACHE_HOME is used because the utility of the tests is to check
     # whether sideroxylon works, but they are not necessary by themselves.
-    directory = f"{sideroxylon.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    directory = f"{sideroxylon_main.SIDEROXYLON_CACHE_HOME_DIR}/tests"
     Path(directory).mkdir(parents=True, exist_ok=True)
     return directory
 
@@ -71,7 +71,7 @@ def args_list(
 
 @pytest.fixture
 def sid_args(args_list):
-    sid_args: SideroxylonArgs = sideroxylon.SideroxylonArgs(*args_list)
+    sid_args: SideroxylonArgs = sideroxylon_main.SideroxylonArgs(*args_list)
     return sid_args
 
 
@@ -176,7 +176,7 @@ def test_language_files_list_2(
 # for posteriority's sake.
 
 # def test_load_sideroxylon_env_variables(env_file):
-#     sideroxylon.load_sideroxylon_env_variables(env_file)
+#     sideroxylon_main.load_sideroxylon_env_variables(env_file)
 #
 #     assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 
@@ -198,7 +198,7 @@ def test_get_urls_inside_repository_url_file(repository_url_file, test_repositor
             print(f"Error reading {repository_url_file}: {e}")
 
     assert (
-        sideroxylon.get_urls_inside_repository_url_file(repository_url_file)
+        sideroxylon_main.get_urls_inside_repository_url_file(repository_url_file)
         == test_repository_list
     )
 
@@ -213,7 +213,7 @@ def test_store_batches_in_memory(
     for language_file, repository_url in zip(
         test_language_files_list, test_repository_list
     ):
-        sideroxylon.store_batches_in_memory(
+        sideroxylon_main.store_batches_in_memory(
             language_file, repository_url, repository_url_dict
         )
 
@@ -240,14 +240,14 @@ def test_initialize_directories_and_files(repository_url_file, languages_directo
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
 
-    sideroxylon.initialize_directories_and_files(directories_and_files)
+    sideroxylon_main.initialize_directories_and_files(directories_and_files)
 
     assert os.path.isdir(languages_directory)
     assert os.path.isfile(repository_url_file)
 
 
 def test_assign_sideroxylon_variables(args_list, sid_args):
-    assert sideroxylon.assign_sideroxylon_variables(args_list) == sid_args
+    assert sideroxylon_main.assign_sideroxylon_variables(args_list) == sid_args
 
 
 def test_handle_repository_urls(
@@ -257,7 +257,7 @@ def test_handle_repository_urls(
         if os.path.isfile(language_file):
             os.remove(language_file)
 
-    sideroxylon.handle_repository_urls(test_repository_list, sid_args)
+    sideroxylon_main.handle_repository_urls(test_repository_list, sid_args)
 
     file_dict: dict[str, str] = {}
 
@@ -288,7 +288,7 @@ def test_clean_repository_url_file(repository_url_file):
 
     assert os.path.getsize(repository_url_file) != 0
 
-    sideroxylon.clean_repository_url_file(
+    sideroxylon_main.clean_repository_url_file(
         repository_url_file, [repository_url_file], os.path.getsize(repository_url_file)
     )
 
@@ -321,7 +321,7 @@ def test_sideroxylon_workflow(
         except OSError as e:
             print(f"Error reading {repository_url_file}: {e}")
 
-    sideroxylon.sideroxylon_workflow(args_list)
+    sideroxylon_main.sideroxylon_workflow(args_list)
 
     file_dict: dict[str, str] = {}
 
