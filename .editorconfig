@@ -5,7 +5,9 @@ end_of_line = lf
 insert_final_newline = true
 charset = utf-8
 
+[*.{py,toml,nix}]
+trim_trailing_whitespace = true
+
 [*.{py,toml}]
 indent_style = space
 indent_size = 4
-trim_trailing_whitespace = true
