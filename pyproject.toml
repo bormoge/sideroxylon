@@ -40,8 +40,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
-    "tests/*",
-    "*/tests/*",
     "flake.*",
     "uv.lock",
     ".editorconfig",
@@ -50,3 +48,6 @@ exclude = [
     ".gitignore",
     ".envrc",
 ]
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
