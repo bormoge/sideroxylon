@@ -7,31 +7,38 @@ from pathlib import Path
 
 @pytest.fixture
 def test_dir():
-    # XDG_CACHE_HOME is used because the utility of the tests is to check
-    # whether sideroxylon works, but they are not necessary by themselves.
-    directory = f"{sideroxylon_main.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    # directory = f"{sideroxylon_main.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    directory = "./tests"
     Path(directory).mkdir(parents=True, exist_ok=True)
     return directory
 
 
 @pytest.fixture
 def throwaway_dir(test_dir):
-    return f"{test_dir}/throwaway"
+    directory = f"{test_dir}/throwaway"
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 @pytest.fixture
 def env_file(throwaway_dir):
-    return os.path.expanduser(f"{throwaway_dir}/.env")
+    file = f"{throwaway_dir}/.env"
+    Path(file).touch(exist_ok=True)
+    return os.path.expanduser(file)
 
 
 @pytest.fixture
 def repository_url_file(throwaway_dir):
-    return f"{throwaway_dir}/repository_url_file.org"
+    file: str = f"{throwaway_dir}/repository_url_file.org"
+    Path(file).touch(exist_ok=True)
+    return file
 
 
 @pytest.fixture
 def languages_directory(throwaway_dir):
-    return f"{throwaway_dir}/languages_directory"
+    directory = f"{throwaway_dir}/languages_directory"
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 @pytest.fixture
@@ -145,17 +152,23 @@ def test_repository_list_2():
 
 @pytest.fixture
 def zig_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/Zig.{file_extension}"
+    file: str = f"{languages_directory}/Zig.{file_extension}"
+    Path(file).touch(exist_ok=True)
+    return file
 
 
 @pytest.fixture
 def nim_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/Nim.{file_extension}"
+    file: str = f"{languages_directory}/Nim.{file_extension}"
+    Path(file).touch(exist_ok=True)
+    return file
 
 
 @pytest.fixture
 def odin_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/Odin.{file_extension}"
+    file: str = f"{languages_directory}/Odin.{file_extension}"
+    Path(file).touch(exist_ok=True)
+    return file
 
 
 @pytest.fixture

@@ -9,21 +9,23 @@ from pathlib import Path
 
 @pytest.fixture
 def test_dir():
-    # XDG_CACHE_HOME is used because the utility of the tests is to check
-    # whether sideroxylon works, but they are not necessary by themselves.
-    directory = f"{sideroxylon_main.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    directory = "./tests"
     Path(directory).mkdir(parents=True, exist_ok=True)
     return directory
 
 
 @pytest.fixture
 def throwaway_dir(test_dir):
-    return f"{test_dir}/throwaway"
+    directory = f"{test_dir}/throwaway"
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 @pytest.fixture
 def env_file(throwaway_dir):
-    return os.path.expanduser(f"{throwaway_dir}/.env")
+    file = f"{throwaway_dir}/.env"
+    Path(file).touch(exist_ok=True)
+    return os.path.expanduser(file)
 
 
 @pytest.fixture
