@@ -1,4 +1,13 @@
-# [](/compare/v0.2.3...v) (2026-05-12)
+# [](/compare/v0.2.4...v) (2026-05-14)
+
+
+
+## [0.2.4](/compare/v0.2.3...v0.2.4) (2026-05-14)
+
+
+### Features
+
+* **all:** replace typer with argparse f009db6
 
 
 
