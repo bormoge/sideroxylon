@@ -10,6 +10,7 @@
   # dependencies
 
   # tests
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -35,9 +36,21 @@ buildPythonPackage rec {
 
   dependencies = [ ];
 
-  nativeCheckInputs = [ ];
+  nativeCheckInputs = [
+    pytestCheckHook
+  ];
 
-  doCheck = false;
+  doCheck = true;
+
+  disabledTests = [
+    # These tests require a network connection.
+    "test_handle_repository_urls"
+    "test_sideroxylon_workflow"
+    "test_fetch_forge_repository_data"
+    "test_get_repository_programming_language"
+  ];
+
+  pythonImportsCheck = [ "sideroxylon" ];
 
   meta = {
     description = "A repository classifier.";
