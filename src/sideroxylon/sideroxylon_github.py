@@ -92,8 +92,7 @@ class SideroxylonGitHub(SideroxylonForge):
 
         # Try to call the API.
         try:
-            def_context: ssl.SSLContext = ssl.create_default_context()
-            response: HTTPResponse = urllib.request.urlopen(url=request, context=def_context)
+            response: HTTPResponse = urllib.request.urlopen(url=request, context=self.def_context)
             return response
 
         except HTTPError as http_error:
@@ -147,4 +146,4 @@ class SideroxylonGitHub(SideroxylonForge):
         return "GitHub"
 
     def __init__(self):
-        pass
+        self.def_context: ssl.SSLContext = ssl.create_default_context()
