@@ -312,7 +312,7 @@ def test_clean_repository_url_file(repository_url_file):
     )
 
 
-def test_sideroxylon_workflow(
+def test_sideroxylon(
     args_list, repository_url_file, test_language_files_list_2, test_repository_list_2
 ):
     if os.path.isfile(repository_url_file):
@@ -334,7 +334,7 @@ def test_sideroxylon_workflow(
         except OSError as e:
             print(f"Error reading {repository_url_file}: {e}")
 
-    sideroxylon_main.sideroxylon_workflow(args_list)
+    sideroxylon_main.sideroxylon(*args_list)
 
     file_dict: dict[str, str] = {}
 

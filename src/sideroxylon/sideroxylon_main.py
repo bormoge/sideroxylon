@@ -502,17 +502,34 @@ def clean_repository_url_file(
         return
 
 
-def sideroxylon_workflow(args_list: list) -> None:
+def sideroxylon(
+    # File that contains the environment variables.
+    env_file: str = f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
+    # File that contains the repository urls.
+    repository_url_file: str = f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
+    # Directory with all the programming language files.
+    languages_directory: str = f"{SIDEROXYLON_DATA_HOME_DIR}/languages/",
+    # File extension for languages_directory generated files.
+    file_extension: str = "org",
+    # Seconds to wait until the next API call.
+    sleep_time: float = 2.0,
+    # Verbose modes.
+    verbose: int = 1,
+) -> None:
     """
-    Main function of sideroxylon.
-
-    Its purpose is to define the workflow of the program and
-    separate the CLI entry point from the rest of the functions.
-
-    It can be used as a replacement for the sideroxylon
-    function, provided you pass a list with elements that serve as
-    substitutes for the CLI arguments.
+    Main function of sideroxylon. Its purpose is to define
+    the workflow of the program.
     """
+
+    # Arguments before processing.
+    args_list: list = [
+        env_file,
+        repository_url_file,
+        languages_directory,
+        file_extension,
+        sleep_time,
+        verbose,
+    ]
 
     load_sideroxylon_env_variables(args_list[0])
 
@@ -545,37 +562,6 @@ def sideroxylon_workflow(args_list: list) -> None:
     clean_repository_url_file(
         sid_args.repository_url_file, repository_urls, final_line_number
     )
-
-
-def sideroxylon(
-    # File that contains the environment variables.
-    env_file: str = f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
-    # File that contains the repository urls.
-    repository_url_file: str = f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
-    # Directory with all the programming language files.
-    languages_directory: str = f"{SIDEROXYLON_DATA_HOME_DIR}/languages/",
-    # File extension for languages_directory generated files.
-    file_extension: str = "org",
-    # Seconds to wait until the next API call.
-    sleep_time: float = 2.0,
-    # Verbose modes.
-    verbose: int = 1,
-) -> None:
-    """
-    Entry point of the sideroxylon CLI.
-    """
-
-    # Arguments before processing.
-    args_list: list = [
-        env_file,
-        repository_url_file,
-        languages_directory,
-        file_extension,
-        sleep_time,
-        verbose,
-    ]
-
-    sideroxylon_workflow(args_list)
 
 
 if __name__ == "__main__":

@@ -21,8 +21,8 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/bormoge/sideroxylon"
-Repository = "https://github.com/bormoge/sideroxylon"
 Issues = "https://github.com/bormoge/sideroxylon/issues"
+Repository = "https://github.com/bormoge/sideroxylon"
 
 [project.scripts]
 sideroxylon = "sideroxylon.sideroxylon_cli:main"
@@ -41,13 +41,13 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
-    "flake.*",
-    "uv.lock",
-    ".editorconfig",
-    ".dir-locals.el",
-    ".python-version",
-    ".gitignore",
-    ".envrc",
+  "flake.*",
+  "uv.lock",
+  ".editorconfig",
+  ".dir-locals.el",
+  ".python-version",
+  ".gitignore",
+  ".envrc",
 ]
 
 [tool.hatch.build.targets.wheel]
