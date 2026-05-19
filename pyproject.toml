@@ -53,3 +53,7 @@ exclude = [
 [tool.hatch.build.targets.wheel]
 # only-include = ["src"]
 packages = ["src/sideroxylon"]
+
+[tool.uv]
+exclude-newer = "2 weeks"
+exclude-newer-package = { sideroxylon = false }
