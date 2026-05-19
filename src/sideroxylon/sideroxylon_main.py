@@ -2,6 +2,7 @@ import time
 import os
 import sys
 import datetime
+import json
 from urllib.error import HTTPError
 from http.client import HTTPResponse
 from typing import Any
@@ -48,6 +49,14 @@ def load_sideroxylon_env_variables(env_file: str) -> None:
     Export the environment variables found in env_file.
     """
 
+    if not env_file.endswith(".env"):
+        sys.exit(
+            "The provided env_file does not have a .env extension. Exiting sideroxylon."
+        )
+
+    # Path(os.path.dirname(env_file)).mkdir(parents=True, exist_ok=True)
+    # Path(env_file).touch(exist_ok=True)
+
     try:
         with open(env_file, "r") as file:
             for line in file:
@@ -73,61 +82,82 @@ def load_sideroxylon_env_variables(env_file: str) -> None:
         print(f"Error reading {env_file}: {e}")
 
 
-def assign_sideroxylon_variables(args_list: list) -> SideroxylonArgs:
+def read_sideroxylon_config(config_file: str) -> dict:
+    """
+    Read the values inside the config.json file.
+    """
+
+    if not config_file.endswith(".json"):
+        sys.exit(
+            "The provided config_file does not have a .json extension. Exiting sideroxylon."
+        )
+
+    Path(os.path.dirname(config_file)).mkdir(parents=True, exist_ok=True)
+    Path(config_file).touch(exist_ok=True)
+
+    try:
+        with open(config_file) as conf:
+            return json.load(conf)
+
+    except json.decoder.JSONDecodeError:
+        print("No configuration found.\n")
+        # print(f"Error reading {config_file}: {jsondecerr}")
+        # print("Returning empty configuration.\n")
+        return {}
+
+
+def assign_sideroxylon_variables(args_list: dict) -> SideroxylonArgs:
     """
     Assign values to the arguments depending on whether the user
-    explicitly passed them or if they exist as environment variables.
-    If sideroxylon finds neither arguments nor environment variables,
+    explicitly passed them or if they exist in a config.json file.
+    If sideroxylon finds neither arguments nor a config.json file,
     a default value is used.
     """
 
-    # If equal to default, it may or may not mean the user skipped the flag, so the default value is being used.
-    # Before assigning defaults, sideroxylon checks other sources where values could be found (ex. a dotenv file).
+    # Get the user's configuration from the config_file
+    config_dict: dict = read_sideroxylon_config(args_list["config_file"])
 
-    if args_list[0] == f"{SIDEROXYLON_DATA_HOME_DIR}/.env":
-        args_list[0] = (
-            # This may seem redundant, but keep in mind environment variables can be set even before running sideroxylon
-            os.path.expanduser(os.environ.get("SIDEROXYLON_ENV_FILE", ""))
-            or args_list[0]
+    if args_list["env_file"] == f"{SIDEROXYLON_DATA_HOME_DIR}/.env":
+        args_list["env_file"] = os.path.expanduser(
+            config_dict.get("env_file", args_list["env_file"])
         )
 
-    if args_list[1] == f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org":
-        args_list[1] = (
-            os.path.expanduser(os.environ.get("SIDEROXYLON_REPOSITORY_URL_FILE", ""))
-            or args_list[1]
+    if (
+        args_list["repository_url_file"]
+        == f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org"
+    ):
+        args_list["repository_url_file"] = os.path.expanduser(
+            config_dict.get("repository_url_file", args_list["repository_url_file"])
         )
 
-    if args_list[2] == f"{SIDEROXYLON_DATA_HOME_DIR}/languages/":
-        args_list[2] = (
-            os.path.expanduser(os.environ.get("SIDEROXYLON_LANGUAGES_DIRECTORY", ""))
-            or args_list[2]
+    if (
+        args_list["languages_directory"]
+        == f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org"
+    ):
+        args_list["languages_directory"] = os.path.expanduser(
+            config_dict.get("languages_directory", args_list["languages_directory"])
         )
 
-    if args_list[3] == "org":
-        args_list[3] = (
-            os.path.expanduser(os.environ.get("SIDEROXYLON_FILE_EXTENSION", ""))
-            or args_list[3]
+    if args_list["file_extension"] == "org":
+        args_list["file_extension"] = config_dict.get(
+            "file_extension", args_list["file_extension"]
         )
 
-    args_list[4] = check_if_number(args_list[4])
-    if args_list[4] == 2.0:
-        args_list[4] = (
-            check_if_number(
-                os.path.expanduser(os.environ.get("SIDEROXYLON_SLEEP_TIME", ""))
-            )
-            or args_list[4]
+    args_list["sleep_time"] = check_if_number(args_list["sleep_time"])
+    if args_list["sleep_time"] == 0.0:
+        args_list["sleep_time"] = check_if_number(
+            config_dict.get("sleep_time", args_list["sleep_time"])
         )
 
-    args_list[5] = check_if_number(args_list[5])
-    if args_list[5] == 1:
-        args_list[5] = (
-            check_if_number(
-                os.path.expanduser(os.environ.get("SIDEROXYLON_VERBOSE", ""))
-            )
-            or args_list[5]
+    args_list["verbose"] = check_if_number(args_list["verbose"])
+    if args_list["verbose"] == 1:
+        args_list["verbose"] = check_if_number(
+            config_dict.get("verbose", args_list["verbose"])
         )
 
-    return SideroxylonArgs(*args_list)
+    args_list.pop("config_file")
+
+    return SideroxylonArgs(*list(args_list.values()))
 
 
 def check_if_number(float_num: str | float) -> float | None:
@@ -503,6 +533,8 @@ def clean_repository_url_file(
 
 
 def sideroxylon(
+    # File that contains the configuration values.
+    config_file: str = f"{SIDEROXYLON_CONFIG_HOME_DIR}/config.json",
     # File that contains the environment variables.
     env_file: str = f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
     # File that contains the repository urls.
@@ -522,21 +554,20 @@ def sideroxylon(
     """
 
     # Arguments before processing.
-    args_list: list = [
-        env_file,
-        repository_url_file,
-        languages_directory,
-        file_extension,
-        sleep_time,
-        verbose,
-    ]
-
-    load_sideroxylon_env_variables(args_list[0])
+    args_list: dict = {
+        "config_file": config_file,
+        "env_file": env_file,
+        "repository_url_file": repository_url_file,
+        "languages_directory": languages_directory,
+        "file_extension": file_extension,
+        "sleep_time": sleep_time,
+        "verbose": verbose,
+    }
 
     # Arguments after processing.
     sid_args: SideroxylonArgs = assign_sideroxylon_variables(args_list)
 
-    # Required directories and files.
+    # Initialize required directories and files.
     directories_and_files: dict[str, list[str]] = {
         "directories": [
             SIDEROXYLON_DATA_HOME_DIR,
@@ -548,6 +579,9 @@ def sideroxylon(
     }
 
     initialize_directories_and_files(directories_and_files)
+
+    # Load the keys.
+    load_sideroxylon_env_variables(sid_args.env_file)
 
     # Get each link in the repository URL file
     repository_urls: list[str] = get_urls_inside_repository_url_file(

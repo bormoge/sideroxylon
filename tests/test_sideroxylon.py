@@ -28,6 +28,13 @@ def env_file(throwaway_dir):
 
 
 @pytest.fixture
+def config_file(throwaway_dir):
+    file = f"{throwaway_dir}/config.json"
+    Path(file).touch(exist_ok=True)
+    return os.path.expanduser(file)
+
+
+@pytest.fixture
 def repository_url_file(throwaway_dir):
     file: str = f"{throwaway_dir}/repository_url_file.org"
     Path(file).touch(exist_ok=True)
@@ -58,6 +65,7 @@ def verbose():
 
 @pytest.fixture
 def args_list(
+    config_file,
     env_file,
     repository_url_file,
     languages_directory,
@@ -65,20 +73,28 @@ def args_list(
     sleep_time,
     verbose,
 ):
-    args_list: list = [
-        env_file,
-        repository_url_file,
-        languages_directory,
-        file_extension,
-        sleep_time,
-        verbose,
-    ]
+    args_list: dict = {
+        "config_file": config_file,
+        "env_file": env_file,
+        "repository_url_file": repository_url_file,
+        "languages_directory": languages_directory,
+        "file_extension": file_extension,
+        "sleep_time": sleep_time,
+        "verbose": verbose,
+    }
     return args_list
 
 
 @pytest.fixture
 def sid_args(args_list):
-    sid_args: SideroxylonArgs = sideroxylon_main.SideroxylonArgs(*args_list)
+    sid_args: SideroxylonArgs = sideroxylon_main.SideroxylonArgs(
+        args_list["env_file"],
+        args_list["repository_url_file"],
+        args_list["languages_directory"],
+        args_list["file_extension"],
+        args_list["sleep_time"],
+        args_list["verbose"],
+    )
     return sid_args
 
 
@@ -313,7 +329,10 @@ def test_clean_repository_url_file(repository_url_file):
 
 
 def test_sideroxylon(
-    args_list, repository_url_file, test_language_files_list_2, test_repository_list_2
+    args_list,
+    repository_url_file,
+    test_language_files_list_2,
+    test_repository_list_2,
 ):
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
@@ -334,7 +353,7 @@ def test_sideroxylon(
         except OSError as e:
             print(f"Error reading {repository_url_file}: {e}")
 
-    sideroxylon_main.sideroxylon(*args_list)
+    sideroxylon_main.sideroxylon(*list(args_list.values()))
 
     file_dict: dict[str, str] = {}
 
