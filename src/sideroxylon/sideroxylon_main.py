@@ -257,11 +257,18 @@ class SideroxylonMain:
         Remove any URLs that contain a substring in the filtered_urls list.
         """
 
+        # Remove empty elements
+        filtered_urls: list[str] = [url for url in filtered_urls if url.strip()]
+
+        # Check if filter list is empty. If it is, that means there are no filters.
+        if len(filtered_urls) == 0:
+            return repository_urls
+
         modified_repository_urls: list[str] = [
-            # Put the url in modified_repository_urls
+            # Put the url in modified_repository_urls...
             url
             for url in repository_urls
-            # If the url doesn't contain any filtered url/keyword in it.
+            # ...if the url doesn't contain any filtered URL/keyword in it.
             if not any(filtered_url in url for filtered_url in filtered_urls)
         ]
 
