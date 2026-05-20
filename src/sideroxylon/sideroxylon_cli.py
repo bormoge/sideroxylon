@@ -1,9 +1,11 @@
+import argparse
 import os
 import sys
-import argparse
 from typing import cast
+
 from .sideroxylon_main import SideroxylonMain
 from .sideroxylon_xdg import sideroxylon_xdg_object
+
 
 def main() -> None:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -34,6 +36,12 @@ def main() -> None:
         "--repository-url-file",
         default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
         help="Path to the file that contains the repository URLs file.",
+    )
+
+    parser.add_argument(
+        "--filtered-urls-file",
+        default=f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org",
+        help="Path to the file that contains keywords (substrings) used to filter undesired URLs.",
     )
 
     parser.add_argument(
@@ -78,6 +86,8 @@ def main() -> None:
             env_file=args.env_file,
             # File that contains the repository urls.
             repository_url_file=args.repository_url_file,
+            # File that contains the filtered urls.
+            filtered_urls_file=args.filtered_urls_file,
             # Directory with all the programming language files.
             languages_directory=args.languages_directory,
             # File extension for languages_directory generated files.

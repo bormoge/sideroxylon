@@ -1,19 +1,19 @@
-import time
-import os
-import sys
 import datetime
 import json
-from urllib.error import HTTPError
-from http.client import HTTPResponse
-from typing import Any
-from pathlib import Path
+import os
+import sys
+import time
 from dataclasses import dataclass
+from http.client import HTTPResponse
+from pathlib import Path
+from typing import Any, cast
+from urllib.error import HTTPError
 from urllib.parse import urlparse
-from typing import cast
+
 from .sideroxylon_forge import SideroxylonForge
 from .sideroxylon_github import SideroxylonGitHub
-from .sideroxylon_unknown_forge import SideroxylonUnknownForge
 from .sideroxylon_sourcehut import SideroxylonSourceHut
+from .sideroxylon_unknown_forge import SideroxylonUnknownForge
 from .sideroxylon_xdg import sideroxylon_xdg_object
 
 
@@ -25,6 +25,7 @@ class SideroxylonMainArgs:
 
     env_file: str
     repository_url_file: str
+    filtered_urls_file: str
     languages_directory: str
     file_extension: str
     sleep_time: float
@@ -67,7 +68,7 @@ class SideroxylonMain:
 
         except PermissionError as p:
             sys.exit(
-                f"You do not have the necessary permissions to read this file: {p}"
+                f"You do not have the necessary permissions to read {env_file}: {p}"
             )
 
         except OSError as e:
@@ -107,7 +108,10 @@ class SideroxylonMain:
         # Get the user's configuration from the config_file
         config_dict: dict = self.read_sideroxylon_config(args_list["config_file"])
 
-        if args_list["env_file"] == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/.env":
+        if (
+            args_list["env_file"]
+            == f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/.env"
+        ):
             args_list["env_file"] = os.path.expanduser(
                 config_dict.get("env_file", args_list["env_file"])
             )
@@ -121,8 +125,16 @@ class SideroxylonMain:
             )
 
         if (
+            args_list["filtered_urls_file"]
+            == f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org"
+        ):
+            args_list["filtered_urls_file"] = os.path.expanduser(
+                config_dict.get("filtered_urls_file", args_list["filtered_urls_file"])
+            )
+
+        if (
             args_list["languages_directory"]
-            == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org"
+            == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/languages/"
         ):
             args_list["languages_directory"] = os.path.expanduser(
                 config_dict.get("languages_directory", args_list["languages_directory"])
@@ -150,6 +162,7 @@ class SideroxylonMain:
         return SideroxylonMainArgs(
             args_list["env_file"],
             args_list["repository_url_file"],
+            args_list["filtered_urls_file"],
             args_list["languages_directory"],
             args_list["file_extension"],
             args_list["sleep_time"],
@@ -179,7 +192,7 @@ class SideroxylonMain:
         return bool_value is True or str(bool_value).lower() == "true"
 
     def get_urls_inside_repository_url_file(
-        self, repository_url_file: str, arg_urls: str
+        self, repository_url_file: str
     ) -> list[str]:
         """
         Read URLs inside repository_url_file.
@@ -191,17 +204,68 @@ class SideroxylonMain:
 
         except PermissionError as p:
             sys.exit(
-                f"You do not have the necessary permissions to read this file: {p}"
+                f"You do not have the necessary permissions to read {repository_url_file}: {p}"
             )
 
         except OSError as e:
             print(f"Error reading {repository_url_file}: {e}")
             return []
 
-        if not arg_urls == "":
-            print(urls + arg_urls.split("\n"))
-
         return urls
+
+    def add_pipe_urls(self, repository_urls: list[str], arg_urls: str) -> list[str]:
+        """
+        Split the URLS found in arg_urls by newline and add them to repository_urls.
+        """
+
+        # Add any URLs found in the pipe to the repository_urls
+        if not arg_urls == "":
+            repository_urls: list[str] = repository_urls + arg_urls.split("\n")
+
+        # Remove duplicate URLs
+        repository_urls: list[str] = list(set(repository_urls))
+
+        return repository_urls
+
+    def read_filtered_urls_file(
+        self, filtered_urls_file: str
+    ) -> list[str]:
+        """
+        Read the filtered_urls_file and store any strings found in the filtered_urls list.
+        """
+
+        try:
+
+            with open(filtered_urls_file, "r") as file:
+                filtered_urls: list[str] = [line.strip() for line in file]
+
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to read {filtered_urls_file}: {p}"
+            )
+
+        except OSError as e:
+            print(f"Error reading {filtered_urls_file}: {e}")
+            return []
+
+        return filtered_urls
+
+    def filter_repository_urls(
+            self, repository_urls: list[str], filtered_urls: list[str]
+    ) -> list[str]:
+        """
+        Remove any URLs that contain a substring in the filtered_urls list.
+        """
+
+        modified_repository_urls: list[str] = [
+            # Put the url in modified_repository_urls
+            url
+            for url in repository_urls
+            # If the url doesn't contain any filtered url/keyword in it.
+            if not any(filtered_url in url for filtered_url in filtered_urls)
+        ]
+
+        return modified_repository_urls
 
     def store_batches_in_memory(
         self,
@@ -232,7 +296,7 @@ class SideroxylonMain:
 
         except PermissionError as p:
             sys.exit(
-                f"You do not have the necessary permissions to write in this file: {p}"
+                f"You do not have the necessary permissions to write in {key}: {p}"
             )
 
         except OSError as e:
@@ -513,20 +577,19 @@ class SideroxylonMain:
         self,
         repository_url_file: str,
         repository_urls: list[str],
-        final_line_number: int,
+        final_list_position: int,
     ) -> None:
         """
         Clean the file with the repository URLs.
         """
 
         try:
-            # open(repository_url_file, "w").close()
             with open(repository_url_file, "w") as file:
-                file.write("\n".join(repository_urls[final_line_number:]) + "\n")
+                file.write("\n".join(repository_urls[final_list_position:]) + "\n")
 
         except PermissionError as p:
             sys.exit(
-                f"You do not have the necessary permissions to write in this file: {p}"
+                f"You do not have the necessary permissions to write in {repository_url_file}: {p}"
             )
 
         except OSError as e:
@@ -541,6 +604,8 @@ class SideroxylonMain:
         env_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/.env",
         # File that contains the repository urls.
         repository_url_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
+        # File that contains the filtered urls.
+        filtered_urls_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org",
         # Directory with all the programming language files.
         languages_directory: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/languages/",
         # File extension for languages_directory generated files.
@@ -563,6 +628,7 @@ class SideroxylonMain:
             "config_file": config_file,
             "env_file": env_file,
             "repository_url_file": repository_url_file,
+            "filtered_urls_file": filtered_urls_file,
             "languages_directory": languages_directory,
             "file_extension": file_extension,
             "sleep_time": sleep_time,
@@ -581,7 +647,7 @@ class SideroxylonMain:
                 sideroxylon_xdg_object.SIDEROXYLON_CACHE_HOME_DIR,
                 sid_args.languages_directory,
             ],
-            "files": [sid_args.env_file, sid_args.repository_url_file],
+            "files": [sid_args.env_file, sid_args.repository_url_file, sid_args.filtered_urls_file],
         }
 
         self.initialize_directories_and_files(directories_and_files)
@@ -591,16 +657,29 @@ class SideroxylonMain:
 
         # Get each link in the repository URL file
         repository_urls: list[str] = self.get_urls_inside_repository_url_file(
-            sid_args.repository_url_file, sid_args.arg_urls
+            sid_args.repository_url_file
+        )
+
+        # Combine all the URLs including those found in the pipeline
+        repository_urls: list[str] = self.add_pipe_urls(
+            repository_urls, sid_args.arg_urls
+        )
+
+        # Read the filtered_urls_file and store any strings found in the filtered_urls list
+        filtered_urls: list[str] = self.read_filtered_urls_file(sid_args.filtered_urls_file)
+
+        # Filter all the URLs that contain a substring found in filtered_url
+        repository_urls: list[str] = self.filter_repository_urls(
+            repository_urls, filtered_urls
         )
 
         # Store each URL in its corresponding file inside languages_directory
-        final_line_number: int = self.handle_repository_urls(repository_urls, sid_args)
+        final_list_position: int = self.handle_repository_urls(repository_urls, sid_args)
 
         # Clear the repository URL file after going through each link
         # At some point I will change this so at the beginning of the program it clears all files
         self.clean_repository_url_file(
-            sid_args.repository_url_file, repository_urls, final_line_number
+            sid_args.repository_url_file, repository_urls, final_list_position
         )
 
 

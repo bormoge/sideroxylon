@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class SideroxylonXDG:
     HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
@@ -16,5 +17,6 @@ class SideroxylonXDG:
     SIDEROXYLON_DATA_HOME_DIR: str = f"{XDG_DATA_HOME_DIR}/sideroxylon"
     SIDEROXYLON_CONFIG_HOME_DIR: str = f"{XDG_CONFIG_HOME_DIR}/sideroxylon"
     SIDEROXYLON_CACHE_HOME_DIR: str = f"{XDG_CACHE_HOME_DIR}/sideroxylon"
+
 
 sideroxylon_xdg_object: SideroxylonXDG = SideroxylonXDG()

@@ -48,6 +48,13 @@ def repository_url_file(throwaway_dir):
 
 
 @pytest.fixture
+def filtered_urls_file(throwaway_dir):
+    file: str = f"{throwaway_dir}/filtered_urls_file.org"
+    Path(file).touch(exist_ok=True)
+    return file
+
+
+@pytest.fixture
 def languages_directory(throwaway_dir):
     directory = f"{throwaway_dir}/languages_directory"
     Path(directory).mkdir(parents=True, exist_ok=True)
@@ -79,6 +86,7 @@ def args_list(
     config_file,
     env_file,
     repository_url_file,
+    filtered_urls_file,
     languages_directory,
     file_extension,
     sleep_time,
@@ -89,6 +97,7 @@ def args_list(
         "config_file": config_file,
         "env_file": env_file,
         "repository_url_file": repository_url_file,
+        "filtered_urls_file": filtered_urls_file,
         "languages_directory": languages_directory,
         "file_extension": file_extension,
         "sleep_time": sleep_time,
@@ -103,6 +112,7 @@ def sid_args(sideroxylon_main_object, args_list):
     sid_args: SideroxylonMainArgs = SideroxylonMainArgs(
         args_list["env_file"],
         args_list["repository_url_file"],
+        args_list["filtered_urls_file"],
         args_list["languages_directory"],
         args_list["file_extension"],
         args_list["sleep_time"],
@@ -244,7 +254,7 @@ def test_get_urls_inside_repository_url_file(
 
     assert (
         sideroxylon_main_object.get_urls_inside_repository_url_file(
-            repository_url_file, arg_urls
+            repository_url_file
         )
         == test_repository_list
     )
