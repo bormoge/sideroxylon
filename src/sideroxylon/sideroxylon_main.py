@@ -9,6 +9,7 @@ from typing import Any
 from pathlib import Path
 from dataclasses import dataclass
 from urllib.parse import urlparse
+from typing import cast
 from .sideroxylon_forge import SideroxylonForge
 from .sideroxylon_github import SideroxylonGitHub
 from .sideroxylon_unknown_forge import SideroxylonUnknownForge
@@ -27,6 +28,7 @@ class SideroxylonArgs:
     file_extension: str
     sleep_time: float
     verbose: int
+    arg_urls: str
 
 
 HOME_DIR: str = os.environ.get("HOME", os.path.expanduser("~"))
@@ -144,20 +146,28 @@ def assign_sideroxylon_variables(args_list: dict) -> SideroxylonArgs:
         )
 
     args_list["sleep_time"] = check_if_number(args_list["sleep_time"])
-    if args_list["sleep_time"] == 0.0:
+    if args_list["sleep_time"] == 2.0:
         args_list["sleep_time"] = check_if_number(
             config_dict.get("sleep_time", args_list["sleep_time"])
         )
+    args_list["sleep_time"] = cast(float, args_list["sleep_time"])
 
     args_list["verbose"] = check_if_number(args_list["verbose"])
     if args_list["verbose"] == 1:
         args_list["verbose"] = check_if_number(
             config_dict.get("verbose", args_list["verbose"])
         )
+    args_list["verbose"] = cast(int, args_list["verbose"])
 
-    args_list.pop("config_file")
-
-    return SideroxylonArgs(*list(args_list.values()))
+    return SideroxylonArgs(
+        args_list["env_file"],
+        args_list["repository_url_file"],
+        args_list["languages_directory"],
+        args_list["file_extension"],
+        args_list["sleep_time"],
+        args_list["verbose"],
+        args_list["arg_urls"],
+    )
 
 
 def check_if_number(float_num: str | float) -> float | None:
@@ -183,7 +193,9 @@ def check_if_boolean(bool_value: str | bool) -> bool:
     return bool_value is True or str(bool_value).lower() == "true"
 
 
-def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
+def get_urls_inside_repository_url_file(
+    repository_url_file: str, arg_urls: str
+) -> list[str]:
     """
     Read URLs inside repository_url_file.
     """
@@ -198,6 +210,9 @@ def get_urls_inside_repository_url_file(repository_url_file: str) -> list[str]:
     except OSError as e:
         print(f"Error reading {repository_url_file}: {e}")
         return []
+
+    if not arg_urls == "":
+        print(urls + arg_urls.split("\n"))
 
     return urls
 
@@ -547,6 +562,9 @@ def sideroxylon(
     sleep_time: float = 2.0,
     # Verbose modes.
     verbose: int = 1,
+    # String that contains URLs passed by the user as
+    # a positional argument and/or pipe output.
+    arg_urls: str = "",
 ) -> None:
     """
     Main function of sideroxylon. Its purpose is to define
@@ -562,6 +580,7 @@ def sideroxylon(
         "file_extension": file_extension,
         "sleep_time": sleep_time,
         "verbose": verbose,
+        "arg_urls": arg_urls,
     }
 
     # Arguments after processing.
@@ -585,7 +604,7 @@ def sideroxylon(
 
     # Get each link in the repository URL file
     repository_urls: list[str] = get_urls_inside_repository_url_file(
-        sid_args.repository_url_file
+        sid_args.repository_url_file, sid_args.arg_urls
     )
 
     # Store each URL in its corresponding file inside languages_directory

@@ -20,9 +20,11 @@ classifiers = [
 dependencies = []
 
 [project.urls]
+Changelog = "https://github.com/bormoge/sideroxylon/blob/main/CHANGELOG.md"
 Homepage = "https://github.com/bormoge/sideroxylon"
 Issues = "https://github.com/bormoge/sideroxylon/issues"
 Repository = "https://github.com/bormoge/sideroxylon"
+# Documentation = ""
 
 [project.scripts]
 sideroxylon = "sideroxylon.sideroxylon_cli:main"

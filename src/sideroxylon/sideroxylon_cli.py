@@ -1,5 +1,7 @@
+import os
 import sys
 import argparse
+from typing import cast
 from .sideroxylon_main import sideroxylon
 from .sideroxylon_main import SIDEROXYLON_CONFIG_HOME_DIR
 from .sideroxylon_main import SIDEROXYLON_DATA_HOME_DIR
@@ -9,6 +11,13 @@ def main() -> None:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         prog="sideroxylon",
         description="sideroxylon CLI",
+    )
+
+    parser.add_argument(
+        "urls",
+        nargs="?",
+        default="",
+        help="Directly pass the URLs to sideroxylon. Note that URLs should be separated by a newline character.",
     )
 
     parser.add_argument(
@@ -60,6 +69,8 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    arg_urls: str = get_all_urls_from_pipes_and_urls_arg(args)
+
     try:
         sideroxylon(
             # File that contains the configuration values.
@@ -76,10 +87,26 @@ def main() -> None:
             sleep_time=args.sleep_time,
             # Verbose modes.
             verbose=args.verbose,
+            # String that contains URLs passed by the user as
+            # a positional argument and/or pipe output.
+            arg_urls=arg_urls,
         )
 
     except KeyboardInterrupt:
         sys.exit("\nsideroxylon terminated by user.")
+
+
+def get_all_urls_from_pipes_and_urls_arg(args) -> str:
+    piped_urls: str = ""
+    arg_urls: str = ""
+
+    if not sys.stdin.isatty():
+        piped_urls: str = cast(str, sys.stdin.read())
+
+    arg_urls: str = piped_urls + args.urls
+    arg_urls: str = os.linesep.join([s for s in arg_urls.splitlines() if s])
+
+    return arg_urls
 
 
 if __name__ == "__main__":

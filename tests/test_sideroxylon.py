@@ -49,6 +49,11 @@ def languages_directory(throwaway_dir):
 
 
 @pytest.fixture
+def arg_urls():
+    return ""
+
+
+@pytest.fixture
 def file_extension():
     return "txt"
 
@@ -72,6 +77,7 @@ def args_list(
     file_extension,
     sleep_time,
     verbose,
+    arg_urls
 ):
     args_list: dict = {
         "config_file": config_file,
@@ -81,6 +87,7 @@ def args_list(
         "file_extension": file_extension,
         "sleep_time": sleep_time,
         "verbose": verbose,
+        "arg_urls": arg_urls,
     }
     return args_list
 
@@ -94,6 +101,7 @@ def sid_args(args_list):
         args_list["file_extension"],
         args_list["sleep_time"],
         args_list["verbose"],
+        args_list["arg_urls"],
     )
     return sid_args
 
@@ -210,7 +218,7 @@ def test_language_files_list_2(
 #     assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 
 
-def test_get_urls_inside_repository_url_file(repository_url_file, test_repository_list):
+def test_get_urls_inside_repository_url_file(repository_url_file, test_repository_list, arg_urls):
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
 
@@ -227,7 +235,7 @@ def test_get_urls_inside_repository_url_file(repository_url_file, test_repositor
             print(f"Error reading {repository_url_file}: {e}")
 
     assert (
-        sideroxylon_main.get_urls_inside_repository_url_file(repository_url_file)
+        sideroxylon_main.get_urls_inside_repository_url_file(repository_url_file, arg_urls)
         == test_repository_list
     )
 
