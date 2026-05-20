@@ -1,10 +1,16 @@
-from sideroxylon import sideroxylon_main
-from sideroxylon.sideroxylon_github import SideroxylonGitHub
-from typing import Any
-from typing import cast
 import pytest
 import os
+from typing import Any
+from typing import cast
 from pathlib import Path
+from sideroxylon.sideroxylon_main import SideroxylonMain
+from sideroxylon.sideroxylon_github import SideroxylonGitHub
+
+
+@pytest.fixture
+def sideroxylon_main_object():
+    sideroxylon_main_object: SideroxylonMain = SideroxylonMain()
+    return sideroxylon_main_object
 
 
 @pytest.fixture
@@ -44,8 +50,8 @@ def test_repository_no_language():
 
 
 @pytest.fixture
-def github_forge_object(env_file):
-    sideroxylon_main.load_sideroxylon_env_variables(env_file)
+def github_forge_object(sideroxylon_main_object, env_file):
+    sideroxylon_main_object.load_sideroxylon_env_variables(env_file)
     return SideroxylonGitHub()
 
 
@@ -114,7 +120,10 @@ def test_fetch_forge_repository_data(
         github_forge_object.fetch_forge_repository_data(test_api_url_success)
     )
 
-    assert max(cast(dict, data_success), key=lambda k: cast(dict, data_success)[k]) == "Python"
+    assert (
+        max(cast(dict, data_success), key=lambda k: cast(dict, data_success)[k])
+        == "Python"
+    )
     assert (
         github_forge_object.fetch_forge_repository_data(test_api_url_failure).getcode()
         == 404

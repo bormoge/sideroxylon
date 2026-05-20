@@ -2,10 +2,8 @@ import os
 import sys
 import argparse
 from typing import cast
-from .sideroxylon_main import sideroxylon
-from .sideroxylon_main import SIDEROXYLON_CONFIG_HOME_DIR
-from .sideroxylon_main import SIDEROXYLON_DATA_HOME_DIR
-
+from .sideroxylon_main import SideroxylonMain
+from .sideroxylon_xdg import sideroxylon_xdg_object
 
 def main() -> None:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -22,25 +20,25 @@ def main() -> None:
 
     parser.add_argument(
         "--config-file",
-        default=f"{SIDEROXYLON_CONFIG_HOME_DIR}/config.json",
+        default=f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/config.json",
         help="Path to the config.json file.",
     )
 
     parser.add_argument(
         "--env-file",
-        default=f"{SIDEROXYLON_CONFIG_HOME_DIR}/.env",
+        default=f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/.env",
         help="Path to the dotenv (.env) file.",
     )
 
     parser.add_argument(
         "--repository-url-file",
-        default=f"{SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
+        default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
         help="Path to the file that contains the repository URLs file.",
     )
 
     parser.add_argument(
         "--languages-directory",
-        default=f"{SIDEROXYLON_DATA_HOME_DIR}/languages/",
+        default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/languages/",
         help="Path to the directory where the URLs will be stored.",
     )
 
@@ -72,7 +70,8 @@ def main() -> None:
     arg_urls: str = get_all_urls_from_pipes_and_urls_arg(args)
 
     try:
-        sideroxylon(
+        sid: SideroxylonMain = SideroxylonMain()
+        sid.sideroxylon(
             # File that contains the configuration values.
             config_file=args.config_file,
             # File that contains the environment variables.

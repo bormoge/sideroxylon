@@ -1,13 +1,19 @@
-from sideroxylon import sideroxylon_main
-from sideroxylon.sideroxylon_main import SideroxylonArgs
 import os
 import pytest
 from pathlib import Path
+from sideroxylon.sideroxylon_main import SideroxylonMain
+from sideroxylon.sideroxylon_main import SideroxylonMainArgs
+
+
+@pytest.fixture
+def sideroxylon_main_object():
+    sideroxylon_main_object: SideroxylonMain = SideroxylonMain()
+    return sideroxylon_main_object
 
 
 @pytest.fixture
 def test_dir():
-    # directory = f"{sideroxylon_main.SIDEROXYLON_CACHE_HOME_DIR}/tests"
+    # directory = f"{sideroxylon_main_object.SIDEROXYLON_CACHE_HOME_DIR}/tests"
     directory = "./tests"
     Path(directory).mkdir(parents=True, exist_ok=True)
     return directory
@@ -77,7 +83,7 @@ def args_list(
     file_extension,
     sleep_time,
     verbose,
-    arg_urls
+    arg_urls,
 ):
     args_list: dict = {
         "config_file": config_file,
@@ -93,8 +99,8 @@ def args_list(
 
 
 @pytest.fixture
-def sid_args(args_list):
-    sid_args: SideroxylonArgs = sideroxylon_main.SideroxylonArgs(
+def sid_args(sideroxylon_main_object, args_list):
+    sid_args: SideroxylonMainArgs = SideroxylonMainArgs(
         args_list["env_file"],
         args_list["repository_url_file"],
         args_list["languages_directory"],
@@ -212,13 +218,15 @@ def test_language_files_list_2(
 # of the developer's machine. Nevertheless, I'll leave it here
 # for posteriority's sake.
 
-# def test_load_sideroxylon_env_variables(env_file):
-#     sideroxylon_main.load_sideroxylon_env_variables(env_file)
+# def test_load_sideroxylon_env_variables(sideroxylon_main_object, env_file):
+#     sideroxylon_main_object.load_sideroxylon_env_variables(env_file)
 #
 #     assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 
 
-def test_get_urls_inside_repository_url_file(repository_url_file, test_repository_list, arg_urls):
+def test_get_urls_inside_repository_url_file(
+    repository_url_file, test_repository_list, arg_urls, sideroxylon_main_object
+):
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
 
@@ -235,13 +243,18 @@ def test_get_urls_inside_repository_url_file(repository_url_file, test_repositor
             print(f"Error reading {repository_url_file}: {e}")
 
     assert (
-        sideroxylon_main.get_urls_inside_repository_url_file(repository_url_file, arg_urls)
+        sideroxylon_main_object.get_urls_inside_repository_url_file(
+            repository_url_file, arg_urls
+        )
         == test_repository_list
     )
 
 
 def test_store_batches_in_memory(
-    test_language_files_list, test_repository_list, repository_url_dict
+    test_language_files_list,
+    test_repository_list,
+    repository_url_dict,
+    sideroxylon_main_object,
 ):
     for language_file in test_language_files_list:
         if os.path.isfile(language_file):
@@ -250,7 +263,7 @@ def test_store_batches_in_memory(
     for language_file, repository_url in zip(
         test_language_files_list, test_repository_list
     ):
-        sideroxylon_main.store_batches_in_memory(
+        sideroxylon_main_object.store_batches_in_memory(
             language_file, repository_url, repository_url_dict
         )
 
@@ -260,7 +273,9 @@ def test_store_batches_in_memory(
         assert repository_url_dict[language_file] == [repository_url]
 
 
-def test_initialize_directories_and_files(repository_url_file, languages_directory):
+def test_initialize_directories_and_files(
+    repository_url_file, languages_directory, sideroxylon_main_object
+):
     directories_and_files: dict[str, list[str]] = {
         "directories": [languages_directory],
         "files": [repository_url_file],
@@ -277,24 +292,24 @@ def test_initialize_directories_and_files(repository_url_file, languages_directo
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
 
-    sideroxylon_main.initialize_directories_and_files(directories_and_files)
+    sideroxylon_main_object.initialize_directories_and_files(directories_and_files)
 
     assert os.path.isdir(languages_directory)
     assert os.path.isfile(repository_url_file)
 
 
-def test_assign_sideroxylon_variables(args_list, sid_args):
-    assert sideroxylon_main.assign_sideroxylon_variables(args_list) == sid_args
+def test_assign_sideroxylon_variables(args_list, sid_args, sideroxylon_main_object):
+    assert sideroxylon_main_object.assign_sideroxylon_variables(args_list) == sid_args
 
 
 def test_handle_repository_urls(
-    test_language_files_list, test_repository_list, sid_args
+    test_language_files_list, test_repository_list, sid_args, sideroxylon_main_object
 ):
     for language_file in test_language_files_list:
         if os.path.isfile(language_file):
             os.remove(language_file)
 
-    sideroxylon_main.handle_repository_urls(test_repository_list, sid_args)
+    sideroxylon_main_object.handle_repository_urls(test_repository_list, sid_args)
 
     file_dict: dict[str, str] = {}
 
@@ -313,7 +328,7 @@ def test_handle_repository_urls(
         assert file_dict[language_file] == repository_url
 
 
-def test_clean_repository_url_file(repository_url_file):
+def test_clean_repository_url_file(repository_url_file, sideroxylon_main_object):
     try:
         with open(repository_url_file, "w") as file:
             file.write(
@@ -325,7 +340,7 @@ def test_clean_repository_url_file(repository_url_file):
 
     assert os.path.getsize(repository_url_file) != 0
 
-    sideroxylon_main.clean_repository_url_file(
+    sideroxylon_main_object.clean_repository_url_file(
         repository_url_file, [repository_url_file], os.path.getsize(repository_url_file)
     )
 
@@ -337,6 +352,7 @@ def test_clean_repository_url_file(repository_url_file):
 
 
 def test_sideroxylon(
+    sideroxylon_main_object,
     args_list,
     repository_url_file,
     test_language_files_list_2,
@@ -361,7 +377,7 @@ def test_sideroxylon(
         except OSError as e:
             print(f"Error reading {repository_url_file}: {e}")
 
-    sideroxylon_main.sideroxylon(*list(args_list.values()))
+    sideroxylon_main_object.sideroxylon(*list(args_list.values()))
 
     file_dict: dict[str, str] = {}
 
