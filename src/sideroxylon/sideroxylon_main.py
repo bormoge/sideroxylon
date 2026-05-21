@@ -75,7 +75,7 @@ class SideroxylonMain:
             )
 
         except OSError as e:
-            print(f"Error reading {env_file}: {e}")
+            sys.exit(f"Error reading {env_file}: {e}")
 
     def read_sideroxylon_config(self, config_file: str) -> dict:
         """
@@ -214,8 +214,7 @@ class SideroxylonMain:
             )
 
         except OSError as e:
-            print(f"Error reading {repository_url_file}: {e}")
-            return []
+            sys.exit(f"Error reading {repository_url_file}: {e}")
 
         return urls
 
@@ -244,9 +243,10 @@ class SideroxylonMain:
                 filtered_urls: list[str] = [line.strip() for line in file]
 
         except PermissionError as p:
-            sys.exit(
+            print(
                 f"You do not have the necessary permissions to read {filtered_urls_file}: {p}"
             )
+            return []
 
         except OSError as e:
             print(f"Error reading {filtered_urls_file}: {e}")
@@ -311,8 +311,7 @@ class SideroxylonMain:
             )
 
         except OSError as e:
-            print(f"Error reading {key}: {e}")
-            return
+            sys.exit(f"Error reading {key}: {e}")
 
     def get_repository_url_forge_object(self, forge_dict, repository_url):
         """
@@ -571,8 +570,7 @@ class SideroxylonMain:
             )
 
         except OSError as e:
-            print(f"Error creating {directory}: {e}")
-            return
+            sys.exit(f"Error creating {directory}: {e}")
 
         try:
             for file in directories_and_files.get("files", []):
@@ -584,7 +582,7 @@ class SideroxylonMain:
             )
 
         except OSError as e:
-            print(f"Error creating {file}: {e}")
+            sys.exit(f"Error creating {file}: {e}")
 
     def clean_repository_url_file(
         self,
@@ -606,8 +604,7 @@ class SideroxylonMain:
             )
 
         except OSError as e:
-            print(f"Error reading {repository_url_file}: {e}")
-            return
+            sys.exit(f"Error reading {repository_url_file}: {e}")
 
     def sideroxylon(
         self,
