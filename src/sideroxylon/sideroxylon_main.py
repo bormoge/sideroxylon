@@ -361,6 +361,7 @@ class SideroxylonMain:
 
         repository_url: str = repository_url.split("?")[0]
         repository_url: str = repository_url.split("#")[0]
+        repository_url: str = repository_url.removesuffix(".git")
 
         return repository_url
 
@@ -695,7 +696,6 @@ class SideroxylonMain:
         )
 
         # Clear the repository URL file after going through each link
-        # At some point I will change this so at the beginning of the program it clears all files
         self.clean_repository_url_file(
             sid_args.repository_url_file, repository_urls, final_list_position
         )

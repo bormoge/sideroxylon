@@ -23,6 +23,9 @@ class SideroxylonGitHub(SideroxylonForge):
         # By default the headers are empty
         github_headers: dict[str, Any] = {}
 
+        # Add user-agent name
+        github_headers["User-Agent"] = "sideroxylon"
+
         # If a token exists create the headers
         if github_token:
             github_headers["Authorization"] = f"token {github_token}"
