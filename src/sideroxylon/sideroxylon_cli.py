@@ -3,8 +3,8 @@ import os
 import sys
 from typing import cast
 
+from .sideroxylon_datasets import sideroxylon_default_args_object
 from .sideroxylon_main import SideroxylonMain
-from .sideroxylon_xdg import sideroxylon_xdg_object
 
 
 def main() -> None:
@@ -16,55 +16,55 @@ def main() -> None:
     parser.add_argument(
         "urls",
         nargs="?",
-        default="",
+        default=sideroxylon_default_args_object.arg_urls,
         help="Directly pass the URLs to sideroxylon. Note that URLs should be separated by a newline character.",
     )
 
     parser.add_argument(
         "--config-file",
-        default=f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/config.json",
+        default=sideroxylon_default_args_object.config_file,
         help="Path to the config.json file.",
     )
 
     parser.add_argument(
         "--env-file",
-        default=f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/.env",
+        default=sideroxylon_default_args_object.env_file,
         help="Path to the dotenv (.env) file.",
     )
 
     parser.add_argument(
         "--repository-url-file",
-        default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
+        default=sideroxylon_default_args_object.repository_url_file,
         help="Path to the file that contains the repository URLs file.",
     )
 
     parser.add_argument(
         "--filtered-urls-file",
-        default=f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org",
+        default=sideroxylon_default_args_object.filtered_urls_file,
         help="Path to the file that contains keywords (substrings) used to filter undesired URLs.",
     )
 
     parser.add_argument(
         "--sorted-repositories-directory",
-        default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/sorted_repositories/",
+        default=sideroxylon_default_args_object.sorted_repositories_directory,
         help="Path to the directory where the URLs will be stored.",
     )
 
     parser.add_argument(
         "--file-extension",
-        default="org",
+        default=sideroxylon_default_args_object.file_extension,
         help="File extension for files generated inside sorted_repositories_directory.",
     )
 
     parser.add_argument(
         "--sleep-time",
-        default=2.0,
+        default=sideroxylon_default_args_object.sleep_time,
         help="Seconds to wait until the next API call.",
     )
 
     parser.add_argument(
         "--verbose",
-        default=1,
+        default=sideroxylon_default_args_object.verbose,
         help=(
             "Define how descriptive you want sideroxylon to be."
             "\nZero (0) is non-descriptive."

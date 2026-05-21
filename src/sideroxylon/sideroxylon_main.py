@@ -10,11 +10,14 @@ from typing import Any, cast
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 
+from .sideroxylon_datasets import (
+    sideroxylon_default_args_object,
+    sideroxylon_xdg_object,
+)
 from .sideroxylon_forge import SideroxylonForge
 from .sideroxylon_github import SideroxylonGitHub
 from .sideroxylon_sourcehut import SideroxylonSourceHut
 from .sideroxylon_unknown_forge import SideroxylonUnknownForge
-from .sideroxylon_xdg import sideroxylon_xdg_object
 
 
 @dataclass
@@ -108,17 +111,14 @@ class SideroxylonMain:
         # Get the user's configuration from the config_file
         config_dict: dict = self.read_sideroxylon_config(args_list["config_file"])
 
-        if (
-            args_list["env_file"]
-            == f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/.env"
-        ):
+        if args_list["env_file"] == sideroxylon_default_args_object.env_file:
             args_list["env_file"] = os.path.expanduser(
                 config_dict.get("env_file", args_list["env_file"])
             )
 
         if (
             args_list["repository_url_file"]
-            == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org"
+            == sideroxylon_default_args_object.repository_url_file
         ):
             args_list["repository_url_file"] = os.path.expanduser(
                 config_dict.get("repository_url_file", args_list["repository_url_file"])
@@ -126,7 +126,7 @@ class SideroxylonMain:
 
         if (
             args_list["filtered_urls_file"]
-            == f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org"
+            == sideroxylon_default_args_object.filtered_urls_file
         ):
             args_list["filtered_urls_file"] = os.path.expanduser(
                 config_dict.get("filtered_urls_file", args_list["filtered_urls_file"])
@@ -134,26 +134,32 @@ class SideroxylonMain:
 
         if (
             args_list["sorted_repositories_directory"]
-            == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/sorted_repositories/"
+            == sideroxylon_default_args_object.sorted_repositories_directory
         ):
             args_list["sorted_repositories_directory"] = os.path.expanduser(
-                config_dict.get("sorted_repositories_directory", args_list["sorted_repositories_directory"])
+                config_dict.get(
+                    "sorted_repositories_directory",
+                    args_list["sorted_repositories_directory"],
+                )
             )
 
-        if args_list["file_extension"] == "org":
+        if (
+            args_list["file_extension"]
+            == sideroxylon_default_args_object.file_extension
+        ):
             args_list["file_extension"] = config_dict.get(
                 "file_extension", args_list["file_extension"]
             )
 
         args_list["sleep_time"] = self.check_if_number(args_list["sleep_time"])
-        if args_list["sleep_time"] == 2.0:
+        if args_list["sleep_time"] == sideroxylon_default_args_object.sleep_time:
             args_list["sleep_time"] = self.check_if_number(
                 config_dict.get("sleep_time", args_list["sleep_time"])
             )
         args_list["sleep_time"] = cast(float, args_list["sleep_time"])
 
         args_list["verbose"] = self.check_if_number(args_list["verbose"])
-        if args_list["verbose"] == 1:
+        if args_list["verbose"] == sideroxylon_default_args_object.verbose:
             args_list["verbose"] = self.check_if_number(
                 config_dict.get("verbose", args_list["verbose"])
             )
@@ -441,7 +447,9 @@ class SideroxylonMain:
 
         filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
 
-        full_path_filename: str = os.path.join(sid_args.sorted_repositories_directory, filename)
+        full_path_filename: str = os.path.join(
+            sid_args.sorted_repositories_directory, filename
+        )
 
         cleaned_url: str = forge_object.clean_forge_repository_url(url)
 
@@ -604,24 +612,24 @@ class SideroxylonMain:
     def sideroxylon(
         self,
         # File that contains the configuration values.
-        config_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/config.json",
+        config_file: str = sideroxylon_default_args_object.config_file,
         # File that contains the environment variables.
-        env_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/.env",
+        env_file: str = sideroxylon_default_args_object.env_file,
         # File that contains the repository urls.
-        repository_url_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
+        repository_url_file: str = sideroxylon_default_args_object.repository_url_file,
         # File that contains the filtered urls.
-        filtered_urls_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org",
+        filtered_urls_file: str = sideroxylon_default_args_object.filtered_urls_file,
         # Directory with all the repository URLs already sorted.
-        sorted_repositories_directory: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/sorted_repositories/",
+        sorted_repositories_directory: str = sideroxylon_default_args_object.sorted_repositories_directory,
         # File extension for files generated inside sorted_repositories_directory.
-        file_extension: str = "org",
+        file_extension: str = sideroxylon_default_args_object.file_extension,
         # Seconds to wait until the next API call.
-        sleep_time: float = 2.0,
+        sleep_time: float = sideroxylon_default_args_object.sleep_time,
         # Verbose modes.
-        verbose: int = 1,
+        verbose: int = sideroxylon_default_args_object.verbose,
         # String that contains URLs passed by the user as
         # a positional argument and/or pipe output.
-        arg_urls: str = "",
+        arg_urls: str = sideroxylon_default_args_object.arg_urls,
     ) -> None:
         """
         Main function of sideroxylon. Its purpose is to define
