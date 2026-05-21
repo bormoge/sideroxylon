@@ -45,15 +45,15 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--languages-directory",
-        default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/languages/",
+        "--sorted-repositories-directory",
+        default=f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/sorted_repositories/",
         help="Path to the directory where the URLs will be stored.",
     )
 
     parser.add_argument(
         "--file-extension",
         default="org",
-        help="File extension for files generated inside languages-directory.",
+        help="File extension for files generated inside sorted_repositories_directory.",
     )
 
     parser.add_argument(
@@ -88,9 +88,9 @@ def main() -> None:
             repository_url_file=args.repository_url_file,
             # File that contains the filtered urls.
             filtered_urls_file=args.filtered_urls_file,
-            # Directory with all the programming language files.
-            languages_directory=args.languages_directory,
-            # File extension for languages_directory generated files.
+            # Directory with all the repository URLs already sorted.
+            sorted_repositories_directory=args.sorted_repositories_directory,
+            # File extension for files generated inside sorted_repositories_directory.
             file_extension=args.file_extension,
             # Seconds to wait until the next API call.
             sleep_time=args.sleep_time,

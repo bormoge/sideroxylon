@@ -55,8 +55,8 @@ def filtered_urls_file(throwaway_dir):
 
 
 @pytest.fixture
-def languages_directory(throwaway_dir):
-    directory = f"{throwaway_dir}/languages_directory"
+def sorted_repositories_directory(throwaway_dir):
+    directory = f"{throwaway_dir}/sorted_repositories_directory"
     Path(directory).mkdir(parents=True, exist_ok=True)
     return directory
 
@@ -73,7 +73,7 @@ def file_extension():
 
 @pytest.fixture
 def sleep_time():
-    return 1.0
+    return 0.0
 
 
 @pytest.fixture
@@ -87,7 +87,7 @@ def args_list(
     env_file,
     repository_url_file,
     filtered_urls_file,
-    languages_directory,
+    sorted_repositories_directory,
     file_extension,
     sleep_time,
     verbose,
@@ -98,7 +98,7 @@ def args_list(
         "env_file": env_file,
         "repository_url_file": repository_url_file,
         "filtered_urls_file": filtered_urls_file,
-        "languages_directory": languages_directory,
+        "sorted_repositories_directory": sorted_repositories_directory,
         "file_extension": file_extension,
         "sleep_time": sleep_time,
         "verbose": verbose,
@@ -113,7 +113,7 @@ def sid_args(sideroxylon_main_object, args_list):
         args_list["env_file"],
         args_list["repository_url_file"],
         args_list["filtered_urls_file"],
-        args_list["languages_directory"],
+        args_list["sorted_repositories_directory"],
         args_list["file_extension"],
         args_list["sleep_time"],
         args_list["verbose"],
@@ -140,28 +140,28 @@ def test_repository_list():
 
 
 @pytest.fixture
-def python_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/Python.{file_extension}"
+def python_language_file(sorted_repositories_directory, file_extension):
+    return f"{sorted_repositories_directory}/Python.{file_extension}"
 
 
 @pytest.fixture
-def javascript_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/JavaScript.{file_extension}"
+def javascript_language_file(sorted_repositories_directory, file_extension):
+    return f"{sorted_repositories_directory}/JavaScript.{file_extension}"
 
 
 @pytest.fixture
-def emacs_lisp_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/Emacs_Lisp.{file_extension}"
+def emacs_lisp_language_file(sorted_repositories_directory, file_extension):
+    return f"{sorted_repositories_directory}/Emacs_Lisp.{file_extension}"
 
 
 @pytest.fixture
-def github_url_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/GitHub_URL.{file_extension}"
+def github_url_language_file(sorted_repositories_directory, file_extension):
+    return f"{sorted_repositories_directory}/GitHub_URL.{file_extension}"
 
 
 @pytest.fixture
-def unknown_language_file(languages_directory, file_extension):
-    return f"{languages_directory}/Unknown.{file_extension}"
+def unknown_language_file(sorted_repositories_directory, file_extension):
+    return f"{sorted_repositories_directory}/Unknown.{file_extension}"
 
 
 @pytest.fixture
@@ -191,22 +191,22 @@ def test_repository_list_2():
 
 
 @pytest.fixture
-def zig_language_file(languages_directory, file_extension):
-    file: str = f"{languages_directory}/Zig.{file_extension}"
+def zig_language_file(sorted_repositories_directory, file_extension):
+    file: str = f"{sorted_repositories_directory}/Zig.{file_extension}"
     Path(file).touch(exist_ok=True)
     return file
 
 
 @pytest.fixture
-def nim_language_file(languages_directory, file_extension):
-    file: str = f"{languages_directory}/Nim.{file_extension}"
+def nim_language_file(sorted_repositories_directory, file_extension):
+    file: str = f"{sorted_repositories_directory}/Nim.{file_extension}"
     Path(file).touch(exist_ok=True)
     return file
 
 
 @pytest.fixture
-def odin_language_file(languages_directory, file_extension):
-    file: str = f"{languages_directory}/Odin.{file_extension}"
+def odin_language_file(sorted_repositories_directory, file_extension):
+    file: str = f"{sorted_repositories_directory}/Odin.{file_extension}"
     Path(file).touch(exist_ok=True)
     return file
 
@@ -284,27 +284,27 @@ def test_store_batches_in_memory(
 
 
 def test_initialize_directories_and_files(
-    repository_url_file, languages_directory, sideroxylon_main_object
+    repository_url_file, sorted_repositories_directory, sideroxylon_main_object
 ):
     directories_and_files: dict[str, list[str]] = {
-        "directories": [languages_directory],
+        "directories": [sorted_repositories_directory],
         "files": [repository_url_file],
     }
 
-    for filename in os.listdir(languages_directory):
-        file_path = os.path.join(languages_directory, filename)
+    for filename in os.listdir(sorted_repositories_directory):
+        file_path = os.path.join(sorted_repositories_directory, filename)
         if os.path.isfile(file_path):
             os.remove(file_path)
 
-    if os.path.isdir(languages_directory):
-        os.rmdir(languages_directory)
+    if os.path.isdir(sorted_repositories_directory):
+        os.rmdir(sorted_repositories_directory)
 
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
 
     sideroxylon_main_object.initialize_directories_and_files(directories_and_files)
 
-    assert os.path.isdir(languages_directory)
+    assert os.path.isdir(sorted_repositories_directory)
     assert os.path.isfile(repository_url_file)
 
 

@@ -26,7 +26,7 @@ class SideroxylonMainArgs:
     env_file: str
     repository_url_file: str
     filtered_urls_file: str
-    languages_directory: str
+    sorted_repositories_directory: str
     file_extension: str
     sleep_time: float
     verbose: int
@@ -133,11 +133,11 @@ class SideroxylonMain:
             )
 
         if (
-            args_list["languages_directory"]
-            == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/languages/"
+            args_list["sorted_repositories_directory"]
+            == f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/sorted_repositories/"
         ):
-            args_list["languages_directory"] = os.path.expanduser(
-                config_dict.get("languages_directory", args_list["languages_directory"])
+            args_list["sorted_repositories_directory"] = os.path.expanduser(
+                config_dict.get("sorted_repositories_directory", args_list["sorted_repositories_directory"])
             )
 
         if args_list["file_extension"] == "org":
@@ -163,7 +163,7 @@ class SideroxylonMain:
             args_list["env_file"],
             args_list["repository_url_file"],
             args_list["filtered_urls_file"],
-            args_list["languages_directory"],
+            args_list["sorted_repositories_directory"],
             args_list["file_extension"],
             args_list["sleep_time"],
             args_list["verbose"],
@@ -227,9 +227,7 @@ class SideroxylonMain:
 
         return repository_urls
 
-    def read_filtered_urls_file(
-        self, filtered_urls_file: str
-    ) -> list[str]:
+    def read_filtered_urls_file(self, filtered_urls_file: str) -> list[str]:
         """
         Read the filtered_urls_file and store any strings found in the filtered_urls list.
         """
@@ -251,7 +249,7 @@ class SideroxylonMain:
         return filtered_urls
 
     def filter_repository_urls(
-            self, repository_urls: list[str], filtered_urls: list[str]
+        self, repository_urls: list[str], filtered_urls: list[str]
     ) -> list[str]:
         """
         Remove any URLs that contain a substring in the filtered_urls list.
@@ -373,7 +371,7 @@ class SideroxylonMain:
         self,
         url: str,
         language: str,
-        current_line_number: int,
+        current_list_position: int,
         response: HTTPResponse | HTTPError | None = None,
         forge_name: str = "GitHub",
         verbose: int = 1,
@@ -390,7 +388,7 @@ class SideroxylonMain:
                 print(f"Skipping {url}")
 
             if verbose >= 2:
-                print(f"Current line number: {current_line_number}")
+                print(f"Current list position: {current_list_position}")
 
             if response is not None and (verbose >= 2):
                 print(
@@ -426,7 +424,7 @@ class SideroxylonMain:
         forge_object: SideroxylonForge,
         response: HTTPResponse | HTTPError,
         repository_url_dict: dict[str, list[str]],
-        current_line_number: int,
+        current_list_position: int,
         url: str,
         api_url: str,
     ) -> int:
@@ -443,7 +441,7 @@ class SideroxylonMain:
 
         filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
 
-        full_path_filename: str = os.path.join(sid_args.languages_directory, filename)
+        full_path_filename: str = os.path.join(sid_args.sorted_repositories_directory, filename)
 
         cleaned_url: str = forge_object.clean_forge_repository_url(url)
 
@@ -451,18 +449,18 @@ class SideroxylonMain:
             full_path_filename, cleaned_url, repository_url_dict
         )
 
-        current_line_number += 1
+        current_list_position += 1
 
         self.print_sideroxylon_output(
             cleaned_url,
             cleaned_language_name,
-            current_line_number,
+            current_list_position,
             response,
             forge_object.get_forge_name(),
             verbose=sid_args.verbose,
         )
 
-        return current_line_number
+        return current_list_position
 
     def handle_repository_urls(
         self, repository_urls: list[str], sid_args: SideroxylonMainArgs
@@ -474,7 +472,7 @@ class SideroxylonMain:
         forge_dict: dict[str, Any] = self.initialize_forge_dictionary()
         repository_url_dict: dict[str, list[str]] = {}
 
-        current_line_number: int = 0
+        current_list_position: int = 0
 
         classification_function: Any = self.store_repository_url_by_programming_language
 
@@ -490,9 +488,9 @@ class SideroxylonMain:
             api_url: str | None = forge_object.convert_forge_url_to_api_url(url)
 
             if not api_url:
-                current_line_number += 1
+                current_list_position += 1
                 self.print_sideroxylon_output(
-                    url, "", current_line_number, verbose=sid_args.verbose
+                    url, "", current_list_position, verbose=sid_args.verbose
                 )
                 continue
 
@@ -501,12 +499,12 @@ class SideroxylonMain:
                 forge_object.fetch_forge_repository_data(api_url)
             )
 
-            current_line_number: int = classification_function(
+            current_list_position: int = classification_function(
                 sid_args,
                 forge_object,
                 response,
                 repository_url_dict,
-                current_line_number,
+                current_list_position,
                 url,
                 api_url,
             )
@@ -527,7 +525,7 @@ class SideroxylonMain:
         # Outside of loop.
         self.write_batches_into_files(repository_url_dict)
 
-        return current_line_number
+        return current_list_position
 
     def check_if_rate_limit_has_been_reached(
         self, response: HTTPResponse | HTTPError | None, forge_object: SideroxylonForge
@@ -613,9 +611,9 @@ class SideroxylonMain:
         repository_url_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/repository_urls.org",
         # File that contains the filtered urls.
         filtered_urls_file: str = f"{sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR}/filtered_urls.org",
-        # Directory with all the programming language files.
-        languages_directory: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/languages/",
-        # File extension for languages_directory generated files.
+        # Directory with all the repository URLs already sorted.
+        sorted_repositories_directory: str = f"{sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR}/sorted_repositories/",
+        # File extension for files generated inside sorted_repositories_directory.
         file_extension: str = "org",
         # Seconds to wait until the next API call.
         sleep_time: float = 2.0,
@@ -636,7 +634,7 @@ class SideroxylonMain:
             "env_file": env_file,
             "repository_url_file": repository_url_file,
             "filtered_urls_file": filtered_urls_file,
-            "languages_directory": languages_directory,
+            "sorted_repositories_directory": sorted_repositories_directory,
             "file_extension": file_extension,
             "sleep_time": sleep_time,
             "verbose": verbose,
@@ -652,9 +650,13 @@ class SideroxylonMain:
                 sideroxylon_xdg_object.SIDEROXYLON_DATA_HOME_DIR,
                 sideroxylon_xdg_object.SIDEROXYLON_CONFIG_HOME_DIR,
                 sideroxylon_xdg_object.SIDEROXYLON_CACHE_HOME_DIR,
-                sid_args.languages_directory,
+                sid_args.sorted_repositories_directory,
             ],
-            "files": [sid_args.env_file, sid_args.repository_url_file, sid_args.filtered_urls_file],
+            "files": [
+                sid_args.env_file,
+                sid_args.repository_url_file,
+                sid_args.filtered_urls_file,
+            ],
         }
 
         self.initialize_directories_and_files(directories_and_files)
@@ -673,15 +675,19 @@ class SideroxylonMain:
         )
 
         # Read the filtered_urls_file and store any strings found in the filtered_urls list
-        filtered_urls: list[str] = self.read_filtered_urls_file(sid_args.filtered_urls_file)
+        filtered_urls: list[str] = self.read_filtered_urls_file(
+            sid_args.filtered_urls_file
+        )
 
         # Filter all the URLs that contain a substring found in filtered_url
         repository_urls: list[str] = self.filter_repository_urls(
             repository_urls, filtered_urls
         )
 
-        # Store each URL in its corresponding file inside languages_directory
-        final_list_position: int = self.handle_repository_urls(repository_urls, sid_args)
+        # Store each URL in its corresponding file inside sorted_repositories_directory
+        final_list_position: int = self.handle_repository_urls(
+            repository_urls, sid_args
+        )
 
         # Clear the repository URL file after going through each link
         # At some point I will change this so at the beginning of the program it clears all files
