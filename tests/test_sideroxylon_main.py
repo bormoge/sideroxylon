@@ -361,7 +361,7 @@ def test_clean_repository_url_file(repository_url_file, sideroxylon_main_object)
     )
 
 
-def test_sideroxylon(
+def test_sideroxylon_main_function(
     sideroxylon_main_object,
     args_list,
     repository_url_file,
