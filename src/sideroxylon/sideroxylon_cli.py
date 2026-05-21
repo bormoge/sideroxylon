@@ -73,7 +73,16 @@ def main() -> None:
         ),
     )
 
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help=("Display the current version of sideroxylon."),
+    )
+
     args = parser.parse_args()
+
+    if args.version:
+        display_sideroxylon_version()
 
     arg_urls: str = get_all_urls_from_pipes_and_urls_arg(args)
 
@@ -116,6 +125,11 @@ def get_all_urls_from_pipes_and_urls_arg(args) -> str:
     arg_urls: str = os.linesep.join([s for s in arg_urls.splitlines() if s])
 
     return arg_urls
+
+
+def display_sideroxylon_version():
+    print("0.2.5")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
