@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import time
 from typing import cast
 
 from .sideroxylon_datasets import sideroxylon_default_args_object
@@ -8,6 +9,8 @@ from .sideroxylon_main import SideroxylonMain
 
 
 def main() -> None:
+    start_time: float = time.perf_counter()
+
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         prog="sideroxylon",
         description="sideroxylon CLI",
@@ -113,6 +116,10 @@ def main() -> None:
     except KeyboardInterrupt:
         sys.exit("\nsideroxylon terminated by user.")
 
+    end_time: float = time.perf_counter()
+
+    print_time_elapsed(start_time, end_time)
+
 
 def get_all_urls_from_pipes_and_urls_arg(args) -> str:
     piped_urls: str = ""
@@ -125,6 +132,13 @@ def get_all_urls_from_pipes_and_urls_arg(args) -> str:
     arg_urls: str = os.linesep.join([s for s in arg_urls.splitlines() if s])
 
     return arg_urls
+
+
+def print_time_elapsed(start_time: float, end_time: float) -> None:
+    time_elapsed: float = end_time - start_time
+
+    print("sideroxylon finished")
+    print(f"Approximate time elapsed since sideroxylon began: {time_elapsed:.6f} seconds")
 
 
 def display_sideroxylon_version():
