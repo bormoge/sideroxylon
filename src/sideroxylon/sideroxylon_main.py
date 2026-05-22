@@ -197,9 +197,7 @@ class SideroxylonMain:
 
         return bool_value is True or str(bool_value).lower() == "true"
 
-    def get_urls_inside_repository_url_file(
-        self, repository_url_file: str
-    ) -> list[str]:
+    def read_repository_url_file(self, repository_url_file: str) -> list[str]:
         """
         Read URLs inside repository_url_file.
         """
@@ -220,17 +218,51 @@ class SideroxylonMain:
 
     def add_pipe_urls(self, repository_urls: list[str], arg_urls: str) -> list[str]:
         """
-        Split the URLS found in arg_urls by newline and add them to repository_urls.
+        Split the URLs found in arg_urls by newline and add them to repository_urls.
         """
 
         # Add any URLs found in the pipe to the repository_urls
         if not arg_urls == "":
             repository_urls: list[str] = repository_urls + arg_urls.split("\n")
 
-        # Remove duplicate URLs
-        repository_urls: list[str] = list(set(repository_urls))
-
         return repository_urls
+
+    def remove_duplicate_urls(self, repository_urls: list[str]) -> list[str]:
+        """
+        Remove the duplicate URLs found in repository_urls.
+        """
+
+        return list(dict.fromkeys(repository_urls))
+
+    def normalize_repository_urls(
+        self, repository_urls: list[str], sid_args: SideroxylonMainArgs
+    ) -> list[str]:
+        """
+        Normalize the repository URLs list.
+        """
+
+        # Combine all the URLs including those found in the pipeline
+        repository_urls: list[str] = self.add_pipe_urls(
+            repository_urls, sid_args.arg_urls
+        )
+
+        # Remove duplicate URLs
+        repository_urls: list[str] = self.remove_duplicate_urls(repository_urls)
+
+        # Read the filtered_urls_file and store any strings found in the filtered_urls list
+        filtered_urls: list[str] = self.read_filtered_urls_file(
+            sid_args.filtered_urls_file
+        )
+
+        # Filter all the URLs that contain a substring found in filtered_url
+        repository_urls: list[str] = self.filter_repository_urls(
+            repository_urls, filtered_urls
+        )
+
+        # Normalize each URL in the list
+        new_repository_urls: list[str] = [self.normalize_url(url) for url in repository_urls]
+
+        return new_repository_urls
 
     def read_filtered_urls_file(self, filtered_urls_file: str) -> list[str]:
         """
@@ -350,13 +382,13 @@ class SideroxylonMain:
 
         return forge_dict
 
-    def basic_url_cleaning(self, repository_url: str) -> str:
+    def normalize_url(self, repository_url: str) -> str:
         """
-        Return the provided URL after doing some basic cleaning.
+        Return the provided URL after doing some basic normalizing.
         """
 
         # Each SideroxylonForge instance should do its
-        # own cleaning; the main purpose of this function
+        # own normalization; the main purpose of this function
         # is to avoid crashes related to URL names.
 
         repository_url: str = repository_url.split("?")[0]
@@ -451,7 +483,7 @@ class SideroxylonMain:
             sid_args.sorted_repositories_directory, filename
         )
 
-        cleaned_url: str = forge_object.clean_forge_repository_url(url)
+        cleaned_url: str = forge_object.normalize_forge_repository_url(url)
 
         self.store_batches_in_memory(
             full_path_filename, cleaned_url, repository_url_dict
@@ -485,8 +517,6 @@ class SideroxylonMain:
         classification_function: Any = self.store_repository_url_by_programming_language
 
         for url in repository_urls:
-
-            url: str = self.basic_url_cleaning(url)
 
             forge_object: SideroxylonForge = self.get_repository_url_forge_object(
                 forge_dict, url
@@ -671,23 +701,13 @@ class SideroxylonMain:
         self.load_sideroxylon_env_variables(sid_args.env_file)
 
         # Get each link in the repository URL file
-        repository_urls: list[str] = self.get_urls_inside_repository_url_file(
+        repository_urls: list[str] = self.read_repository_url_file(
             sid_args.repository_url_file
         )
 
-        # Combine all the URLs including those found in the pipeline
-        repository_urls: list[str] = self.add_pipe_urls(
-            repository_urls, sid_args.arg_urls
-        )
-
-        # Read the filtered_urls_file and store any strings found in the filtered_urls list
-        filtered_urls: list[str] = self.read_filtered_urls_file(
-            sid_args.filtered_urls_file
-        )
-
-        # Filter all the URLs that contain a substring found in filtered_url
-        repository_urls: list[str] = self.filter_repository_urls(
-            repository_urls, filtered_urls
+        # Normalize the repository URLs list.
+        repository_urls: list[str] = self.normalize_repository_urls(
+            repository_urls, sid_args
         )
 
         # Store each URL in its corresponding file inside sorted_repositories_directory

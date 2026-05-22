@@ -41,9 +41,9 @@ class SideroxylonSourceHut(SideroxylonForge):
 
         return {"user": user, "repo": repo}
 
-    def clean_forge_repository_url(self, repository_url: str) -> str:
+    def normalize_forge_repository_url(self, repository_url: str) -> str:
         """
-        Clean the provided forge URL, leaving only the base URL, the user, and the repository name.
+        Normalize the provided forge URL, leaving only the base URL, the user, and the repository name.
         """
 
         user_and_repo: dict[str, str] | None = cast(

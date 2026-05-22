@@ -234,7 +234,7 @@ def test_language_files_list_2(
 #     assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 
 
-def test_get_urls_inside_repository_url_file(
+def test_read_repository_url_file(
     repository_url_file, test_repository_list, arg_urls, sideroxylon_main_object
 ):
     if os.path.isfile(repository_url_file):
@@ -253,7 +253,7 @@ def test_get_urls_inside_repository_url_file(
             print(f"Error reading {repository_url_file}: {e}")
 
     assert (
-        sideroxylon_main_object.get_urls_inside_repository_url_file(
+        sideroxylon_main_object.read_repository_url_file(
             repository_url_file
         )
         == test_repository_list
