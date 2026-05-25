@@ -260,7 +260,9 @@ class SideroxylonMain:
         )
 
         # Normalize each URL in the list
-        new_repository_urls: list[str] = [self.normalize_url(url) for url in repository_urls]
+        new_repository_urls: list[str] = [
+            self.normalize_url(url) for url in repository_urls
+        ]
 
         return new_repository_urls
 
@@ -516,49 +518,58 @@ class SideroxylonMain:
 
         classification_function: Any = self.store_repository_url_by_programming_language
 
-        for url in repository_urls:
+        try:
+            for url in repository_urls:
 
-            forge_object: SideroxylonForge = self.get_repository_url_forge_object(
-                forge_dict, url
-            )
-
-            # If necessary, convert the URL to an api URL.
-            api_url: str | None = forge_object.convert_forge_url_to_api_url(url)
-
-            if not api_url:
-                current_list_position += 1
-                self.print_sideroxylon_output(
-                    url, "", current_list_position, verbose=sid_args.verbose
+                forge_object: SideroxylonForge = self.get_repository_url_forge_object(
+                    forge_dict, url
                 )
-                continue
 
-            # From api_url, fetch the necessary data to get the programming language.
-            response: HTTPResponse | HTTPError | None = (
-                forge_object.fetch_forge_repository_data(api_url)
+                # If necessary, convert the URL to an api URL.
+                api_url: str | None = forge_object.convert_forge_url_to_api_url(url)
+
+                if not api_url:
+                    current_list_position += 1
+                    self.print_sideroxylon_output(
+                        url, "", current_list_position, verbose=sid_args.verbose
+                    )
+                    continue
+
+                # From api_url, fetch the necessary data to get the programming language.
+                response: HTTPResponse | HTTPError | None = (
+                    forge_object.fetch_forge_repository_data(api_url)
+                )
+
+                current_list_position: int = classification_function(
+                    sid_args,
+                    forge_object,
+                    response,
+                    repository_url_dict,
+                    current_list_position,
+                    url,
+                    api_url,
+                )
+
+                # Note: this only stops the current iteration of sideroxylon.
+                # I could probably create a hard cap that checks current UNIX
+                # time vs the last fetched UNIX time or something similar.
+
+                # Another thing to note: this condition activates with all
+                # forges, disregarding any rate limits other than the
+                # current forge's.
+
+                if self.check_if_rate_limit_has_been_reached(response, forge_object):
+                    break
+
+                self.delay_api_calls(sid_args.sleep_time)
+
+        except KeyboardInterrupt:
+            current_list_position: int = (
+                current_list_position - 1
+                if current_list_position > 0
+                else current_list_position
             )
-
-            current_list_position: int = classification_function(
-                sid_args,
-                forge_object,
-                response,
-                repository_url_dict,
-                current_list_position,
-                url,
-                api_url,
-            )
-
-            # Note: this only stops the current iteration of sideroxylon.
-            # I could probably create a hard cap that checks current UNIX
-            # time vs the last fetched UNIX time or something similar.
-
-            # Another thing to note: this condition activates with all
-            # forges, disregarding any rate limits other than the
-            # current forge's.
-
-            if self.check_if_rate_limit_has_been_reached(response, forge_object):
-                break
-
-            self.delay_api_calls(sid_args.sleep_time)
+            print("\nsideroxylon terminated by user. Saving URLs.")
 
         # Outside of loop.
         self.write_batches_into_files(repository_url_dict)
