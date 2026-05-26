@@ -228,8 +228,8 @@ def test_language_files_list_2(
 # of the developer's machine. Nevertheless, I'll leave it here
 # for posteriority's sake.
 
-# def test_load_sideroxylon_env_variables(sideroxylon_main_object, env_file):
-#     sideroxylon_main_object.load_sideroxylon_env_variables(env_file)
+# def test_read_sideroxylon_env_variables(sideroxylon_main_object, env_file):
+#     sideroxylon_main_object.read_sideroxylon_env_variables(env_file)
 #
 #     assert os.environ.get("SIDEROXYLON_GITHUB_TOKEN") is not None
 

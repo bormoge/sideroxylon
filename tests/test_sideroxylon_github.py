@@ -51,7 +51,7 @@ def test_repository_no_language():
 
 @pytest.fixture
 def github_forge_object(sideroxylon_main_object, env_file):
-    sideroxylon_main_object.load_sideroxylon_env_variables(env_file)
+    sideroxylon_main_object.read_sideroxylon_env_variables(env_file)
     return SideroxylonGitHub()
 
 

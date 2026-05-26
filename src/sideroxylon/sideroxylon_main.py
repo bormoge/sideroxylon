@@ -38,9 +38,32 @@ class SideroxylonMainArgs:
 
 class SideroxylonMain:
 
-    def load_sideroxylon_env_variables(self, env_file: str) -> None:
+    def read_sideroxylon_config(self, config_file: str) -> dict:
         """
-        Export the environment variables found in env_file.
+        Read the values inside the config.json file.
+        """
+
+        if not config_file.endswith(".json"):
+            sys.exit(
+                "The provided config_file does not have a .json extension. Exiting sideroxylon."
+            )
+
+        Path(os.path.dirname(config_file)).mkdir(parents=True, exist_ok=True)
+        Path(config_file).touch(exist_ok=True)
+
+        try:
+            with open(config_file) as conf:
+                return json.load(conf)
+
+        except json.decoder.JSONDecodeError:
+            print("No configuration found.\n")
+            # print(f"Error reading {config_file}: {jsondecerr}")
+            # print("Returning empty configuration.\n")
+            return {}
+
+    def read_sideroxylon_env_variables(self, env_file: str) -> None:
+        """
+        Read and export the environment variables found in env_file.
         """
 
         if not env_file.endswith(".env"):
@@ -77,28 +100,99 @@ class SideroxylonMain:
         except OSError as e:
             sys.exit(f"Error reading {env_file}: {e}")
 
-    def read_sideroxylon_config(self, config_file: str) -> dict:
+    def read_repository_url_file(self, repository_url_file: str) -> list[str]:
         """
-        Read the values inside the config.json file.
+        Read the URLs inside repository_url_file.
         """
-
-        if not config_file.endswith(".json"):
-            sys.exit(
-                "The provided config_file does not have a .json extension. Exiting sideroxylon."
-            )
-
-        Path(os.path.dirname(config_file)).mkdir(parents=True, exist_ok=True)
-        Path(config_file).touch(exist_ok=True)
 
         try:
-            with open(config_file) as conf:
-                return json.load(conf)
+            with open(repository_url_file, "r") as file:
+                urls: list[str] = [line.strip() for line in file if line.strip()]
 
-        except json.decoder.JSONDecodeError:
-            print("No configuration found.\n")
-            # print(f"Error reading {config_file}: {jsondecerr}")
-            # print("Returning empty configuration.\n")
-            return {}
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to read {repository_url_file}: {p}"
+            )
+
+        except OSError as e:
+            sys.exit(f"Error reading {repository_url_file}: {e}")
+
+        return urls
+
+    def read_filtered_urls_file(self, filtered_urls_file: str) -> list[str]:
+        """
+        Read the filtered_urls_file and store any strings found in the filtered_urls list.
+        """
+
+        try:
+
+            with open(filtered_urls_file, "r") as file:
+                filtered_urls: list[str] = [line.strip() for line in file]
+
+        except PermissionError as p:
+            print(
+                f"You do not have the necessary permissions to read {filtered_urls_file}: {p}"
+            )
+            return []
+
+        except OSError as e:
+            print(f"Error reading {filtered_urls_file}: {e}")
+            return []
+
+        return filtered_urls
+
+    def initialize_directories_and_files(
+        self,
+        directories_and_files: dict[str, list[str]],
+    ) -> None:
+        """
+        Initialize the directories and files that sideroxylon requires.
+        """
+
+        try:
+            for directory in directories_and_files.get("directories", []):
+                Path(directory).mkdir(parents=True, exist_ok=True)
+
+        except PermissionError as p:
+            sys.exit()(
+                f"You do not have the necessary permissions to create directory {directory}: {p}"
+            )
+
+        except OSError as e:
+            sys.exit(f"Error creating {directory}: {e}")
+
+        try:
+            for file in directories_and_files.get("files", []):
+                Path(file).touch(exist_ok=True)
+
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to create file {file}: {p}"
+            )
+
+        except OSError as e:
+            sys.exit(f"Error creating {file}: {e}")
+
+    def check_if_number(self, float_num: str | float) -> float | None:
+        """
+        Check if the parameter passed is a number (float) or can be converted to a number (float).
+        """
+
+        try:
+            if float_num == "" or float_num is None:
+                return None
+            else:
+                return float(float_num)
+
+        except (TypeError, ValueError):
+            sys.exit(f"sideroxylon expected a number, but received '{float_num}'")
+
+    def check_if_boolean(self, bool_value: str | bool) -> bool:
+        """
+        Check if the parameter passed is a boolean or can be converted to boolean.
+        """
+
+        return bool_value is True or str(bool_value).lower() == "true"
 
     def assign_sideroxylon_variables(self, args_list: dict) -> SideroxylonMainArgs:
         """
@@ -176,46 +270,6 @@ class SideroxylonMain:
             args_list["arg_urls"],
         )
 
-    def check_if_number(self, float_num: str | float) -> float | None:
-        """
-        Check if the parameter passed is a number (float) or can be converted to a number (float).
-        """
-
-        try:
-            if float_num == "" or float_num is None:
-                return None
-            else:
-                return float(float_num)
-
-        except (TypeError, ValueError):
-            sys.exit(f"sideroxylon expected a number, but received '{float_num}'")
-
-    def check_if_boolean(self, bool_value: str | bool) -> bool:
-        """
-        Check if the parameter passed is a boolean or can be converted to boolean.
-        """
-
-        return bool_value is True or str(bool_value).lower() == "true"
-
-    def read_repository_url_file(self, repository_url_file: str) -> list[str]:
-        """
-        Read URLs inside repository_url_file.
-        """
-
-        try:
-            with open(repository_url_file, "r") as file:
-                urls: list[str] = [line.strip() for line in file if line.strip()]
-
-        except PermissionError as p:
-            sys.exit(
-                f"You do not have the necessary permissions to read {repository_url_file}: {p}"
-            )
-
-        except OSError as e:
-            sys.exit(f"Error reading {repository_url_file}: {e}")
-
-        return urls
-
     def add_pipe_urls(self, repository_urls: list[str], arg_urls: str) -> list[str]:
         """
         Split the URLs found in arg_urls by newline and add them to repository_urls.
@@ -233,6 +287,45 @@ class SideroxylonMain:
         """
 
         return list(dict.fromkeys(repository_urls))
+
+    def filter_repository_urls(
+        self, repository_urls: list[str], filtered_urls: list[str]
+    ) -> list[str]:
+        """
+        Remove any URLs that contain a substring in the filtered_urls list.
+        """
+
+        # Remove empty elements
+        filtered_urls: list[str] = [url for url in filtered_urls if url.strip()]
+
+        # Check if filter list is empty. If it is, that means there are no filters.
+        if len(filtered_urls) == 0:
+            return repository_urls
+
+        modified_repository_urls: list[str] = [
+            # Put the url in modified_repository_urls...
+            url
+            for url in repository_urls
+            # ...if the url doesn't contain any filtered URL/keyword in it.
+            if not any(filtered_url in url for filtered_url in filtered_urls)
+        ]
+
+        return modified_repository_urls
+
+    def normalize_url(self, repository_url: str) -> str:
+        """
+        Return the provided URL after doing some basic normalizing.
+        """
+
+        # Each SideroxylonForge instance should do its
+        # own normalization; the main purpose of this function
+        # is to avoid crashes related to URL names.
+
+        repository_url: str = repository_url.split("?")[0]
+        repository_url: str = repository_url.split("#")[0]
+        repository_url: str = repository_url.removesuffix(".git")
+
+        return repository_url
 
     def normalize_repository_urls(
         self, repository_urls: list[str], sid_args: SideroxylonMainArgs
@@ -266,51 +359,42 @@ class SideroxylonMain:
 
         return new_repository_urls
 
-    def read_filtered_urls_file(self, filtered_urls_file: str) -> list[str]:
+    def initialize_forge_dictionary(self) -> dict[str, Any]:
         """
-        Read the filtered_urls_file and store any strings found in the filtered_urls list.
-        """
-
-        try:
-
-            with open(filtered_urls_file, "r") as file:
-                filtered_urls: list[str] = [line.strip() for line in file]
-
-        except PermissionError as p:
-            print(
-                f"You do not have the necessary permissions to read {filtered_urls_file}: {p}"
-            )
-            return []
-
-        except OSError as e:
-            print(f"Error reading {filtered_urls_file}: {e}")
-            return []
-
-        return filtered_urls
-
-    def filter_repository_urls(
-        self, repository_urls: list[str], filtered_urls: list[str]
-    ) -> list[str]:
-        """
-        Remove any URLs that contain a substring in the filtered_urls list.
+        Initialize required objects from classes that inherited SideroxylonForge.
         """
 
-        # Remove empty elements
-        filtered_urls: list[str] = [url for url in filtered_urls if url.strip()]
+        github_obj: SideroxylonGitHub = SideroxylonGitHub()
+        sourcehut_obj: SideroxylonSourceHut = SideroxylonSourceHut()
+        unknown_obj: SideroxylonUnknownForge = SideroxylonUnknownForge()
 
-        # Check if filter list is empty. If it is, that means there are no filters.
-        if len(filtered_urls) == 0:
-            return repository_urls
+        forge_dict: dict[str, Any] = {
+            "https://github.com": github_obj,
+            # "https://gitlab.com": ,
+            # "https://codeberg.org": ,
+            "https://sr.ht": sourcehut_obj,
+            "https://git.sr.ht": sourcehut_obj,
+            "unknown": unknown_obj,
+        }
 
-        modified_repository_urls: list[str] = [
-            # Put the url in modified_repository_urls...
-            url
-            for url in repository_urls
-            # ...if the url doesn't contain any filtered URL/keyword in it.
-            if not any(filtered_url in url for filtered_url in filtered_urls)
-        ]
+        return forge_dict
 
-        return modified_repository_urls
+    def get_repository_url_forge_object(self, forge_dict, repository_url):
+        """
+        Get the correct forge handler object according to the provided URL's domain.
+        """
+
+        # Parse the repository URL
+        parsed: Any = urlparse(repository_url)
+        base: str = f"{parsed.scheme}://{parsed.netloc}"
+
+        # Loop through each key in forge_dict to compare the base URL
+        for key in list(forge_dict.keys())[:-1]:  # Skip ["unknown": unknown_obj]
+            if base == key:
+                return forge_dict[key]
+
+        # If there is no match, return a SideroxylonUnknownForge object.
+        return forge_dict["unknown"]
 
     def store_batches_in_memory(
         self,
@@ -346,58 +430,6 @@ class SideroxylonMain:
 
         except OSError as e:
             sys.exit(f"Error reading {key}: {e}")
-
-    def get_repository_url_forge_object(self, forge_dict, repository_url):
-        """
-        Get the correct forge handler object according to the provided URL's domain.
-        """
-
-        # Parse the repository URL
-        parsed: Any = urlparse(repository_url)
-        base: str = f"{parsed.scheme}://{parsed.netloc}"
-
-        # Loop through each key in forge_dict to compare the base URL
-        for key in list(forge_dict.keys())[:-1]:  # Skip ["unknown": unknown_obj]
-            if base == key:
-                return forge_dict[key]
-
-        # If there is no match, return a SideroxylonUnknownForge object.
-        return forge_dict["unknown"]
-
-    def initialize_forge_dictionary(self) -> dict[str, Any]:
-        """
-        Initialize required objects from classes that inherited SideroxylonForge.
-        """
-
-        github_obj: SideroxylonGitHub = SideroxylonGitHub()
-        sourcehut_obj: SideroxylonSourceHut = SideroxylonSourceHut()
-        unknown_obj: SideroxylonUnknownForge = SideroxylonUnknownForge()
-
-        forge_dict: dict[str, Any] = {
-            "https://github.com": github_obj,
-            # "https://gitlab.com": ,
-            # "https://codeberg.org": ,
-            "https://sr.ht": sourcehut_obj,
-            "https://git.sr.ht": sourcehut_obj,
-            "unknown": unknown_obj,
-        }
-
-        return forge_dict
-
-    def normalize_url(self, repository_url: str) -> str:
-        """
-        Return the provided URL after doing some basic normalizing.
-        """
-
-        # Each SideroxylonForge instance should do its
-        # own normalization; the main purpose of this function
-        # is to avoid crashes related to URL names.
-
-        repository_url: str = repository_url.split("?")[0]
-        repository_url: str = repository_url.split("#")[0]
-        repository_url: str = repository_url.removesuffix(".git")
-
-        return repository_url
 
     def delay_api_calls(self, sleep_time: float) -> None:
         """
@@ -458,51 +490,45 @@ class SideroxylonMain:
 
         return language
 
-    def store_repository_url_by_programming_language(
+    def check_if_rate_limit_has_been_reached(
+        self, response: HTTPResponse | HTTPError | None, forge_object: SideroxylonForge
+    ) -> bool:
+        """
+        Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
+        response.
+        """
+
+        if response is not None and (
+            (int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0)
+            or response.getcode() == 403
+        ):
+            print(f"\nRate limit reached for {forge_object.get_forge_name()}")
+            print("Exiting sideroxylon")
+            return True
+
+        return False
+
+    def clean_repository_url_file(
         self,
-        sid_args: SideroxylonMainArgs,
-        forge_object: SideroxylonForge,
-        response: HTTPResponse | HTTPError,
-        repository_url_dict: dict[str, list[str]],
-        current_list_position: int,
-        url: str,
-        api_url: str,
-    ) -> int:
+        repository_url_file: str,
+        repository_urls: list[str],
+        final_list_position: int,
+    ) -> None:
         """
-        Store each repository URL in the file with the name of its main programming language.
+        Clean the file with the repository URLs.
         """
 
-        language_name: str = forge_object.get_repository_programming_language(
-            api_url,
-            response,
-        )
+        try:
+            with open(repository_url_file, "w") as file:
+                file.write("\n".join(repository_urls[final_list_position:]) + "\n")
 
-        cleaned_language_name: str = self.clean_programming_language_name(language_name)
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to write in {repository_url_file}: {p}"
+            )
 
-        filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
-
-        full_path_filename: str = os.path.join(
-            sid_args.sorted_repositories_directory, filename
-        )
-
-        cleaned_url: str = forge_object.normalize_forge_repository_url(url)
-
-        self.store_batches_in_memory(
-            full_path_filename, cleaned_url, repository_url_dict
-        )
-
-        current_list_position += 1
-
-        self.print_sideroxylon_output(
-            cleaned_url,
-            cleaned_language_name,
-            current_list_position,
-            response,
-            forge_object.get_forge_name(),
-            verbose=sid_args.verbose,
-        )
-
-        return current_list_position
+        except OSError as e:
+            sys.exit(f"Error reading {repository_url_file}: {e}")
 
     def handle_repository_urls(
         self, repository_urls: list[str], sid_args: SideroxylonMainArgs
@@ -576,77 +602,51 @@ class SideroxylonMain:
 
         return current_list_position
 
-    def check_if_rate_limit_has_been_reached(
-        self, response: HTTPResponse | HTTPError | None, forge_object: SideroxylonForge
-    ) -> bool:
-        """
-        Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
-        response.
-        """
-
-        if response is not None and (
-            (int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0)
-            or response.getcode() == 403
-        ):
-            print(f"\nRate limit reached for {forge_object.get_forge_name()}")
-            print("Exiting sideroxylon")
-            return True
-
-        return False
-
-    def initialize_directories_and_files(
+    def store_repository_url_by_programming_language(
         self,
-        directories_and_files: dict[str, list[str]],
-    ) -> None:
+        sid_args: SideroxylonMainArgs,
+        forge_object: SideroxylonForge,
+        response: HTTPResponse | HTTPError,
+        repository_url_dict: dict[str, list[str]],
+        current_list_position: int,
+        url: str,
+        api_url: str,
+    ) -> int:
         """
-        Initialize the directories and files that sideroxylon requires.
-        """
-
-        try:
-            for directory in directories_and_files.get("directories", []):
-                Path(directory).mkdir(parents=True, exist_ok=True)
-
-        except PermissionError as p:
-            sys.exit()(
-                f"You do not have the necessary permissions to create directory {directory}: {p}"
-            )
-
-        except OSError as e:
-            sys.exit(f"Error creating {directory}: {e}")
-
-        try:
-            for file in directories_and_files.get("files", []):
-                Path(file).touch(exist_ok=True)
-
-        except PermissionError as p:
-            sys.exit(
-                f"You do not have the necessary permissions to create file {file}: {p}"
-            )
-
-        except OSError as e:
-            sys.exit(f"Error creating {file}: {e}")
-
-    def clean_repository_url_file(
-        self,
-        repository_url_file: str,
-        repository_urls: list[str],
-        final_list_position: int,
-    ) -> None:
-        """
-        Clean the file with the repository URLs.
+        Store each repository URL in the file with the name of its main programming language.
         """
 
-        try:
-            with open(repository_url_file, "w") as file:
-                file.write("\n".join(repository_urls[final_list_position:]) + "\n")
+        language_name: str = forge_object.get_repository_programming_language(
+            api_url,
+            response,
+        )
 
-        except PermissionError as p:
-            sys.exit(
-                f"You do not have the necessary permissions to write in {repository_url_file}: {p}"
-            )
+        cleaned_language_name: str = self.clean_programming_language_name(language_name)
 
-        except OSError as e:
-            sys.exit(f"Error reading {repository_url_file}: {e}")
+        filename: str = f"{cleaned_language_name}.{sid_args.file_extension}"
+
+        full_path_filename: str = os.path.join(
+            sid_args.sorted_repositories_directory, filename
+        )
+
+        cleaned_url: str = forge_object.normalize_forge_repository_url(url)
+
+        self.store_batches_in_memory(
+            full_path_filename, cleaned_url, repository_url_dict
+        )
+
+        current_list_position += 1
+
+        self.print_sideroxylon_output(
+            cleaned_url,
+            cleaned_language_name,
+            current_list_position,
+            response,
+            forge_object.get_forge_name(),
+            verbose=sid_args.verbose,
+        )
+
+        return current_list_position
 
     def sideroxylon(
         self,
@@ -709,7 +709,7 @@ class SideroxylonMain:
         self.initialize_directories_and_files(directories_and_files)
 
         # Load the keys.
-        self.load_sideroxylon_env_variables(sid_args.env_file)
+        self.read_sideroxylon_env_variables(sid_args.env_file)
 
         # Get each link in the repository URL file
         repository_urls: list[str] = self.read_repository_url_file(
