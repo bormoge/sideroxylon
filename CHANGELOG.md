@@ -1,3 +1,26 @@
+## [0.2.5](https://github.com/bormoge/sideroxylon/compare/v0.2.4...v0.2.5) (2026-06-02)
+
+
+### Bug Fixes
+
+* **changelog:** fix changelog links 64ab52b
+* **conf:** add missing packages option to hatch-related table ee636d1
+* **nix:** change test name to test_sideroxylon_main_function 3c2940d
+* **nix:** comment unnecessary line cc6f43d
+* **sideroxylon:** add empty list check to filter_repository_urls d04e048
+* **sideroxylon:** partially revert 102b25a 263731e
+
+
+### Features
+
+* **nix:** add default.nix 6a5249f
+* **sideroxylon:** add config.json file as a configuration option 2ea8ece
+* **sideroxylon:** add filtering system 8381718
+* **sideroxylon:** add pipeline functionality to sideroxylon 5ecee45
+* **sideroxylon:** add timer 4c46ee4
+* **sideroxylon:** add version argument daf4542
+* **sideroxylon:** handle KeyboardInterrupt exceptions b6b598b
+
 ## [0.2.4](https://github.com/bormoge/sideroxylon/compare/v0.2.3...v0.2.4) (2026-05-14)
 
 
@@ -97,6 +120,3 @@
 ### Features
 
 * create sideroxylon 72715c1
-
-
-
