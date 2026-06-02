@@ -77,10 +77,10 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--check-file-for-duplicates",
+        "--write-in-file-without-duplicates",
         action="store_true",
         help=(
-            "Before writing in the file, check if the repository URLs already exist within it."
+            "When writing the repository URLs into their respective files, check if the URLs already exist in the files."
         ),
     )
 
@@ -119,8 +119,8 @@ def main() -> None:
             # String that contains URLs passed by the user as
             # a positional argument and/or pipe output.
             arg_urls=arg_urls,
-            # Before writing in the file, check if the repository URLs already exist within it.
-            check_file_for_duplicates=args.check_file_for_duplicates,
+            # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
+            write_in_file_without_duplicates=args.write_in_file_without_duplicates,
         )
 
     except KeyboardInterrupt:

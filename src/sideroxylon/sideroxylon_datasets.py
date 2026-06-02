@@ -51,8 +51,8 @@ class SideroxylonDefaultArgs:
     # String that contains URLs passed by the user as
     # a positional argument and/or pipe output.
     arg_urls: str = ""
-    # Before writing in the file, check if the repository URLs already exist within it.
-    check_file_for_duplicates: bool = False
+    # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
+    write_in_file_without_duplicates: bool = False
 
 
 sideroxylon_default_args_object: SideroxylonDefaultArgs = SideroxylonDefaultArgs()

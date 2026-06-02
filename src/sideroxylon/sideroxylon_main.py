@@ -34,7 +34,7 @@ class SideroxylonMainArgs:
     sleep_time: float
     verbose: int
     arg_urls: str
-    check_file_for_duplicates: bool
+    write_in_file_without_duplicates: bool
 
 
 class SideroxylonMain:
@@ -261,15 +261,15 @@ class SideroxylonMain:
         args_list["verbose"] = cast(int, args_list["verbose"])
 
         if (
-            args_list["check_file_for_duplicates"]
-            == sideroxylon_default_args_object.check_file_for_duplicates
+            args_list["write_in_file_without_duplicates"]
+            == sideroxylon_default_args_object.write_in_file_without_duplicates
         ):
-            args_list["check_file_for_duplicates"] = config_dict.get(
-                "check_file_for_duplicates",
-                args_list["check_file_for_duplicates"],
+            args_list["write_in_file_without_duplicates"] = config_dict.get(
+                "write_in_file_without_duplicates",
+                args_list["write_in_file_without_duplicates"],
             )
-        args_list["check_file_for_duplicates"] = self.check_if_boolean(
-            args_list["check_file_for_duplicates"]
+        args_list["write_in_file_without_duplicates"] = self.check_if_boolean(
+            args_list["write_in_file_without_duplicates"]
         )
 
         return SideroxylonMainArgs(
@@ -281,7 +281,7 @@ class SideroxylonMain:
             args_list["sleep_time"],
             args_list["verbose"],
             args_list["arg_urls"],
-            args_list["check_file_for_duplicates"],
+            args_list["write_in_file_without_duplicates"],
         )
 
     def add_pipe_urls(self, repository_urls: list[str], arg_urls: str) -> list[str]:
@@ -426,7 +426,7 @@ class SideroxylonMain:
         repository_url_dict[full_path_filename].append(url)
 
     def write_batches_into_files(
-        self, repository_url_dict: dict[str, list[str]], check_file_for_duplicates: bool
+        self, repository_url_dict: dict[str, list[str]], write_in_file_without_duplicates: bool
     ) -> None:
         """
         Determine which function will be used to write the URLs in their respective files.
@@ -434,7 +434,7 @@ class SideroxylonMain:
 
         write_function: Any = (
             self.write_without_duplicates_inside_file
-            if check_file_for_duplicates
+            if write_in_file_without_duplicates
             else self.write_with_duplicates_inside_file
         )
 
@@ -477,6 +477,10 @@ class SideroxylonMain:
 
         # Exclude duplicate URLs
         new_urls: list[str] = [url for url in value if url not in existing_urls]
+
+        print(key)
+        print(new_urls)
+        print()
 
         # Add the new URLs to the file
         if new_urls:
@@ -654,7 +658,7 @@ class SideroxylonMain:
 
         # Outside of loop.
         self.write_batches_into_files(
-            repository_url_dict, sid_args.check_file_for_duplicates
+            repository_url_dict, sid_args.write_in_file_without_duplicates
         )
 
         return current_list_position
@@ -726,8 +730,8 @@ class SideroxylonMain:
         # String that contains URLs passed by the user as
         # a positional argument and/or pipe output.
         arg_urls: str = sideroxylon_default_args_object.arg_urls,
-        # Before writing in the file, check if the repository URLs already exist within it.
-        check_file_for_duplicates: bool = sideroxylon_default_args_object.check_file_for_duplicates,
+        # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
+        write_in_file_without_duplicates: bool = sideroxylon_default_args_object.write_in_file_without_duplicates,
     ) -> None:
         """
         Main function of sideroxylon. Its purpose is to define
@@ -745,7 +749,7 @@ class SideroxylonMain:
             "sleep_time": sleep_time,
             "verbose": verbose,
             "arg_urls": arg_urls,
-            "check_file_for_duplicates": check_file_for_duplicates,
+            "write_in_file_without_duplicates": write_in_file_without_duplicates,
         }
 
         # Arguments after processing.

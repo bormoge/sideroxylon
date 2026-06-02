@@ -81,7 +81,7 @@ def verbose():
     return 0
 
 @pytest.fixture
-def check_file_for_duplicates():
+def write_in_file_without_duplicates():
     return False
 
 
@@ -96,7 +96,7 @@ def args_list(
     sleep_time,
     verbose,
     arg_urls,
-    check_file_for_duplicates,
+    write_in_file_without_duplicates,
 ):
     args_list: dict = {
         "config_file": config_file,
@@ -108,7 +108,7 @@ def args_list(
         "sleep_time": sleep_time,
         "verbose": verbose,
         "arg_urls": arg_urls,
-        "check_file_for_duplicates": check_file_for_duplicates,
+        "write_in_file_without_duplicates": write_in_file_without_duplicates,
     }
     return args_list
 
@@ -124,7 +124,7 @@ def sid_args(args_list):
         args_list["sleep_time"],
         args_list["verbose"],
         args_list["arg_urls"],
-        args_list["check_file_for_duplicates"],
+        args_list["write_in_file_without_duplicates"],
     )
     return sid_args
 
