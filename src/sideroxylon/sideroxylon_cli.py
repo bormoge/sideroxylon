@@ -77,6 +77,14 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--check-file-for-duplicates",
+        action="store_true",
+        help=(
+            "Before writing in the file, check if the repository URLs already exist within it."
+        ),
+    )
+
+    parser.add_argument(
         "--version",
         action="store_true",
         help=("Display the current version of sideroxylon."),
@@ -111,6 +119,8 @@ def main() -> None:
             # String that contains URLs passed by the user as
             # a positional argument and/or pipe output.
             arg_urls=arg_urls,
+            # Before writing in the file, check if the repository URLs already exist within it.
+            check_file_for_duplicates=args.check_file_for_duplicates,
         )
 
     except KeyboardInterrupt:
@@ -138,7 +148,9 @@ def print_time_elapsed(start_time: float, end_time: float) -> None:
     time_elapsed: float = end_time - start_time
 
     print("sideroxylon finished")
-    print(f"Approximate time elapsed since sideroxylon began: {time_elapsed:.6f} seconds")
+    print(
+        f"Approximate time elapsed since sideroxylon began: {time_elapsed:.6f} seconds"
+    )
 
 
 def display_sideroxylon_version():

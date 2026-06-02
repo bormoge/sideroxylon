@@ -80,6 +80,10 @@ def sleep_time():
 def verbose():
     return 0
 
+@pytest.fixture
+def check_file_for_duplicates():
+    return False
+
 
 @pytest.fixture
 def args_list(
@@ -92,6 +96,7 @@ def args_list(
     sleep_time,
     verbose,
     arg_urls,
+    check_file_for_duplicates,
 ):
     args_list: dict = {
         "config_file": config_file,
@@ -103,12 +108,13 @@ def args_list(
         "sleep_time": sleep_time,
         "verbose": verbose,
         "arg_urls": arg_urls,
+        "check_file_for_duplicates": check_file_for_duplicates,
     }
     return args_list
 
 
 @pytest.fixture
-def sid_args(sideroxylon_main_object, args_list):
+def sid_args(args_list):
     sid_args: SideroxylonMainArgs = SideroxylonMainArgs(
         args_list["env_file"],
         args_list["repository_url_file"],
@@ -118,6 +124,7 @@ def sid_args(sideroxylon_main_object, args_list):
         args_list["sleep_time"],
         args_list["verbose"],
         args_list["arg_urls"],
+        args_list["check_file_for_duplicates"],
     )
     return sid_args
 
@@ -235,7 +242,7 @@ def test_language_files_list_2(
 
 
 def test_read_repository_url_file(
-    repository_url_file, test_repository_list, arg_urls, sideroxylon_main_object
+    repository_url_file, test_repository_list, sideroxylon_main_object
 ):
     if os.path.isfile(repository_url_file):
         os.remove(repository_url_file)
