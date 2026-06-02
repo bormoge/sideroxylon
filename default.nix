@@ -21,12 +21,12 @@ buildPythonPackage rec {
 
   # Update when necessary
 
-  # src = fetchPypi {
-  #   inherit pname version;
-  #   hash = "sha256-1luMdGApfVbtZTodPAUtqdE1wCyfWn1fnIjC8hIPfjU=";
-  # };
+  src = fetchPypi {
+    inherit pname version;
+    hash = "sha256-klPewMOCqRN6aGA/62aIwpKIasR712CvPNyeZqx275Q=";
+  };
 
-  src = lib.cleanSource ./.;
+  # src = lib.cleanSource ./.;
 
   postPatch = "";
 
