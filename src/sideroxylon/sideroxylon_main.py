@@ -426,7 +426,7 @@ class SideroxylonMain:
         repository_url_dict[full_path_filename].append(url)
 
     def write_batches_into_files(
-        self, repository_url_dict: dict[str, list[str]], write_in_file_without_duplicates: bool
+        self, repository_url_dict: dict[str, list[str]], sid_args: SideroxylonMainArgs
     ) -> None:
         """
         Determine which function will be used to write the URLs in their respective files.
@@ -434,20 +434,24 @@ class SideroxylonMain:
 
         write_function: Any = (
             self.write_without_duplicates_inside_file
-            if write_in_file_without_duplicates
+            if sid_args.write_in_file_without_duplicates
             else self.write_with_duplicates_inside_file
         )
 
         for key, value in repository_url_dict.items():
-            write_function(key, value)
+            write_function(key, value, sid_args)
 
-    def write_with_duplicates_inside_file(self, key: str, value: list[str]) -> None:
+    def write_with_duplicates_inside_file(self, key: str, value: list[str], sid_args: SideroxylonMainArgs) -> None:
         """
         Write all the URLs in their respective files.
         """
 
         try:
             with open(key, "a") as file:
+                if sid_args.verbose >= 3:
+                    print(f"Adding the following URLs to file {os.path.basename(key)}:")
+                    print(value)
+                    print()
                 file.write("\n".join(value) + "\n")
 
         except PermissionError as p:
@@ -458,7 +462,7 @@ class SideroxylonMain:
         except OSError as e:
             sys.exit(f"Error reading {key}: {e}")
 
-    def write_without_duplicates_inside_file(self, key: str, value: list[str]) -> None:
+    def write_without_duplicates_inside_file(self, key: str, value: list[str], sid_args: SideroxylonMainArgs) -> None:
         """
         Write the URLs in their respective files if they are not found inside the file.
         """
@@ -478,9 +482,10 @@ class SideroxylonMain:
         # Exclude duplicate URLs
         new_urls: list[str] = [url for url in value if url not in existing_urls]
 
-        print(key)
-        print(new_urls)
-        print()
+        if sid_args.verbose >= 3:
+            print(f"Adding the following URLs to file \033[32m{os.path.basename(key)}\033[0m:")
+            print(new_urls)
+            print()
 
         # Add the new URLs to the file
         if new_urls:
@@ -516,7 +521,7 @@ class SideroxylonMain:
 
         if verbose >= 1:
             if language:
-                print(f"URL: {url}")
+                print(f"URL: \033[34m{url}\033[0m")
                 print(f"Programming Language: {language}")
             else:
                 print(f"Skipping {url}")
@@ -654,11 +659,11 @@ class SideroxylonMain:
                 if current_list_position > 0
                 else current_list_position
             )
-            print("\nsideroxylon terminated by user. Saving URLs.")
+            print("\nsideroxylon terminated by user. Saving URLs.\n")
 
         # Outside of loop.
         self.write_batches_into_files(
-            repository_url_dict, sid_args.write_in_file_without_duplicates
+            repository_url_dict, sid_args
         )
 
         return current_list_position
