@@ -473,6 +473,10 @@ class SideroxylonMain:
                 # Note that membership tests are faster for sets than lists
                 existing_urls: set[str] = {line.strip() for line in file}
 
+        except FileNotFoundError:
+            print(f"File {key} not found. Creating it.")
+            existing_urls: set[str] = set()
+
         except PermissionError as p:
             sys.exit(f"You do not have the necessary permissions to read in {key}: {p}")
 
