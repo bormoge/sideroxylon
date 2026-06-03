@@ -432,26 +432,24 @@ class SideroxylonMain:
         Determine which function will be used to write the URLs in their respective files.
         """
 
-        write_function: Any = (
-            self.write_without_duplicates_inside_file
-            if sid_args.write_in_file_without_duplicates
-            else self.write_with_duplicates_inside_file
-        )
-
         for key, value in repository_url_dict.items():
-            write_function(key, value, sid_args)
+            if sid_args.write_in_file_without_duplicates:
+                value: list[str] = self.check_for_duplicates_inside_file(key, value)
 
-    def write_with_duplicates_inside_file(self, key: str, value: list[str], sid_args: SideroxylonMainArgs) -> None:
+            if value != []:
+                if sid_args.verbose >= 3:
+                    print(f"Adding the following URLs to file \033[32m{os.path.basename(key)}\033[0m:")
+                    print(value)
+                    print()
+                self.write_batch_simple(key, value)
+
+    def write_batch_simple(self, key: str, value: list[str]) -> None:
         """
-        Write all the URLs in their respective files.
+        Write the URLs in their respective files.
         """
 
         try:
             with open(key, "a") as file:
-                if sid_args.verbose >= 3:
-                    print(f"Adding the following URLs to file {os.path.basename(key)}:")
-                    print(value)
-                    print()
                 file.write("\n".join(value) + "\n")
 
         except PermissionError as p:
@@ -462,7 +460,7 @@ class SideroxylonMain:
         except OSError as e:
             sys.exit(f"Error reading {key}: {e}")
 
-    def write_without_duplicates_inside_file(self, key: str, value: list[str], sid_args: SideroxylonMainArgs) -> None:
+    def check_for_duplicates_inside_file(self, key: str, value: list[str]) -> list[str]:
         """
         Write the URLs in their respective files if they are not found inside the file.
         """
@@ -486,21 +484,8 @@ class SideroxylonMain:
         # Exclude duplicate URLs
         new_urls: list[str] = [url for url in value if url not in existing_urls]
 
-        if sid_args.verbose >= 3:
-            print(f"Adding the following URLs to file \033[32m{os.path.basename(key)}\033[0m:")
-            print(new_urls)
-            print()
-
-        # Add the new URLs to the file
-        if new_urls:
-            try:
-                with open(key, "a") as file:
-                    file.write("\n".join(new_urls) + "\n")
-
-            except PermissionError as p:
-                sys.exit(
-                    f"You do not have the necessary permissions to write in {key}: {p}"
-                )
+        # Return the new URLs to the file
+        return new_urls
 
     def delay_api_calls(self, sleep_time: float) -> None:
         """
