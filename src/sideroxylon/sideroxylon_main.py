@@ -337,6 +337,7 @@ class SideroxylonMain:
 
         repository_url: str = repository_url.split("?")[0]
         repository_url: str = repository_url.split("#")[0]
+        repository_url: str = repository_url.removesuffix("/")
         repository_url: str = repository_url.removesuffix(".git")
 
         return repository_url

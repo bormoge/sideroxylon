@@ -149,7 +149,7 @@ def print_time_elapsed(start_time: float, end_time: float) -> None:
 
     print("sideroxylon finished")
     print(
-        f"Approximate time elapsed since sideroxylon began: {time_elapsed:.6f} seconds"
+        f"Approximate time elapsed: {time_elapsed:.6f} seconds"
     )
 
 
