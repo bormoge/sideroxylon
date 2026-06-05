@@ -435,7 +435,7 @@ class SideroxylonMain:
 
         for key, value in repository_url_dict.items():
             if sid_args.write_in_file_without_duplicates:
-                value: list[str] = self.check_for_duplicates_inside_file(key, value)
+                value: list[str] = self.check_for_duplicates_inside_file(key, value, sid_args)
 
             if value != []:
                 if sid_args.verbose >= 3:
@@ -461,7 +461,7 @@ class SideroxylonMain:
         except OSError as e:
             sys.exit(f"Error reading {key}: {e}")
 
-    def check_for_duplicates_inside_file(self, key: str, value: list[str]) -> list[str]:
+    def check_for_duplicates_inside_file(self, key: str, value: list[str], sid_args: SideroxylonMainArgs) -> list[str]:
         """
         Write the URLs in their respective files if they are not found inside the file.
         """
@@ -473,7 +473,9 @@ class SideroxylonMain:
                 existing_urls: set[str] = {line.strip() for line in file}
 
         except FileNotFoundError:
-            print(f"File {key} not found. Creating it.")
+            if sid_args.verbose >= 3:
+                print(f"File \033[32m{key}\033[0m not found. Creating it.")
+
             existing_urls: set[str] = set()
 
         except PermissionError as p:
