@@ -554,7 +554,6 @@ class SideroxylonMain:
 
         if response is not None and (
             (int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0)
-            or response.getcode() == 403
         ):
             print(f"\nRate limit reached for {forge_object.get_forge_name()}")
             print("Exiting sideroxylon")
