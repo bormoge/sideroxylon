@@ -133,7 +133,6 @@ def main() -> None:
 
 def get_all_urls_from_pipes_and_urls_arg(args) -> str:
     piped_urls: str = ""
-    arg_urls: str = ""
 
     if not sys.stdin.isatty():
         piped_urls: str = cast(str, sys.stdin.read())
@@ -148,13 +147,11 @@ def print_time_elapsed(start_time: float, end_time: float) -> None:
     time_elapsed: float = end_time - start_time
 
     print("sideroxylon finished")
-    print(
-        f"Approximate time elapsed: {time_elapsed:.6f} seconds"
-    )
+    print(f"Approximate time elapsed: {time_elapsed:.6f} seconds")
 
 
 def display_sideroxylon_version():
-    print("0.2.5")
+    print("0.3.0")
     sys.exit(0)
 
 

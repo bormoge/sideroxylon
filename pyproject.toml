@@ -1,6 +1,6 @@
 [project]
 name = "sideroxylon"
-version = "0.2.5" # don't forget to change display_sideroxylon_version and default.nix
+version = "0.3.0" # don't forget to change display_sideroxylon_version and default.nix
 description = "A repository classifier."
 readme = "README.md"
 requires-python = ">=3.13"
