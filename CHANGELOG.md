@@ -1,3 +1,17 @@
+# [0.3.0](https://github.com/bormoge/sideroxylon/compare/v0.2.5...v0.3.0) (2026-06-09)
+
+
+### Bug Fixes
+
+* **sideroxylon:** add FileNotFoundError check on write function 9fde621
+* **sideroxylon:** remove suffix / from links 91e638a
+
+
+### Features
+
+* **sideroxylon:** add check-file-for-duplicates argument 450e863
+* **sideroxylon:** add output to write functions 5049490
+
 ## [0.2.5](https://github.com/bormoge/sideroxylon/compare/v0.2.4...v0.2.5) (2026-06-02)
 
 
