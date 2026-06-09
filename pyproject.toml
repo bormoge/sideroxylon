@@ -1,13 +1,13 @@
 [project]
 name = "sideroxylon"
-version = "0.3.0" # don't forget to change display_sideroxylon_version and default.nix
+version = "0.3.0"  # don't forget to change display_sideroxylon_version and default.nix
 description = "A repository classifier."
 readme = "README.md"
 requires-python = ">=3.13"
 license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
 authors = [
-  { name = "Geralld Borbón", email = "eternalmangocean@gmail.com" },
+  { name = "Geralld Borbón", email = "geralldborbon@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -43,13 +43,16 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
-  "flake.*",
-  "uv.lock",
-  ".editorconfig",
+  "*.nix",
   ".dir-locals.el",
-  ".python-version",
-  ".gitignore",
+  ".editorconfig",
   ".envrc",
+  ".gitignore",
+  ".python-version",
+  "default.nix",
+  "flake.lock",
+  "flake.nix",
+  "uv.lock",
 ]
 
 [tool.hatch.build.targets.wheel]
