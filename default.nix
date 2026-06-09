@@ -15,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "sideroxylon";
-  version = "0.2.5";
+  version = "0.3.0";
   # format = "pyproject";
   pyproject = true;
 
@@ -23,7 +23,7 @@ buildPythonPackage rec {
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-klPewMOCqRN6aGA/62aIwpKIasR712CvPNyeZqx275Q=";
+    hash = "sha256-MXj751mbSA3O7aMLoi/sVGH5LZAInzY2YgY5WCwEq6Y=";
   };
 
   # src = lib.cleanSource ./.;
