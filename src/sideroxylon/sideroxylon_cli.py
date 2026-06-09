@@ -85,6 +85,14 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--check-at-start-for-rate-limits",
+        action="store_true",
+        help=(
+            "Check for the reset date of rate limits at the start of sideroxylon. If a rate limit reset date is found and it hasn't happened yet, stop sideroxylon."
+        ),
+    )
+
+    parser.add_argument(
         "--version",
         action="store_true",
         help=("Display the current version of sideroxylon."),
@@ -121,6 +129,8 @@ def main() -> None:
             arg_urls=arg_urls,
             # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
             write_in_file_without_duplicates=args.write_in_file_without_duplicates,
+            # Check for the reset date of rate limits at the start of sideroxylon. If a rate limit reset date is found and it hasn't happened yet, stop sideroxylon.
+            check_at_start_for_rate_limits=args.check_at_start_for_rate_limits,
         )
 
     except KeyboardInterrupt:

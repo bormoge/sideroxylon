@@ -84,6 +84,9 @@ def verbose():
 def write_in_file_without_duplicates():
     return False
 
+@pytest.fixture
+def check_at_start_for_rate_limits():
+    return False
 
 @pytest.fixture
 def args_list(
@@ -97,6 +100,7 @@ def args_list(
     verbose,
     arg_urls,
     write_in_file_without_duplicates,
+    check_at_start_for_rate_limits,
 ):
     args_list: dict = {
         "config_file": config_file,
@@ -109,6 +113,7 @@ def args_list(
         "verbose": verbose,
         "arg_urls": arg_urls,
         "write_in_file_without_duplicates": write_in_file_without_duplicates,
+        "check_at_start_for_rate_limits": check_at_start_for_rate_limits,
     }
     return args_list
 
@@ -125,6 +130,7 @@ def sid_args(args_list):
         args_list["verbose"],
         args_list["arg_urls"],
         args_list["write_in_file_without_duplicates"],
+        args_list["check_at_start_for_rate_limits"],
     )
     return sid_args
 

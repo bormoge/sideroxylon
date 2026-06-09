@@ -35,6 +35,7 @@ class SideroxylonMainArgs:
     verbose: int
     arg_urls: str
     write_in_file_without_duplicates: bool
+    check_at_start_for_rate_limits: bool
 
 
 class SideroxylonMain:
@@ -55,6 +56,11 @@ class SideroxylonMain:
         try:
             with open(config_file) as conf:
                 return json.load(conf)
+
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to read {config_file}: {p}"
+            )
 
         except json.decoder.JSONDecodeError:
             print("No configuration found.\n")
@@ -141,6 +147,112 @@ class SideroxylonMain:
             return []
 
         return filtered_urls
+
+    def read_rate_limit_date_file(
+        self, rate_limit_reset_file_path: str
+    ) -> dict[str, str]:
+
+        try:
+            Path(rate_limit_reset_file_path).touch(exist_ok=True)
+
+            with open(rate_limit_reset_file_path) as file:
+                return json.load(file)
+
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to read or write {rate_limit_reset_file_path}: {p}"
+            )
+
+        except json.decoder.JSONDecodeError:
+            return {}
+
+    def write_batches_into_files(
+        self, repository_url_dict: dict[str, list[str]], sid_args: SideroxylonMainArgs
+    ) -> None:
+        """
+        Determine which function will be used to write the URLs in their respective files.
+        """
+
+        for key, value in repository_url_dict.items():
+            if sid_args.write_in_file_without_duplicates:
+                value: list[str] = self.check_for_duplicates_inside_file(
+                    key, value, sid_args
+                )
+
+            if value != []:
+                if sid_args.verbose >= 3:
+                    print(
+                        f"Adding the following URLs to file \033[32m{os.path.basename(key)}\033[0m:"
+                    )
+                    print(value)
+                    print()
+                self.write_batch_simple(key, value)
+
+    def write_batch_simple(self, key: str, value: list[str]) -> None:
+        """
+        Write the URLs in their respective files.
+        """
+
+        try:
+            with open(key, "a") as file:
+                file.write("\n".join(value) + "\n")
+
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to write in {key}: {p}"
+            )
+
+        except OSError as e:
+            sys.exit(f"Error reading {key}: {e}")
+
+    def write_rate_limit_date_file(
+        self, response: HTTPResponse | HTTPError, forge_name: str
+    ) -> None:
+        rate_limit_reset_file_path: str = (
+            f"{sideroxylon_xdg_object.SIDEROXYLON_CACHE_HOME_DIR}/rate_limit_reset_dates.json"
+        )
+
+        rate_limit_dates_dict: dict[str, str] = self.read_rate_limit_date_file(
+            rate_limit_reset_file_path
+        )
+
+        rate_limit_dates_dict[forge_name] = str(
+            int(dict(response.getheaders()).get("X-RateLimit-Reset", -1))
+        )
+
+        rate_limit_dates_json: str = json.dumps(rate_limit_dates_dict, indent=4)
+
+        try:
+            with open(rate_limit_reset_file_path, "w") as file:
+                file.write(rate_limit_dates_json)
+
+        except PermissionError as p:
+            sys.exit(
+                f"You do not have the necessary permissions to write in {rate_limit_reset_file_path}: {p}"
+            )
+
+        except OSError as e:
+            sys.exit(f"Error reading {rate_limit_reset_file_path}: {e}")
+
+    def check_rate_limit_date_file(self) -> bool:
+        rate_limit_reset_file_path: str = (
+            f"{sideroxylon_xdg_object.SIDEROXYLON_CACHE_HOME_DIR}/rate_limit_reset_dates.json"
+        )
+
+        rate_limit_dates_dict: dict[str, str] = self.read_rate_limit_date_file(
+            rate_limit_reset_file_path
+        )
+
+        rate_limit_flag: bool = False
+
+        for key, value in rate_limit_dates_dict.items():
+            if int(value) > int(time.time()):
+                print(
+                    f"Time until {key} rate limit is reset: {datetime.datetime.fromtimestamp(int(value))}"
+                )
+                rate_limit_flag = True
+
+        return rate_limit_flag
 
     def initialize_directories_and_files(
         self,
@@ -272,6 +384,18 @@ class SideroxylonMain:
             args_list["write_in_file_without_duplicates"]
         )
 
+        if (
+            args_list["check_at_start_for_rate_limits"]
+            == sideroxylon_default_args_object.check_at_start_for_rate_limits
+        ):
+            args_list["check_at_start_for_rate_limits"] = config_dict.get(
+                "check_at_start_for_rate_limits",
+                args_list["check_at_start_for_rate_limits"],
+            )
+        args_list["check_at_start_for_rate_limits"] = self.check_if_boolean(
+            args_list["check_at_start_for_rate_limits"]
+        )
+
         return SideroxylonMainArgs(
             args_list["env_file"],
             args_list["repository_url_file"],
@@ -282,6 +406,7 @@ class SideroxylonMain:
             args_list["verbose"],
             args_list["arg_urls"],
             args_list["write_in_file_without_duplicates"],
+            args_list["check_at_start_for_rate_limits"],
         )
 
     def add_pipe_urls(self, repository_urls: list[str], arg_urls: str) -> list[str]:
@@ -426,42 +551,9 @@ class SideroxylonMain:
 
         repository_url_dict[full_path_filename].append(url)
 
-    def write_batches_into_files(
-        self, repository_url_dict: dict[str, list[str]], sid_args: SideroxylonMainArgs
-    ) -> None:
-        """
-        Determine which function will be used to write the URLs in their respective files.
-        """
-
-        for key, value in repository_url_dict.items():
-            if sid_args.write_in_file_without_duplicates:
-                value: list[str] = self.check_for_duplicates_inside_file(key, value, sid_args)
-
-            if value != []:
-                if sid_args.verbose >= 3:
-                    print(f"Adding the following URLs to file \033[32m{os.path.basename(key)}\033[0m:")
-                    print(value)
-                    print()
-                self.write_batch_simple(key, value)
-
-    def write_batch_simple(self, key: str, value: list[str]) -> None:
-        """
-        Write the URLs in their respective files.
-        """
-
-        try:
-            with open(key, "a") as file:
-                file.write("\n".join(value) + "\n")
-
-        except PermissionError as p:
-            sys.exit(
-                f"You do not have the necessary permissions to write in {key}: {p}"
-            )
-
-        except OSError as e:
-            sys.exit(f"Error reading {key}: {e}")
-
-    def check_for_duplicates_inside_file(self, key: str, value: list[str], sid_args: SideroxylonMainArgs) -> list[str]:
+    def check_for_duplicates_inside_file(
+        self, key: str, value: list[str], sid_args: SideroxylonMainArgs
+    ) -> list[str]:
         """
         Write the URLs in their respective files if they are not found inside the file.
         """
@@ -547,17 +639,15 @@ class SideroxylonMain:
         return language
 
     def check_if_rate_limit_has_been_reached(
-        self, response: HTTPResponse | HTTPError | None, forge_object: SideroxylonForge
+        self, response: HTTPResponse | HTTPError, forge_object: SideroxylonForge
     ) -> bool:
         """
         Check the remaining rate limit ('X-RateLimit-Remaining') element of an HTTP
         response.
         """
 
-        if response is not None and (
-            (int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0)
-        ):
-            print(f"\nRate limit reached for {forge_object.get_forge_name()}")
+        if int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0:
+            print(f"\nRate limit reached for {forge_object.get_forge_name()}\n")
             print("Exiting sideroxylon")
             return True
 
@@ -631,15 +721,17 @@ class SideroxylonMain:
                     api_url,
                 )
 
-                # Note: this only stops the current iteration of sideroxylon.
-                # I could probably create a hard cap that checks current UNIX
-                # time vs the last fetched UNIX time or something similar.
-
-                # Another thing to note: this condition activates with all
-                # forges, disregarding any rate limits other than the
+                # This condition activates with all forges,
+                # ignoring any rate limits other than the
                 # current forge's.
 
-                if self.check_if_rate_limit_has_been_reached(response, forge_object):
+                if response is not None and self.check_if_rate_limit_has_been_reached(
+                    response, forge_object
+                ):
+                    if sid_args.check_at_start_for_rate_limits:
+                        self.write_rate_limit_date_file(
+                            response, forge_object.get_forge_name()
+                        )
                     break
 
                 self.delay_api_calls(sid_args.sleep_time)
@@ -653,9 +745,7 @@ class SideroxylonMain:
             print("\nsideroxylon terminated by user. Saving URLs.\n")
 
         # Outside of loop.
-        self.write_batches_into_files(
-            repository_url_dict, sid_args
-        )
+        self.write_batches_into_files(repository_url_dict, sid_args)
 
         return current_list_position
 
@@ -728,6 +818,8 @@ class SideroxylonMain:
         arg_urls: str = sideroxylon_default_args_object.arg_urls,
         # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
         write_in_file_without_duplicates: bool = sideroxylon_default_args_object.write_in_file_without_duplicates,
+        # Check for the reset date of rate limits at the start of sideroxylon. If a rate limit reset date is found and it hasn't happened yet, stop sideroxylon.
+        check_at_start_for_rate_limits: bool = sideroxylon_default_args_object.check_at_start_for_rate_limits,
     ) -> None:
         """
         Main function of sideroxylon. Its purpose is to define
@@ -746,6 +838,7 @@ class SideroxylonMain:
             "verbose": verbose,
             "arg_urls": arg_urls,
             "write_in_file_without_duplicates": write_in_file_without_duplicates,
+            "check_at_start_for_rate_limits": check_at_start_for_rate_limits,
         }
 
         # Arguments after processing.
@@ -767,6 +860,11 @@ class SideroxylonMain:
         }
 
         self.initialize_directories_and_files(directories_and_files)
+
+        # Check if the rate limits are ready.
+        # Check after having initialized the directory SIDEROXYLON_CACHE_HOME_DIR.
+        if sid_args.check_at_start_for_rate_limits and self.check_rate_limit_date_file():
+            sys.exit(0)
 
         # Load the keys.
         self.read_sideroxylon_env_variables(sid_args.env_file)

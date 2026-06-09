@@ -53,6 +53,8 @@ class SideroxylonDefaultArgs:
     arg_urls: str = ""
     # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
     write_in_file_without_duplicates: bool = False
+    # Check for the reset date of rate limits at the start of sideroxylon. If a rate limit reset date is found and it hasn't happened yet, stop sideroxylon.
+    check_at_start_for_rate_limits: bool = False
 
 
 sideroxylon_default_args_object: SideroxylonDefaultArgs = SideroxylonDefaultArgs()
