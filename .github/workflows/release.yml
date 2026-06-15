@@ -9,6 +9,8 @@ jobs:
   sideroxylon-build:
     name: Build a sideroxylon version
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout source
