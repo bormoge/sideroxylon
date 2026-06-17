@@ -1,0 +1,36 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# NodeJS
+package.json
+package-lock.json
+node_modules
+
+# Direnv
+.direnv
+
+# Env
+.env
+
+# Inputs and Outputs
+*api*
+*token*
+*repo*
+*languages*
+*sorted_repositories*
+
+# Tests
+*throwaway*
+*coverage*
+
+# Nix
+result
+result/
