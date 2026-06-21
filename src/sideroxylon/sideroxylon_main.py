@@ -479,6 +479,11 @@ class SideroxylonMain:
             repository_urls, sid_args.arg_urls
         )
 
+        # Normalize each URL in the list
+        repository_urls: list[str] = [
+            self.normalize_url(url) for url in repository_urls
+        ]
+
         # Remove duplicate URLs
         repository_urls: list[str] = self.remove_duplicate_urls(repository_urls)
 
@@ -492,12 +497,7 @@ class SideroxylonMain:
             repository_urls, filtered_urls
         )
 
-        # Normalize each URL in the list
-        new_repository_urls: list[str] = [
-            self.normalize_url(url) for url in repository_urls
-        ]
-
-        return new_repository_urls
+        return repository_urls
 
     def initialize_forge_dictionary(self) -> dict[str, Any]:
         """
