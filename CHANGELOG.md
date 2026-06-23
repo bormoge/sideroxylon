@@ -1,3 +1,12 @@
+# [0.3.1](https://github.com/bormoge/sideroxylon/compare/v0.3.0...v0.3.1) (2026-06-23)
+
+
+### Features
+
+* **actions:** add release.yml 79609e3
+* **container:** create Dockerfile and .dockerignore 10c03c1
+* **sideroxylon:** add flag to check the rate limit reset date aebe8c8
+
 # [0.3.0](https://github.com/bormoge/sideroxylon/compare/v0.2.5...v0.3.0) (2026-06-09)
 
 
