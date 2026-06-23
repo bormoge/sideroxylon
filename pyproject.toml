@@ -45,10 +45,12 @@ build-backend = "hatchling.build"
 exclude = [
   "*.nix",
   ".dir-locals.el",
+  ".dockerignore",
   ".editorconfig",
   ".envrc",
   ".gitignore",
   ".python-version",
+  "Dockerfile",
   "default.nix",
   "flake.lock",
   "flake.nix",
