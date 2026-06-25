@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from http.client import HTTPResponse
 from pathlib import Path
 from typing import Any, cast
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 
 from .sideroxylon_datasets import (
@@ -744,6 +744,22 @@ class SideroxylonMain:
             )
             print("\nsideroxylon terminated by user. Saving URLs.\n")
 
+        except URLError as url_error:
+            current_list_position: int = (
+                current_list_position - 1
+                if current_list_position > 0
+                else current_list_position
+            )
+            print(f"URLError: {url_error}\nSaving URLs.\n")
+
+        except Exception as e:
+            current_list_position: int = (
+                current_list_position - 1
+                if current_list_position > 0
+                else current_list_position
+            )
+            print(f"Error: {e}\nSaving URLs.\n")
+
         # Outside of loop.
         self.write_batches_into_files(repository_url_dict, sid_args)
 
@@ -863,7 +879,10 @@ class SideroxylonMain:
 
         # Check if the rate limits are ready.
         # Check after having initialized the directory SIDEROXYLON_CACHE_HOME_DIR.
-        if sid_args.check_at_start_for_rate_limits and self.check_rate_limit_date_file():
+        if (
+            sid_args.check_at_start_for_rate_limits
+            and self.check_rate_limit_date_file()
+        ):
             sys.exit(0)
 
         # Load the keys.

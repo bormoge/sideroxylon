@@ -97,12 +97,6 @@ class SideroxylonGitHub(SideroxylonForge):
         except HTTPError as http_error:
             return http_error
 
-        except URLError as url_error:
-            sys.exit(f"URLError: {url_error}")
-
-        except Exception as e:
-            sys.exit(f"Error: {e}")
-
     def convert_response_to_dict(self, response: HTTPResponse) -> dict:
         """
         Convert an HTTP response into a dictionary.
