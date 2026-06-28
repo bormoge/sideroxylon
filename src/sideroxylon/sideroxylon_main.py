@@ -34,7 +34,6 @@ class SideroxylonMainArgs:
     sleep_time: float
     verbose: int
     arg_urls: str
-    write_in_file_without_duplicates: bool
     check_at_start_for_rate_limits: bool
 
 
@@ -174,10 +173,9 @@ class SideroxylonMain:
         """
 
         for key, value in repository_url_dict.items():
-            if sid_args.write_in_file_without_duplicates:
-                value: list[str] = self.check_for_duplicates_inside_file(
-                    key, value, sid_args
-                )
+            value: list[str] = self.check_for_duplicates_inside_file(
+                key, value, sid_args
+            )
 
             if value != []:
                 if sid_args.verbose >= 3:
@@ -373,18 +371,6 @@ class SideroxylonMain:
         args_list["verbose"] = cast(int, args_list["verbose"])
 
         if (
-            args_list["write_in_file_without_duplicates"]
-            == sideroxylon_default_args_object.write_in_file_without_duplicates
-        ):
-            args_list["write_in_file_without_duplicates"] = config_dict.get(
-                "write_in_file_without_duplicates",
-                args_list["write_in_file_without_duplicates"],
-            )
-        args_list["write_in_file_without_duplicates"] = self.check_if_boolean(
-            args_list["write_in_file_without_duplicates"]
-        )
-
-        if (
             args_list["check_at_start_for_rate_limits"]
             == sideroxylon_default_args_object.check_at_start_for_rate_limits
         ):
@@ -405,7 +391,6 @@ class SideroxylonMain:
             args_list["sleep_time"],
             args_list["verbose"],
             args_list["arg_urls"],
-            args_list["write_in_file_without_duplicates"],
             args_list["check_at_start_for_rate_limits"],
         )
 
@@ -832,8 +817,6 @@ class SideroxylonMain:
         # String that contains URLs passed by the user as
         # a positional argument and/or pipe output.
         arg_urls: str = sideroxylon_default_args_object.arg_urls,
-        # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
-        write_in_file_without_duplicates: bool = sideroxylon_default_args_object.write_in_file_without_duplicates,
         # Check for the reset date of rate limits at the start of sideroxylon. If a rate limit reset date is found and it hasn't happened yet, stop sideroxylon.
         check_at_start_for_rate_limits: bool = sideroxylon_default_args_object.check_at_start_for_rate_limits,
     ) -> None:
@@ -853,7 +836,6 @@ class SideroxylonMain:
             "sleep_time": sleep_time,
             "verbose": verbose,
             "arg_urls": arg_urls,
-            "write_in_file_without_duplicates": write_in_file_without_duplicates,
             "check_at_start_for_rate_limits": check_at_start_for_rate_limits,
         }
 

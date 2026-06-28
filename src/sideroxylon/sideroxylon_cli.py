@@ -77,14 +77,6 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--write-in-file-without-duplicates",
-        action="store_true",
-        help=(
-            "When writing the repository URLs into their respective files, check if the URLs already exist in the files."
-        ),
-    )
-
-    parser.add_argument(
         "--check-at-start-for-rate-limits",
         action="store_true",
         help=(
@@ -127,8 +119,6 @@ def main() -> None:
             # String that contains URLs passed by the user as
             # a positional argument and/or pipe output.
             arg_urls=arg_urls,
-            # When writing the repository URLs into their respective files, check if the URLs already exist in the files.
-            write_in_file_without_duplicates=args.write_in_file_without_duplicates,
             # Check for the reset date of rate limits at the start of sideroxylon. If a rate limit reset date is found and it hasn't happened yet, stop sideroxylon.
             check_at_start_for_rate_limits=args.check_at_start_for_rate_limits,
         )
