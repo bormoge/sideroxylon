@@ -21,11 +21,13 @@ buildPythonPackage rec {
 
   # Update when necessary
 
+  # Comment this if you want to build from source.
   src = fetchPypi {
     inherit pname version;
     hash = "sha256-vhNnECUxJhjeK0PjzHNGfEfuvAoNcJTf7j9Etg/Lsk0=";
   };
 
+  # Uncomment this if you want to build from source.
   # src = lib.cleanSource ./.;
 
   postPatch = "";
