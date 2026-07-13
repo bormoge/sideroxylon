@@ -33,6 +33,10 @@
             nixd
             nixfmt
           ];
+
+          shellHook = ''
+            export UV_PROJECT_ENVIRONMENT=.venv
+          '';
         };
       }
     );
