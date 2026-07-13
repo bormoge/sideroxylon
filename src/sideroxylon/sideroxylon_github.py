@@ -1,11 +1,10 @@
 import json
 import os
 import ssl
-import sys
 import urllib.request
 from http.client import HTTPResponse
 from typing import Any, cast
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 
 from .sideroxylon_forge import SideroxylonForge
 
@@ -60,7 +59,9 @@ class SideroxylonGitHub(SideroxylonForge):
 
         return f"https://github.com/{user}/{repo}"
 
-    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+    def convert_forge_url_to_api_url(
+        self, repository_url: str, classification_type: int
+    ) -> str | None:
         """
         Convert forge URL to forge API URL.
         """
@@ -75,7 +76,11 @@ class SideroxylonGitHub(SideroxylonForge):
         user: str = user_and_repo["user"]
         repo: str = user_and_repo["repo"]
 
-        return f"https://api.github.com/repos/{user}/{repo}/languages"
+        match classification_type:
+            case 1:
+                return f"https://api.github.com/repos/{user}/{repo}/languages"
+            case _:
+                return f"https://api.github.com/repos/{user}/{repo}/languages"
 
     def fetch_forge_repository_data(
         self, api_url: str
@@ -91,7 +96,9 @@ class SideroxylonGitHub(SideroxylonForge):
 
         # Try to call the API.
         try:
-            response: HTTPResponse = urllib.request.urlopen(url=request, context=self.def_context)
+            response: HTTPResponse = urllib.request.urlopen(
+                url=request, context=self.def_context
+            )
             return response
 
         except HTTPError as http_error:

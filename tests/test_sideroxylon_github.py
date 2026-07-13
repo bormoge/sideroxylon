@@ -58,7 +58,7 @@ def github_forge_object(sideroxylon_main_object, env_file):
 @pytest.fixture
 def test_api_url_success(github_forge_object, test_repository_success):
     test_api_url_success: str | None = github_forge_object.convert_forge_url_to_api_url(
-        test_repository_success
+        test_repository_success, 1
     )
     return test_api_url_success
 
@@ -66,7 +66,7 @@ def test_api_url_success(github_forge_object, test_repository_success):
 @pytest.fixture
 def test_api_url_failure(github_forge_object, test_repository_failure):
     test_api_url_failure: str | None = github_forge_object.convert_forge_url_to_api_url(
-        test_repository_failure
+        test_repository_failure, 1
     )
     return test_api_url_failure
 
@@ -74,7 +74,7 @@ def test_api_url_failure(github_forge_object, test_repository_failure):
 @pytest.fixture
 def test_api_url_no_language(github_forge_object, test_repository_no_language):
     test_api_url_no_language: str | None = (
-        github_forge_object.convert_forge_url_to_api_url(test_repository_no_language)
+        github_forge_object.convert_forge_url_to_api_url(test_repository_no_language, 1)
     )
     return test_api_url_no_language
 
@@ -105,7 +105,7 @@ def response_no_language(github_forge_object, test_api_url_no_language):
 
 def test_convert_forge_url_to_api_url(test_repository_success, github_forge_object):
     assert (
-        github_forge_object.convert_forge_url_to_api_url(test_repository_success)
+        github_forge_object.convert_forge_url_to_api_url(test_repository_success, 1)
         == "https://api.github.com/repos/bormoge/sideroxylon/languages"
     )
 

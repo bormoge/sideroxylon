@@ -7,7 +7,9 @@ from abc import ABC, abstractmethod
 class SideroxylonForge(ABC):
 
     @abstractmethod
-    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+    def convert_forge_url_to_api_url(
+        self, repository_url: str, classification_type: int
+    ) -> str | None:
         pass
 
     @abstractmethod

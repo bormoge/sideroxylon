@@ -8,7 +8,9 @@ from .sideroxylon_forge import SideroxylonForge
 
 class SideroxylonSourceHut(SideroxylonForge):
 
-    def convert_forge_url_to_api_url(self, repository_url: str) -> str | None:
+    def convert_forge_url_to_api_url(
+        self, repository_url: str, classification_type: int
+    ) -> str | None:
         """
         This is a dummy function that returns repository_url.
         """

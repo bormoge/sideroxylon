@@ -672,6 +672,8 @@ class SideroxylonMain:
 
         current_list_position: int = 0
 
+        # TBC
+        classification_type: int = 1
         classification_function: Any = self.store_repository_url_by_programming_language
 
         try:
@@ -682,7 +684,9 @@ class SideroxylonMain:
                 )
 
                 # If necessary, convert the URL to an api URL.
-                api_url: str | None = forge_object.convert_forge_url_to_api_url(url)
+                api_url: str | None = forge_object.convert_forge_url_to_api_url(
+                    url, classification_type
+                )
 
                 if not api_url:
                     current_list_position += 1
