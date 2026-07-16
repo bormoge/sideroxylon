@@ -551,7 +551,7 @@ class SideroxylonMain:
 
         except FileNotFoundError:
             if sid_args.verbose >= 3:
-                print(f"File \033[32m{key}\033[0m not found. Creating it.")
+                print(f"File \033[32m{key}\033[0m not found. Creating it.\n")
 
             existing_urls: set[str] = set()
 
@@ -580,6 +580,7 @@ class SideroxylonMain:
         url: str,
         language: str,
         current_list_position: int,
+        repository_urls_length: int,
         response: HTTPResponse | HTTPError | None = None,
         forge_name: str = "GitHub",
         verbose: int = 1,
@@ -596,7 +597,7 @@ class SideroxylonMain:
                 print(f"Skipping {url}")
 
             if verbose >= 2:
-                print(f"Current list position: {current_list_position}")
+                print(f"Current list position: {current_list_position} out of {repository_urls_length}")
 
             if response is not None and (verbose >= 2):
                 print(
@@ -633,7 +634,7 @@ class SideroxylonMain:
 
         if int(dict(response.getheaders()).get("X-RateLimit-Remaining", -1)) <= 0:
             print(f"\nRate limit reached for {forge_object.get_forge_name()}\n")
-            print("Exiting sideroxylon")
+            print("Saving URLs.\n")
             return True
 
         return False
@@ -670,6 +671,7 @@ class SideroxylonMain:
         forge_dict: dict[str, Any] = self.initialize_forge_dictionary()
         repository_url_dict: dict[str, list[str]] = {}
 
+        repository_urls_length: int = len(repository_urls)
         current_list_position: int = 0
 
         # TBC
@@ -683,7 +685,7 @@ class SideroxylonMain:
                     forge_dict, url
                 )
 
-                # If necessary, convert the URL to an api URL.
+                # If necessary, convert the URL to an API URL.
                 api_url: str | None = forge_object.convert_forge_url_to_api_url(
                     url, classification_type
                 )
@@ -691,7 +693,7 @@ class SideroxylonMain:
                 if not api_url:
                     current_list_position += 1
                     self.print_sideroxylon_output(
-                        url, "", current_list_position, verbose=sid_args.verbose
+                        url, "", current_list_position, repository_urls_length, verbose=sid_args.verbose
                     )
                     continue
 
@@ -706,6 +708,7 @@ class SideroxylonMain:
                     response,
                     repository_url_dict,
                     current_list_position,
+                    repository_urls_length,
                     url,
                     api_url,
                 )
@@ -761,6 +764,7 @@ class SideroxylonMain:
         response: HTTPResponse | HTTPError,
         repository_url_dict: dict[str, list[str]],
         current_list_position: int,
+        repository_urls_length: int,
         url: str,
         api_url: str,
     ) -> int:
@@ -793,6 +797,7 @@ class SideroxylonMain:
             cleaned_url,
             cleaned_language_name,
             current_list_position,
+            repository_urls_length,
             response,
             forge_object.get_forge_name(),
             verbose=sid_args.verbose,
