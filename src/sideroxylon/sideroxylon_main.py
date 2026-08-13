@@ -10,7 +10,7 @@ from typing import Any, cast
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 
-from .sideroxylon_datasets import (
+from .sideroxylon_dataclasses import (
     sideroxylon_default_args_object,
     sideroxylon_xdg_object,
 )

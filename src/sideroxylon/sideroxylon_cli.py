@@ -4,7 +4,7 @@ import sys
 import time
 from typing import cast
 
-from .sideroxylon_datasets import sideroxylon_default_args_object
+from .sideroxylon_dataclasses import sideroxylon_default_args_object
 from .sideroxylon_main import SideroxylonMain
 
 
@@ -38,7 +38,7 @@ def main() -> None:
     parser.add_argument(
         "--repository-url-file",
         default=sideroxylon_default_args_object.repository_url_file,
-        help="Path to the file that contains the repository URLs file.",
+        help="Path to the file that contains the repository URLs.",
     )
 
     parser.add_argument(
