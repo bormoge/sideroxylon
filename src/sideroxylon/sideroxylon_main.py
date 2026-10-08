@@ -438,7 +438,7 @@ class SideroxylonMain:
 
     def normalize_url(self, repository_url: str) -> str:
         """
-        Return the provided URL after doing some basic normalizing.
+        Return the provided URL after doing some basic normalization.
         """
 
         # Each SideroxylonForge instance should do its
