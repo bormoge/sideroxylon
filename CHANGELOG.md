@@ -1,3 +1,17 @@
+# [0.3.2](https://github.com/bormoge/sideroxylon/compare/v0.3.1...v0.3.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* update dependencies to avoid compromised eMudhra certificates f7d0686
+
+
+### Features
+
+* **conf:** add pylock.toml file b87cb37
+* **sideroxylon_cli:** add start and finish dates to print_time_elapsed output 18d5d84
+* **sideroxylon:** allow sideroxylon to save URLs after an URLError 09ab3b7
+
 # [0.3.1](https://github.com/bormoge/sideroxylon/compare/v0.3.0...v0.3.1) (2026-06-23)
 
 
