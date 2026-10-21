@@ -24,7 +24,7 @@ buildPythonPackage rec {
   # Comment this if you want to build from source.
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-vhNnECUxJhjeK0PjzHNGfEfuvAoNcJTf7j9Etg/Lsk0=";
+    hash = "sha256-DF1KM5rdMwjiBSiZDp6aPaF6BWZ54pMYxGLPn0yuT/8=";
   };
 
   # Uncomment this if you want to build from source.
