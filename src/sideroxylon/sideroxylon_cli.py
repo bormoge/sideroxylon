@@ -154,7 +154,7 @@ def print_time_elapsed(start_time: float, finish_time: float) -> None:
 
 
 def display_sideroxylon_version():
-    print("0.3.1")
+    print("0.3.2")
     sys.exit(0)
 
 
