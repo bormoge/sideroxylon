@@ -63,4 +63,4 @@ packages = ["src/sideroxylon"]
 
 [tool.uv]
 exclude-newer = "2 weeks"
-exclude-newer-package = { sideroxylon = false }
+exclude-newer-package = { sideroxylon = false, certifi = false }
